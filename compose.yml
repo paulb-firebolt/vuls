@@ -1,0 +1,104 @@
+services:
+  vuls:
+    #image: vuls/vuls:latest
+    build: build/vuls
+    container_name: vuls-scanner
+    volumes:
+      - ./config/config.toml:/vuls/config.toml:rw
+      - ./logs:/vuls/logs:rw
+      - ./results:/vuls/results:rw
+      - ./db:/vuls/db:rw  # Database storage
+      - ./.ssh:/root/.ssh:rw
+      - /var/run/docker.sock:/var/run/docker.sock  # If scanning containers
+      - /home/paulb/.config/gcloud:/root/.config/gcloud:rw
+      - /home/paulb/.aws:/root/.aws:ro
+    environment:
+      - VULS_CONFIG_PATH=/vuls/config.toml
+      # AWS environment variables
+      - AWS_PROFILE=default
+      - AWS_REGION=eu-west-2
+      - AWS_CONFIG_FILE=/root/.aws/config
+      - AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials
+      # GCP environment variables
+      #- GOOGLE_CLOUD_PROJECT=your-project-id
+      - GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json
+      - CLOUDSDK_CONFIG=/root/.config/gcloud
+    command: ["scan", "-config=/vuls/config.toml"]
+
+  # NVD database fetcher
+  vuls-nvd:
+    image: vuls/go-cve-dictionary:latest
+    container_name: vuls-nvd
+    volumes:
+      - ./db:/vuls/db:rw
+    command: ["fetch", "nvd", "--dbpath", "/vuls/db/cve.sqlite3"]
+    profiles: ["fetch"]
+
+  # Ubuntu database fetcher
+  vuls-ubuntu:
+    image: vuls/goval-dictionary:latest
+    container_name: vuls-ubuntu
+    volumes:
+      - ./db:/vuls/db:rw
+    command: ["fetch", "ubuntu", "20.04", "22.04", "24.04", "--dbpath", "/vuls/db/oval.sqlite3"]
+    profiles: ["fetch"]
+
+  # Debian database fetcher
+  vuls-debian:
+    image: vuls/goval-dictionary:latest
+    container_name: vuls-debian
+    volumes:
+      - ./db:/vuls/db:rw
+    command: ["fetch", "debian", "10", "11", "12", "--dbpath", "/vuls/db/oval.sqlite3"]
+    profiles: ["fetch"]
+
+  # Red Hat/CentOS database fetcher
+  vuls-redhat:
+    image: vuls/goval-dictionary:latest
+    container_name: vuls-redhat
+    volumes:
+      - ./db:/vuls/db:rw
+    command: ["fetch", "redhat", "7", "8", "9", "--dbpath", "/vuls/db/oval.sqlite3"]
+    profiles: ["fetch"]
+
+  # Amazon Linux database fetcher
+  vuls-amazon:
+    image: vuls/goval-dictionary:latest
+    container_name: vuls-amazon
+    volumes:
+      - ./db:/vuls/db:rw
+    command: ["fetch", "amazon", "1", "2", "2023", "--dbpath", "/vuls/db/oval.sqlite3"]
+    profiles: ["fetch"]
+
+  # Alpine database fetcher
+  vuls-alpine:
+    image: vuls/goval-dictionary:latest
+    container_name: vuls-alpine
+    volumes:
+      - ./db:/vuls/db:rw
+    command: ["fetch", "alpine", "3.15", "3.16", "3.17", "3.18", "3.19", "3.20", "--dbpath", "/vuls/db/oval.sqlite3"]
+    profiles: ["fetch"]
+
+  # For configuration testing
+  vuls-configtest:
+    build: build/vuls
+    container_name: vuls-configtest
+    volumes:
+      - ./config/config.toml:/vuls/config.toml:rw
+      - ./logs:/vuls/logs:rw
+      - ./results:/vuls/results:rw
+      - ./db:/vuls/db:rw
+      - ./.ssh:/root/.ssh:rw
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/paulb/.config/gcloud:/root/.config/gcloud:ro
+      - /home/paulb/.aws:/root/.aws:ro
+    environment:
+      - VULS_CONFIG_PATH=/vuls/config.toml
+      - AWS_PROFILE=default
+      - AWS_REGION=eu-west-2
+      - AWS_CONFIG_FILE=/root/.aws/config
+      - AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials
+      - GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json
+      - CLOUDSDK_CONFIG=/root/.config/gcloud
+    command: ["configtest", "-config=/vuls/config.toml"]
+    profiles: ["test"]
