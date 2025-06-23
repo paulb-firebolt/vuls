@@ -19,7 +19,7 @@ This guide outlines the process for conducting regular monthly vulnerability sca
 
 **Frequency**: Monthly (or weekly for high-security environments)
 
-**IMPORTANT - OS Version Limitations**: 
+**IMPORTANT - OS Version Limitations**:
 - **Ubuntu OVAL**: Only covers currently supported LTS versions (20.04, 22.04, 24.04)
 - **Debian OVAL**: Only covers currently supported versions (10, 11, 12)
 - **End-of-Life (EOL) systems**: Cannot be properly scanned due to missing OVAL data
@@ -27,7 +27,7 @@ This guide outlines the process for conducting regular monthly vulnerability sca
 
 **Supported OS Versions for Vulnerability Scanning**:
 - ✅ **Ubuntu**: 20.04 LTS (Focal), 22.04 LTS (Jammy), 24.04 LTS (Noble)
-- ✅ **Debian**: 10 (Buster), 11 (Bullseye), 12 (Bookworm)  
+- ✅ **Debian**: 10 (Buster), 11 (Bullseye), 12 (Bookworm)
 - ✅ **RHEL/CentOS**: 7, 8, 9
 - ✅ **Amazon Linux**: 1, 2, 2023
 - ❌ **Ubuntu 16.04/18.04**: EOL - Limited or no OVAL data available
@@ -71,7 +71,7 @@ docker compose run --rm --entrypoint sqlite3 vuls /vuls/db/oval.sqlite3 "SELECT 
 stat ./db/*.sqlite3
 
 # Test database connectivity
-docker-compose run --rm vuls configtest -config=/vuls/config.toml
+docker-compose run --rm vuls configtest
 ```
 
 ### Phase 2: System Discovery and Inventory
@@ -81,41 +81,57 @@ docker-compose run --rm vuls configtest -config=/vuls/config.toml
 **Review and update your `config/config.toml`**:
 
 ```toml
+[cveDict]
+type = "sqlite3"
+SQLite3Path = "/vuls/db/cve.sqlite3"
+
+[ovalDict]
+type = "sqlite3"
+SQLite3Path = "/vuls/db/oval.sqlite3"
+
+[gost]
+type = "sqlite3"
+SQLite3Path = "/vuls/db/gost.sqlite3"
+
+[exploit]
+type = "sqlite3"
+SQLite3Path = "/vuls/db/go-exploitdb.sqlite3"
+
+[metasploit]
+type = "sqlite3"
+SQLite3Path = "/vuls/db/go-msfdb.sqlite3"
+
+[kevuln]
+type = "sqlite3"
+SQLite3Path = "/vuls/db/go-kev.sqlite3"
+
+[cti]
+type = "sqlite3"
+SQLite3Path = "/vuls/db/go-cti.sqlite3"
+
 [servers]
 
-# On-premise systems
-[servers.production-web]
-host = "192.168.1.100"
+[servers.icinga2]
+host = "icinga2"
 port = "22"
 user = "admin"
-keyPath = "/root/.ssh/id_ed25519"
-osFamily = "ubuntu"
-scanMode = ["fast"]
+keypath = "/root/.ssh/id_aws"
 
-# AWS EC2 instances (via Session Manager)
-[servers.aws-web-prod]
-host = "i-0a1347a614cf7cea5"
-port = "22"
-user = "admin"
-keyPath = "/root/.ssh/id_aws"
-osFamily = "ubuntu"
-scanMode = ["fast"]
-
-# Add new systems discovered during the month
-[servers.new-system]
-host = "10.0.1.50"
+[servers.anisette-v3]
+host = "anisette-v3"
 port = "22"
 user = "ubuntu"
-keyPath = "/root/.ssh/id_ed25519"
-osFamily = "ubuntu"
-scanMode = ["fast"]
+keypath = "/root/.ssh/id_aws"
+
+[servers.retailaware-u16tbpe]
+host = "retailaware-u16tbpe"
 ```
 
 #### 2.2 Validate System Access
 
 ```bash
 # Test configuration for all systems
-docker compose run --rm vuls configtest -config=/vuls/config.toml
+docker compose run --rm vuls configtest
 
 # Test SSH connectivity to each system
 docker compose run --rm --entrypoint ssh vuls admin@target-system
@@ -140,7 +156,7 @@ eval $(ssh-agent)
 
 # Add specific keys for different systems
 ssh-add ~/.ssh/id_aws          # AWS EC2 instances
-ssh-add ~/.ssh/id_gcp          # GCP instances  
+ssh-add ~/.ssh/id_gcp          # GCP instances
 ssh-add ~/.ssh/id_ed25519      # On-premise systems
 ssh-add ~/.ssh/id_rsa          # Legacy systems
 
@@ -152,10 +168,29 @@ ssh your-target-system         # Should work without specifying key
 
 # Configure SSH agent forwarding in your SSH config
 cat >> ~/.ssh/config << 'EOF'
-Host *
-    ForwardAgent yes
-    AddKeysToAgent yes
-    IdentitiesOnly no
+host *
+  IdentityFile ~/.ssh/id_aws
+  IdentitiesOnly yes
+
+host icinga2
+  User admin
+  Hostname i-0a1347a614cf7cea5
+  ProxyCommand sh -c "aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
+  ControlPersist 72h
+
+host anisette-v3
+  User ubuntu
+  HostName i-022d1ec1b8c62660b
+  ProxyCommand sh -c "aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
+
+
+
+Host retailaware-u16tbpe
+  User paulb
+  IdentityFile ~/.ssh/id_gcp
+  IdentitiesOnly yes
+  ProxyCommand gcloud compute ssh %h --tunnel-through-iap --zone=us-east1-b --project=thingsboard-210800 -- -W %h:%p
+
 EOF
 ```
 
@@ -194,7 +229,7 @@ Host i-*
     IdentityFile /root/.ssh/id_aws
 EOF
 
-# GCP systems config  
+# GCP systems config
 cat > ./ssh-configs/gcp_config << 'EOF'
 Host gcp-*
     IdentityFile /root/.ssh/id_gcp
@@ -216,9 +251,9 @@ eval $(ssh-agent)
 ssh-add ~/.ssh/id_aws ~/.ssh/id_gcp ~/.ssh/id_ed25519
 
 # 2. Test connectivity
-ssh aws-system-1
-ssh gcp-system-1  
-ssh onprem-system-1
+ssh incing2
+ssh anisette-v3
+ssh retailaware-u16tbpe
 
 # 3. Run Vuls scan (will use agent keys)
 docker compose run --rm vuls scan
@@ -268,12 +303,12 @@ SCAN_DATE=$(date +%Y-%m)
 mkdir -p ./results/monthly-scans/$SCAN_DATE
 
 # Run comprehensive scan
-docker compose run --rm vuls scan -config=/vuls/config.toml
+docker compose run --rm vuls scan
 
 # Generate detailed reports
-docker compose run --rm vuls report -config=/vuls/config.toml -format-json
-docker compose run --rm vuls report -config=/vuls/config.toml -format-full-text
-docker compose run --rm vuls report -config=/vuls/config.toml -format-csv
+docker compose run --rm vuls report -format-json
+docker compose run --rm vuls report -format-full-text
+docker compose run --rm vuls report -format-csv
 ```
 
 #### 3.3 Scan Verification
@@ -283,7 +318,7 @@ docker compose run --rm vuls report -config=/vuls/config.toml -format-csv
 ls -la ./results/$(date +%Y-%m-%d)*
 
 # Verify all systems were scanned
-docker-compose run --rm vuls report -config=/vuls/config.toml -format-one-line-text
+docker-compose run --rm vuls report -format-one-line-text
 ```
 
 ### Phase 4: Results Analysis and Reporting
@@ -292,13 +327,13 @@ docker-compose run --rm vuls report -config=/vuls/config.toml -format-one-line-t
 
 ```bash
 # Create executive summary
-docker compose run --rm vuls report -config=/vuls/config.toml -format-short-text > ./results/monthly-scans/$SCAN_DATE/executive-summary.txt
+docker compose run --rm vuls report -format-list > ./results/monthly-scans/$SCAN_DATE/executive-summary.txt
 
 # Generate detailed CSV for tracking
-docker compose run --rm vuls report -config=/vuls/config.toml -format-csv > ./results/monthly-scans/$SCAN_DATE/detailed-vulnerabilities.csv
+docker compose run --rm vuls report -format-csv > ./results/monthly-scans/$SCAN_DATE/detailed-vulnerabilities.csv
 
 # Create system-by-system breakdown
-docker compose run --rm vuls report -config=/vuls/config.toml -format-full-text > ./results/monthly-scans/$SCAN_DATE/full-report.txt
+docker compose run --rm vuls report -format-full-text > ./results/monthly-scans/$SCAN_DATE/full-report.txt
 ```
 
 #### 4.2 Vulnerability Prioritization and Interpretation
@@ -306,7 +341,7 @@ docker compose run --rm vuls report -config=/vuls/config.toml -format-full-text 
 **Critical Actions Required**:
 1. **Critical/High vulnerabilities**: Immediate action required
 2. **Medium vulnerabilities**: Plan remediation within 30 days
-3. **Low vulnerabilities**: Include in next maintenance window  
+3. **Low vulnerabilities**: Include in next maintenance window
 4. **0 vulnerabilities**: Verify interpretation (see below)
 
 **Understanding Zero Vulnerability Results**:
@@ -433,17 +468,17 @@ docker compose --profile fetch up vuls-nvd vuls-ubuntu vuls-debian
 
 # Validate configuration
 echo "Validating configuration..." | tee -a $LOG_FILE
-docker compose run --rm vuls configtest -config=/vuls/config.toml
+docker compose run --rm vuls configtest
 
 # Run scan
 echo "Executing vulnerability scan..." | tee -a $LOG_FILE
-docker compose run --rm vuls scan -config=/vuls/config.toml
+docker compose run --rm vuls scan
 
 # Generate reports
 echo "Generating reports..." | tee -a $LOG_FILE
 mkdir -p ./results/monthly-scans/$SCAN_DATE
-docker compose run --rm vuls report -config=/vuls/config.toml -format-csv > ./results/monthly-scans/$SCAN_DATE/vulnerabilities.csv
-docker compose run --rm vuls report -config=/vuls/config.toml -format-short-text > ./results/monthly-scans/$SCAN_DATE/summary.txt
+docker compose run --rm vuls report -format-csv > ./results/monthly-scans/$SCAN_DATE/vulnerabilities.csv
+docker compose run --rm vuls report -format-list > ./results/monthly-scans/$SCAN_DATE/summary.txt
 
 echo "Monthly scan completed successfully" | tee -a $LOG_FILE
 ```
@@ -510,9 +545,9 @@ gcloud auth list
 gcloud config list
 
 # Manual scan commands
-vuls configtest -config=/vuls/config.toml
-vuls scan -config=/vuls/config.toml -debug
-vuls report -config=/vuls/config.toml -format-short-text
+vuls configtest
+vuls scan -debug
+vuls report -format-list
 
 # Check logs
 tail -f /vuls/logs/vuls.log
@@ -542,7 +577,7 @@ echo "Session Manager: $(session-manager-plugin --version 2>/dev/null || echo 'N
 sqlite3 /vuls/db/cve.sqlite3 "SELECT COUNT(*) AS cve_count FROM cves;" 2>/dev/null || echo "CVE database not accessible"
 
 # Test configuration
-vuls configtest -config=/vuls/config.toml
+vuls configtest
 
 exit
 ```
@@ -571,6 +606,54 @@ exit
 - Automate report distribution
 - Connect to SIEM/logging systems
 - Link with patch management tools
+
+## Why OVAL Scanning May Be Skipped
+
+### Understanding "Skip OVAL and Scan with gost alone" Message
+
+If you see this message in your Vuls output, it indicates that OVAL (Open Vulnerability and Assessment Language) scanning has been programmatically disabled. This is **not** a configuration or database issue.
+
+**Root Cause**: Vuls automatically skips OVAL scanning for End-of-Life (EOL) operating systems, even when the OVAL database contains vulnerability definitions for those systems.
+
+**Affected Systems**:
+- ❌ **Ubuntu 16.04 (Xenial)**: EOL April 2021 - OVAL scanning skipped
+- ❌ **Ubuntu 18.04 (Bionic)**: EOL May 2023 - OVAL scanning skipped
+- ❌ **Debian 8 (Jessie)**: EOL June 2020 - OVAL scanning skipped
+- ❌ **Debian 9 (Stretch)**: EOL July 2022 - OVAL scanning skipped
+- ❌ **CentOS 6**: EOL November 2020 - OVAL scanning skipped
+- ❌ **CentOS 7**: EOL June 2024 - OVAL scanning skipped
+
+**What This Means**:
+1. **Database is OK**: Your OVAL database may contain 30,000+ vulnerability definitions for the EOL system
+2. **Configuration is OK**: Vuls correctly detects the target OS version
+3. **Intentional Behavior**: Vuls skips OVAL scanning by design for EOL systems
+4. **Limited Detection**: Only GOST, CPE, and other detection methods are used
+
+**Diagnostic Commands**:
+```bash
+# Verify OVAL database has data for your EOL system
+sudo sqlite3 db/oval.sqlite3 "SELECT COUNT(*) FROM definitions WHERE title LIKE '%ubuntu%16.04%' OR title LIKE '%xenial%';"
+# Result: 34227 (or similar large number)
+
+# Check if OVAL scanning is being skipped
+docker compose run --rm vuls report -debug 2>&1 | grep -i "skip.*oval"
+# Result: "Skip OVAL and Scan with gost alone."
+
+# Confirm OS detection is working
+docker compose run --rm vuls configtest retailaware-u16tbpe
+# Result: "Detected: retailaware-u16tbpe: ubuntu 16.04"
+```
+
+**Solutions**:
+1. **Recommended**: Upgrade EOL systems to supported versions (Ubuntu 20.04+, Debian 10+)
+2. **Temporary**: Accept limited vulnerability detection and implement compensating controls
+3. **Documentation**: Note the limitation in security assessments and compliance reports
+
+**Compliance Impact**:
+- Document that EOL systems cannot receive full vulnerability scanning
+- Implement additional manual security reviews for EOL systems
+- Plan system upgrades to restore full vulnerability scanning capability
+- Consider this a high-priority security risk requiring remediation
 
 ## Troubleshooting Common Issues
 
@@ -691,7 +774,7 @@ docker compose run --rm --entrypoint /bin/sh vuls
 
 ### Documentation Requirements
 - Scan frequency and coverage
-- Vulnerability assessment procedures  
+- Vulnerability assessment procedures
 - Remediation timelines and tracking
 - Risk acceptance documentation
 - Evidence of continuous monitoring
@@ -707,8 +790,8 @@ docker compose run --rm --entrypoint /bin/sh vuls
 
 **Sample Compliance Language**:
 ```
-"Vulnerability scanning covers all systems running supported operating system versions 
-(Ubuntu 20.04+, Debian 10+, RHEL 7+). End-of-life systems require additional manual 
+"Vulnerability scanning covers all systems running supported operating system versions
+(Ubuntu 20.04+, Debian 10+, RHEL 7+). End-of-life systems require additional manual
 security review and compensating controls due to limited vulnerability database coverage."
 ```
 
@@ -729,4 +812,3 @@ Regular monthly vulnerability scanning with Vuls provides continuous visibility 
 4. **Plan EOL system transitions** before vulnerability database support ends
 
 Remember to adapt this process to your organization's specific needs, risk tolerance, compliance requirements, and the reality of OS version limitations in vulnerability scanning tools.
-

@@ -17,7 +17,8 @@ RUN apk update && apk add --no-cache \
     wget \
     binutils \
     gcompat \
-    libc6-compat
+    libc6-compat \
+    sqlite
 
 # Install AWS CLI via pip
 RUN pip3 install --break-system-packages awscli
@@ -40,10 +41,18 @@ RUN cd /tmp && \
     ln -sf /opt/google-cloud-sdk/bin/gsutil /usr/local/bin/gsutil && \
     rm -f google-cloud-cli-458.0.1-linux-x86_64.tar.gz
 
+# Install cloudflared
+RUN cd /tmp && \
+    curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared && \
+    chmod +x cloudflared && \
+    mv cloudflared /usr/local/bin/ && \
+    rm -rf /tmp/*
+
 # Test installations
 RUN echo "=== Testing AWS CLI ===" && aws --version
 RUN echo "=== Testing Session Manager Plugin ===" && session-manager-plugin --version
 RUN echo "=== Testing GCloud CLI ===" && gcloud version
+RUN echo "=== Testing cloudflared ===" && cloudflared --version
 
 # Create directories for cloud credentials
 RUN mkdir -p /root/.aws /root/.config/gcloud

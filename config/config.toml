@@ -37,19 +37,29 @@ SQLite3Path = "/vuls/db/go-cti.sqlite3"
 
 [servers.icinga2]
 host = "icinga2"
-port = "22"
-user = "admin"
-keypath = "/root/.ssh/id_aws"
+#port = "22"
+#user = "admin"
+#keypath = "/root/.ssh/id_aws"
 
 [servers.anisette-v3]
 host = "anisette-v3"
-port = "22"
-user = "ubuntu"
-keypath = "/root/.ssh/id_aws"
+#port = "22"
+#user = "ubuntu"
+#keypath = "/root/.ssh/id_aws"
 # Force specific OS detection
-distro.family = "ubuntu"
-distro.release = "24.04"
+#distro.family = "ubuntu"
+#distro.release = "24.04"
 
 [servers.retailaware-u16tbpe]
 host = "retailaware-u16tbpe"
+scanMode = ["fast"]
 
+[servers.cassandra]
+host = "192.168.122.62"
+user = "cassandra"
+
+[servers.glimpse-ansible]
+host = "glimpse-ansibleglimpse.network"
+
+[servers.glimpse-paulb-nuc]
+host = "glimpse-paulb-nuc.firebolt.network"
