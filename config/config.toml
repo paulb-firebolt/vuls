@@ -10,78 +10,21 @@ SQLite3Path = "/vuls/db/gost.sqlite3"
 type = "sqlite3"
 SQLite3Path = "/vuls/db/cve.sqlite3"
 
-# [cveDict]
-# type = "sqlite3"
-# SQLite3Path = "/vuls/db/cve.sqlite3"
-# 
-# [ovalDict]
-# type = "sqlite3"
-# SQLite3Path = "/vuls/db/oval.sqlite3"
-# 
-# [gost]
-# type = "sqlite3"
-# SQLite3Path = "/vuls/db/gost.sqlite3"
-# 
-# [exploit]
-# type = "sqlite3"
-# SQLite3Path = "/vuls/db/go-exploitdb.sqlite3"
-# 
-# [metasploit]
-# type = "sqlite3"
-# SQLite3Path = "/vuls/db/go-msfdb.sqlite3"
-# 
-# [kevuln]
-# type = "sqlite3"
-# SQLite3Path = "/vuls/db/go-kev.sqlite3"
-# 
-# [cti]
-# type = "sqlite3"
-# SQLite3Path = "/vuls/db/go-cti.sqlite3"
-
-[servers]
-
-#[servers.paulb-xps]
-#host = "192.168.0.94"
-#port = "22"
-#user = "paulb"
-#keyPath = "/root/.ssh/id_ed25519"
-#scanMode = ["fast", "offline"]
+[default]
+scanMode = [ "offline",]
 
 [servers.icinga2]
 host = "icinga2"
-#port = "22"
-#user = "admin"
-#keypath = "/root/.ssh/id_aws"
+scanMode = [ "fast",]
 
-[servers.anisette-v3]
+[servers.anisette_v3]
 host = "anisette-v3"
-#port = "22"
-#user = "ubuntu"
-#keypath = "/root/.ssh/id_aws"
-# Force specific OS detection
-#distro.family = "ubuntu"
-#distro.release = "24.04"
+scanMode = [ "fast",]
 
-[servers.retailaware-u16tbpe]
+[servers.retailaware_u16tbpe]
 host = "retailaware-u16tbpe"
-scanMode = ["fast"]
+scanMode = [ "fast",]
 
-[servers.cassandra]
-host = "192.168.122.62"
-user = "cassandra"
-
-[servers.glimpse-ansible]
-host = "glimpse-ansibleglimpse.network"
-
-[servers.glimpse-paulb-nuc]
-host = "glimpse-paulb-nuc.firebolt.network"
-
-[servers.thingsboard-cassandra-prod]
+[servers.thingsboard_cassandra_prod]
 host = "thingsboard-cassandra-prod"
-distro = "debian 12"
-# Try empty scanMode first
-scanMode = []
-
-# Try to set global defaults
-[default]
-scanMode = ["offline"]
+scanMode = [ "fast",]

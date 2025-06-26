@@ -23,6 +23,7 @@ dependencies = [
     "redis>=6.2.0",
     "sqlalchemy>=2.0.41",
     "uvicorn[standard]>=0.34.3",
+    "toml>=0.10.2",
 ]
 
 [build-system]

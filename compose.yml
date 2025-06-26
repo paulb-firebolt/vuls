@@ -180,9 +180,11 @@ services:
       - "8000:8000"
     volumes:
       - ./config:/app/config:ro
+      - ./config:/vuls/config:rw
       - ./results:/app/results:rw
       - ./db:/app/db:ro
       - ./logs:/app/logs:rw
+      - ./.ssh:/root/.ssh:rw
       # Mount source code for hot reload
       - ./web-app/app:/app/app:rw
       - ./web-app/static:/app/static:rw

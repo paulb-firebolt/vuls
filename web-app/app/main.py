@@ -57,6 +57,25 @@ async def login_page(request: Request):
     )
 
 
+@app.get("/ssh-config", response_class=HTMLResponse)
+async def ssh_config_page(request: Request, db: Session = Depends(get_db)):
+    """SSH Configuration page"""
+    from .auth import get_current_user_from_cookie
+
+    # Check if user is authenticated
+    user = get_current_user_from_cookie(request, db)
+    if not user:
+        # Redirect to login page if not authenticated
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url="/login", status_code=302)
+
+    # User is authenticated, show SSH config page
+    return templates.TemplateResponse(
+        "ssh_config.html",
+        {"request": request, "user": user}
+    )
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -64,12 +83,13 @@ async def health_check():
 
 
 # Include API routes
-from .api import auth, hosts, scans, reports
+from .api import auth, hosts, scans, reports, ssh_config
 
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(hosts.router, prefix="/api/hosts", tags=["hosts"])
 app.include_router(scans.router, prefix="/api/scans", tags=["scans"])
 app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
+app.include_router(ssh_config.router, prefix="/api/ssh", tags=["ssh-config"])
 
 
 if __name__ == "__main__":
