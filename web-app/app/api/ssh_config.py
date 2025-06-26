@@ -30,6 +30,12 @@ class SSHConfigContent(BaseModel):
     content: str
 
 
+class SSHKeyContent(BaseModel):
+    filename: str
+    content: str
+    key_type: str  # "private" or "public"
+
+
 class SSHHost(BaseModel):
     name: str
     hostname: Optional[str] = None
@@ -431,3 +437,180 @@ async def get_templates(
     }
 
     return {"templates": templates}
+
+
+@router.get("/ssh-keys")
+async def list_ssh_keys(
+    request: Request,
+    current_user: User = Depends(get_current_active_user_from_cookie),
+    db: Session = Depends(get_db)
+):
+    """List SSH keys in the .ssh directory"""
+    try:
+        ssh_dir = Path("/root/.ssh")
+        keys = []
+
+        if ssh_dir.exists():
+            for key_file in ssh_dir.iterdir():
+                if key_file.is_file() and key_file.name not in ['config', 'known_hosts', 'known_hosts.old']:
+                    stat = key_file.stat()
+
+                    # Determine key type
+                    key_type = "unknown"
+                    if key_file.name.endswith('.pub'):
+                        key_type = "public"
+                    elif not '.' in key_file.name or key_file.name.endswith(('_rsa', '_ed25519', '_ecdsa')):
+                        key_type = "private"
+
+                    # Get file permissions
+                    permissions = oct(stat.st_mode)[-3:]
+
+                    keys.append({
+                        "filename": key_file.name,
+                        "key_type": key_type,
+                        "size": stat.st_size,
+                        "permissions": permissions,
+                        "modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                        "path": str(key_file)
+                    })
+
+        # Sort by filename
+        keys.sort(key=lambda x: x['filename'])
+
+        return {"keys": keys}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list SSH keys: {str(e)}")
+
+
+@router.post("/ssh-keys")
+async def upload_ssh_key(
+    key_data: SSHKeyContent,
+    request: Request,
+    current_user: User = Depends(get_current_active_user_from_cookie),
+    db: Session = Depends(get_db)
+):
+    """Upload/save SSH key content"""
+    try:
+        ssh_dir = Path("/root/.ssh")
+        key_path = ssh_dir / key_data.filename
+
+        # Validate filename
+        if not key_data.filename or '/' in key_data.filename or key_data.filename.startswith('.'):
+            raise HTTPException(status_code=400, detail="Invalid filename")
+
+        # Check if file already exists
+        if key_path.exists():
+            raise HTTPException(status_code=400, detail=f"Key file '{key_data.filename}' already exists")
+
+        # Validate key content
+        content = key_data.content.strip()
+        if not content:
+            raise HTTPException(status_code=400, detail="Key content cannot be empty")
+
+        # Basic validation for key format
+        if key_data.key_type == "public":
+            if not (content.startswith(('ssh-rsa', 'ssh-ed25519', 'ssh-ecdsa', 'ecdsa-sha2-')) or 'ssh-' in content):
+                raise HTTPException(status_code=400, detail="Invalid public key format")
+        elif key_data.key_type == "private":
+            if not (content.startswith('-----BEGIN') or 'PRIVATE KEY' in content):
+                raise HTTPException(status_code=400, detail="Invalid private key format")
+
+        # Write key file
+        with open(key_path, 'w') as f:
+            f.write(content)
+            if not content.endswith('\n'):
+                f.write('\n')
+
+        # Set appropriate permissions
+        if key_data.key_type == "private":
+            os.chmod(key_path, 0o600)  # Private keys: read/write for owner only
+        else:
+            os.chmod(key_path, 0o644)  # Public keys: read for all, write for owner
+
+        return {
+            "success": True,
+            "message": f"SSH key '{key_data.filename}' uploaded successfully",
+            "filename": key_data.filename,
+            "key_type": key_data.key_type,
+            "permissions": "600" if key_data.key_type == "private" else "644"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload SSH key: {str(e)}")
+
+
+@router.delete("/ssh-keys/{filename}")
+async def delete_ssh_key(
+    filename: str,
+    request: Request,
+    current_user: User = Depends(get_current_active_user_from_cookie),
+    db: Session = Depends(get_db)
+):
+    """Delete SSH key file"""
+    try:
+        ssh_dir = Path("/root/.ssh")
+        key_path = ssh_dir / filename
+
+        # Validate filename
+        if not filename or '/' in filename or filename.startswith('.'):
+            raise HTTPException(status_code=400, detail="Invalid filename")
+
+        # Prevent deletion of critical files
+        if filename in ['config', 'known_hosts', 'known_hosts.old']:
+            raise HTTPException(status_code=400, detail="Cannot delete system SSH files")
+
+        if not key_path.exists():
+            raise HTTPException(status_code=404, detail="SSH key file not found")
+
+        # Delete the file
+        key_path.unlink()
+
+        return {
+            "success": True,
+            "message": f"SSH key '{filename}' deleted successfully"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete SSH key: {str(e)}")
+
+
+@router.get("/ssh-keys/{filename}")
+async def get_ssh_key_content(
+    filename: str,
+    request: Request,
+    current_user: User = Depends(get_current_active_user_from_cookie),
+    db: Session = Depends(get_db)
+):
+    """Get SSH key content (for public keys only)"""
+    try:
+        ssh_dir = Path("/root/.ssh")
+        key_path = ssh_dir / filename
+
+        # Validate filename
+        if not filename or '/' in filename or filename.startswith('.'):
+            raise HTTPException(status_code=400, detail="Invalid filename")
+
+        if not key_path.exists():
+            raise HTTPException(status_code=404, detail="SSH key file not found")
+
+        # Only allow viewing public keys for security
+        if not filename.endswith('.pub'):
+            raise HTTPException(status_code=403, detail="Can only view public key content")
+
+        with open(key_path, 'r') as f:
+            content = f.read()
+
+        return {
+            "filename": filename,
+            "content": content,
+            "key_type": "public"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read SSH key: {str(e)}")
