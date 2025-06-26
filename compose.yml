@@ -81,6 +81,33 @@ services:
     command: [fetch, alpine, "3.15", "3.16", "3.17", "3.18", "3.19", "3.20", --dbpath, /vuls/db/oval.sqlite3]
     profiles: [fetch]
 
+  # GOST database fetcher for Ubuntu
+  vuls-gost-ubuntu:
+    image: vuls/gost:latest
+    container_name: vuls-gost-ubuntu
+    volumes:
+      - ./db:/vuls/db:rw
+    command: [fetch, ubuntu, --dbpath, /vuls/db/gost.sqlite3]
+    profiles: [fetch]
+
+  # GOST database fetcher for Debian
+  vuls-gost-debian:
+    image: vuls/gost:latest
+    container_name: vuls-gost-debian
+    volumes:
+      - ./db:/vuls/db:rw
+    command: [fetch, debian, --dbpath, /vuls/db/gost.sqlite3]
+    profiles: [fetch]
+
+  # GOST database fetcher for Red Hat
+  vuls-gost-redhat:
+    image: vuls/gost:latest
+    container_name: vuls-gost-redhat
+    volumes:
+      - ./db:/vuls/db:rw
+    command: [fetch, redhat, --dbpath, /vuls/db/gost.sqlite3]
+    profiles: [fetch]
+
   # For configuration testing
   vuls-configtest:
     build: build/vuls
@@ -104,3 +131,105 @@ services:
       - CLOUDSDK_CONFIG=/root/.config/gcloud
     command: [configtest, -config=/vuls/config.toml]
     profiles: [test]
+
+  # PostgreSQL for application data
+  vuls-db:
+    image: postgres:15
+    container_name: vuls-db
+    environment:
+      - POSTGRES_DB=vuls
+      - POSTGRES_USER=vuls
+      - POSTGRES_PASSWORD=SuperSecretKey
+    volumes:
+      - vuls_db_data:/var/lib/postgresql/data
+    profiles: [web, dev]
+
+  # Redis for task queue
+  vuls-redis:
+    image: redis:7-alpine
+    container_name: vuls-redis
+    profiles: [web, dev]
+
+  # Main web application
+  vuls-web:
+    build: ./web-app
+    container_name: vuls-web
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config:/app/config:ro
+      - ./results:/app/results:rw
+      - ./db:/app/db:ro
+      - ./logs:/app/logs:rw
+    environment:
+      - DATABASE_URL=postgresql://vuls:SuperSecretKey@vuls-db:5432/vuls
+      - REDIS_URL=redis://vuls-redis:6379
+      - JWT_SECRET_KEY=your-secret-key-change-in-production
+    depends_on:
+      - vuls-db
+      - vuls-redis
+    profiles: [web]
+
+  # Development web application with hot reload
+  vuls-web-dev:
+    build:
+      context: ./web-app
+      dockerfile: Dockerfile.dev
+    container_name: vuls-web-dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config:/app/config:ro
+      - ./results:/app/results:rw
+      - ./db:/app/db:ro
+      - ./logs:/app/logs:rw
+      # Mount source code for hot reload
+      - ./web-app/app:/app/app:rw
+      - ./web-app/static:/app/static:rw
+      - ./web-app/pyproject.toml:/app/pyproject.toml:ro
+    environment:
+      - DATABASE_URL=postgresql://vuls:SuperSecretKey@vuls-db:5432/vuls
+      - REDIS_URL=redis://vuls-redis:6379
+      - JWT_SECRET_KEY=your-secret-key-change-in-production
+    depends_on:
+      - vuls-db
+      - vuls-redis
+    profiles: [dev]
+
+  # Celery worker for background tasks
+  vuls-worker:
+    build: ./web-app
+    container_name: vuls-worker
+    command: ["uv", "run", "celery", "-A", "app.tasks", "worker", "--loglevel=info"]
+    volumes:
+      - ./config:/app/config:rw
+      - ./results:/app/results:rw
+      - ./db:/app/db:ro
+      - ./logs:/app/logs:rw
+      - ./.ssh:/root/.ssh:rw
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DATABASE_URL=postgresql://vuls:SuperSecretKey@vuls-db:5432/vuls
+      - REDIS_URL=redis://vuls-redis:6379
+    depends_on:
+      - vuls-db
+      - vuls-redis
+    profiles: [web]
+
+  # Celery beat for scheduled tasks
+  vuls-scheduler:
+    build: ./web-app
+    container_name: vuls-scheduler
+    command: ["uv", "run", "celery", "-A", "app.tasks", "beat", "--loglevel=info"]
+    volumes:
+      - ./config:/app/config:rw
+    environment:
+      - DATABASE_URL=postgresql://vuls:SuperSecretKey@vuls-db:5432/vuls
+      - REDIS_URL=redis://vuls-redis:6379
+    depends_on:
+      - vuls-db
+      - vuls-redis
+    profiles: [web]
+
+volumes:
+  vuls_db_data:

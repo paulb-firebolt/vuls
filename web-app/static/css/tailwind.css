@@ -1,0 +1,514 @@
+/* Custom styles for vulnerability report */
+
+/* Base light theme styles (default) */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --border-color: #e5e7eb;
+    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Dark theme variables */
+.dark {
+    --bg-primary: #1e293b;
+    --bg-secondary: #0f172a;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Apply theme variables */
+body {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+}
+
+/* Override TailwindCSS classes with proper theming */
+.bg-white {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+}
+
+.bg-gray-50 {
+    background-color: var(--bg-secondary) !important;
+}
+
+.text-gray-900 {
+    color: var(--text-primary) !important;
+}
+
+.text-gray-600 {
+    color: var(--text-secondary) !important;
+}
+
+.text-gray-500 {
+    color: var(--text-muted) !important;
+}
+
+.text-gray-400 {
+    color: var(--text-muted) !important;
+}
+
+.border-gray-200 {
+    border-color: var(--border-color) !important;
+}
+
+.border-gray-300 {
+    border-color: var(--border-color) !important;
+}
+
+/* Executive summary cards */
+.stat-card {
+    background-color: var(--bg-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    box-shadow: var(--shadow);
+    transition: all 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Chart containers */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+.chart-container canvas {
+    max-height: 300px;
+}
+
+/* Header styling */
+header {
+    background-color: var(--bg-primary) !important;
+    border-color: var(--border-color) !important;
+    box-shadow: var(--shadow);
+}
+
+/* Filter sidebar */
+.filter-sidebar {
+    background-color: var(--bg-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    position: sticky;
+    top: 2rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+}
+
+/* Input fields */
+input[type="text"] {
+    background-color: var(--bg-primary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+input[type="text"]:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+input[type="checkbox"] {
+    background-color: var(--bg-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Vulnerability cards */
+.vulnerability-card {
+    background-color: var(--bg-primary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.vulnerability-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Fix vulnerability card text colors */
+.vulnerability-card h3 {
+    color: var(--text-primary) !important;
+}
+
+.vulnerability-card p {
+    color: var(--text-secondary) !important;
+}
+
+.vulnerability-card .text-gray-900 {
+    color: var(--text-primary) !important;
+}
+
+.vulnerability-card .text-gray-600 {
+    color: var(--text-secondary) !important;
+}
+
+.vulnerability-card .text-gray-700 {
+    color: var(--text-secondary) !important;
+}
+
+.vulnerability-card .font-medium {
+    color: var(--text-primary) !important;
+}
+
+/* Severity badges - keep original colors but adjust for readability */
+.bg-red-100 {
+    background-color: #fee2e2 !important;
+    color: #991b1b !important;
+}
+
+.bg-orange-100 {
+    background-color: #fed7aa !important;
+    color: #9a3412 !important;
+}
+
+.bg-yellow-100 {
+    background-color: #fef3c7 !important;
+    color: #92400e !important;
+}
+
+.bg-blue-100 {
+    background-color: #dbeafe !important;
+    color: #1e40af !important;
+}
+
+.bg-gray-100 {
+    background-color: #f3f4f6 !important;
+    color: #374151 !important;
+}
+
+/* Dark theme severity badges */
+.dark .bg-red-100 {
+    background-color: #7f1d1d !important;
+    color: #fecaca !important;
+}
+
+.dark .bg-orange-100 {
+    background-color: #9a3412 !important;
+    color: #fed7aa !important;
+}
+
+.dark .bg-yellow-100 {
+    background-color: #92400e !important;
+    color: #fde68a !important;
+}
+
+.dark .bg-blue-100 {
+    background-color: #1e3a8a !important;
+    color: #bfdbfe !important;
+}
+
+.dark .bg-gray-100 {
+    background-color: #374151 !important;
+    color: #d1d5db !important;
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    border: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+    color: white;
+    border: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #4b5563, #374151);
+    transform: translateY(-1px);
+}
+
+/* Fix for all button elements */
+button {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+button:hover {
+    background-color: var(--bg-secondary) !important;
+}
+
+/* Specific styling for View CVE buttons */
+.view-cve-btn {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.view-cve-btn:hover {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+    color: white !important;
+    border-color: #3b82f6 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* Dark theme specific overrides for View CVE button */
+.dark .view-cve-btn {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.dark .view-cve-btn:hover {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+    color: white !important;
+    border-color: #3b82f6 !important;
+}
+
+/* Additional button styling for consistency */
+button[onclick*="toggleDetails"],
+.bg-blue-500,
+.bg-blue-600 {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+    color: white !important;
+    border: none !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+button[onclick*="toggleDetails"]:hover,
+.bg-blue-500:hover,
+.bg-blue-600:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* Override any white backgrounds on buttons */
+.bg-white button,
+button.bg-white {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.bg-white button:hover,
+button.bg-white:hover {
+    background-color: var(--bg-secondary) !important;
+}
+
+/* Export buttons */
+.export-btn {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+.export-btn:hover {
+    background-color: var(--bg-secondary) !important;
+}
+
+/* Footer */
+footer {
+    background-color: var(--bg-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Range sliders */
+.range-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border-color);
+    outline: none;
+    transition: background 0.2s;
+}
+
+.range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+    background: #1d4ed8;
+    transform: scale(1.1);
+}
+
+.range-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.range-slider::-moz-range-thumb:hover {
+    background: #1d4ed8;
+    transform: scale(1.1);
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-down {
+    animation: slideDown 0.3s ease-in-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        max-height: 500px;
+        transform: translateY(0);
+    }
+}
+
+.vuln-details {
+    transition: all 0.3s ease-in-out;
+}
+
+.vuln-details:not(.hidden) {
+    animation: slideDown 0.3s ease-in-out;
+}
+
+/* Search input enhancements */
+.search-input {
+    transition: all 0.2s ease-in-out;
+}
+
+.search-input:focus {
+    transform: scale(1.02);
+}
+
+/* Custom scrollbar */
+.filter-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filter-sidebar::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 3px;
+}
+
+.filter-sidebar::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.filter-sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .vulnerability-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .chart-container {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 250px;
+    }
+
+    .vulnerability-card {
+        margin-bottom: 1rem;
+    }
+
+    .filter-sidebar {
+        position: static;
+        max-height: none;
+        margin-bottom: 2rem;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .vulnerability-card {
+        border-width: 2px;
+    }
+
+    .severity-badge {
+        border-width: 2px;
+        font-weight: 700;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus styles for accessibility */
+.focus\:ring-2:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #3b82f6;
+}
+
+/* Custom utility classes */
+.text-shadow {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}

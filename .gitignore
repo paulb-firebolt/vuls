@@ -2,3 +2,5 @@ db/
 results/
 logs/
 .ssh/
+vulnerability-reports/reports/
+__pycache__/

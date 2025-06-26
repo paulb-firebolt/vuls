@@ -1,7 +1,3 @@
-[cveDict]
-type = "sqlite3"
-SQLite3Path = "/vuls/db/cve.sqlite3"
-
 [ovalDict]
 type = "sqlite3"
 SQLite3Path = "/vuls/db/oval.sqlite3"
@@ -10,21 +6,37 @@ SQLite3Path = "/vuls/db/oval.sqlite3"
 type = "sqlite3"
 SQLite3Path = "/vuls/db/gost.sqlite3"
 
-[exploit]
+[cveDict]
 type = "sqlite3"
-SQLite3Path = "/vuls/db/go-exploitdb.sqlite3"
+SQLite3Path = "/vuls/db/cve.sqlite3"
 
-[metasploit]
-type = "sqlite3"
-SQLite3Path = "/vuls/db/go-msfdb.sqlite3"
-
-[kevuln]
-type = "sqlite3"
-SQLite3Path = "/vuls/db/go-kev.sqlite3"
-
-[cti]
-type = "sqlite3"
-SQLite3Path = "/vuls/db/go-cti.sqlite3"
+# [cveDict]
+# type = "sqlite3"
+# SQLite3Path = "/vuls/db/cve.sqlite3"
+# 
+# [ovalDict]
+# type = "sqlite3"
+# SQLite3Path = "/vuls/db/oval.sqlite3"
+# 
+# [gost]
+# type = "sqlite3"
+# SQLite3Path = "/vuls/db/gost.sqlite3"
+# 
+# [exploit]
+# type = "sqlite3"
+# SQLite3Path = "/vuls/db/go-exploitdb.sqlite3"
+# 
+# [metasploit]
+# type = "sqlite3"
+# SQLite3Path = "/vuls/db/go-msfdb.sqlite3"
+# 
+# [kevuln]
+# type = "sqlite3"
+# SQLite3Path = "/vuls/db/go-kev.sqlite3"
+# 
+# [cti]
+# type = "sqlite3"
+# SQLite3Path = "/vuls/db/go-cti.sqlite3"
 
 [servers]
 
@@ -63,3 +75,13 @@ host = "glimpse-ansibleglimpse.network"
 
 [servers.glimpse-paulb-nuc]
 host = "glimpse-paulb-nuc.firebolt.network"
+
+[servers.thingsboard-cassandra-prod]
+host = "thingsboard-cassandra-prod"
+distro = "debian 12"
+# Try empty scanMode first
+scanMode = []
+
+# Try to set global defaults
+[default]
+scanMode = ["offline"]
