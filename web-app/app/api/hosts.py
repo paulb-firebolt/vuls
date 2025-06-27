@@ -1,22 +1,55 @@
 """Hosts API routes"""
 
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import datetime
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from ..models.base import get_db
 from ..models.host import Host
 from ..models.user import User
-from ..auth import get_current_active_user
+from ..auth import get_current_active_user, get_current_active_user_from_cookie
+from ..utils.vuls_config import sync_hosts_from_vuls_config, get_vuls_config_info
 
 router = APIRouter()
+
+
+def get_current_user_flexible(
+    request: Request,
+    db: Session = Depends(get_db)
+) -> User:
+    """Get current user from either cookie or Bearer token"""
+    # First try cookie authentication (for web interface)
+    try:
+        user = get_current_active_user_from_cookie(request, db)
+        return user
+    except HTTPException:
+        pass
+
+    # If cookie auth fails, try Bearer token authentication (for API)
+    try:
+        from fastapi.security import HTTPBearer
+        from ..auth import get_current_active_user
+        security = HTTPBearer()
+        credentials = security(request)
+        if credentials:
+            user = get_current_active_user(credentials, db)
+            return user
+    except:
+        pass
+
+    # If both fail, raise unauthorized
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Not authenticated"
+    )
 
 
 class HostCreate(BaseModel):
     name: str
     hostname: str
     port: int = 22
-    username: str
+    username: Optional[str] = None
     key_path: Optional[str] = None
     password: Optional[str] = None
     use_aws_proxy: bool = False
@@ -60,7 +93,7 @@ class HostResponse(BaseModel):
     name: str
     hostname: str
     port: int
-    username: str
+    username: Optional[str]
     use_aws_proxy: bool
     aws_instance_id: Optional[str]
     aws_region: Optional[str]
@@ -70,26 +103,32 @@ class HostResponse(BaseModel):
     gcp_project: Optional[str]
     scan_schedule: Optional[str]
     scan_type: str
+    scan_mode: Optional[str]
     scan_enabled: bool
+    vuls_config: Optional[dict]
     tags: Optional[dict]
     description: Optional[str]
     is_active: bool
-    last_scan_at: Optional[str]
+    last_scan_at: Optional[datetime]
     last_scan_status: Optional[str]
-    created_at: str
-    updated_at: Optional[str]
+    created_at: datetime
+    updated_at: Optional[datetime]
 
     class Config:
         from_attributes = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None
+        }
 
 
 @router.get("/", response_model=List[HostResponse])
 async def list_hosts(
+    request: Request,
     skip: int = 0,
     limit: int = 100,
     active_only: bool = True,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user_flexible)
 ):
     """List all hosts"""
     query = db.query(Host)
@@ -211,3 +250,38 @@ async def test_host_connection(
     # This would use the same logic as Vuls configtest
 
     return {"status": "success", "message": "Connection test not yet implemented"}
+
+
+@router.post("/sync-from-vuls-config")
+async def sync_hosts_from_config(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Synchronize hosts from Vuls configuration file"""
+    try:
+        stats = sync_hosts_from_vuls_config(db)
+        return {
+            "status": "success",
+            "message": f"Synchronized {stats['total']} hosts from Vuls config",
+            "stats": stats
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error synchronizing hosts: {str(e)}"
+        )
+
+
+@router.get("/vuls-config-info")
+async def get_config_info(
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get information about the Vuls configuration file"""
+    try:
+        config_info = get_vuls_config_info()
+        return config_info
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error reading Vuls config: {str(e)}"
+        )

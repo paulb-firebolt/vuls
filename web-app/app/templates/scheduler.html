@@ -1,0 +1,1036 @@
+{% extends "base.html" %}
+
+{% block title %}Task Scheduler - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Task Scheduler</h1>
+        <button id="createTaskBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Create New Task
+        </button>
+    </div>
+
+    <!-- Running Jobs Section -->
+    <div id="runningJobsSection" class="bg-white dark:bg-gray-800 shadow rounded-lg mb-8 hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white flex items-center">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Active Jobs
+                </h3>
+                <div class="flex items-center space-x-2">
+                    <span id="runningJobsCount" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        0 running
+                    </span>
+                    <button id="cleanupStaleJobsBtn" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-xs px-2 py-1 border border-red-300 dark:border-red-600 rounded">
+                        Clean Up Stale
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="px-6 py-4">
+            <div id="runningJobsList" class="space-y-4">
+                <!-- Running jobs will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg mb-8">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Recent Activity</h3>
+                <button id="refreshActivityBtn" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+        <div class="px-6 py-4">
+            <div id="recentActivityList" class="space-y-3">
+                <div class="text-center text-gray-500 dark:text-gray-400 py-4">
+                    Loading recent activity...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-bold" id="totalTasks">0</span>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Tasks</dt>
+                            <dd class="text-lg font-medium text-gray-900 dark:text-white" id="totalTasksText">0</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-bold" id="activeTasks">0</span>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Active Tasks</dt>
+                            <dd class="text-lg font-medium text-gray-900 dark:text-white" id="activeTasksText">0</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-bold" id="scanTasks">0</span>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Scan Tasks</dt>
+                            <dd class="text-lg font-medium text-gray-900 dark:text-white" id="scanTasksText">0</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-bold" id="dbTasks">0</span>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">DB Update Tasks</dt>
+                            <dd class="text-lg font-medium text-gray-900 dark:text-white" id="dbTasksText">0</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter and Search -->
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg mb-6">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-center space-x-4">
+                    <select id="taskTypeFilter" class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md px-3 py-2">
+                        <option value="">All Task Types</option>
+                        <option value="scan">Scan Tasks</option>
+                        <option value="db_update">Database Updates</option>
+                    </select>
+                    <select id="statusFilter" class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md px-3 py-2">
+                        <option value="">All Statuses</option>
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+                <div class="mt-4 sm:mt-0">
+                    <input type="text" id="searchInput" placeholder="Search tasks..."
+                           class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-md px-3 py-2 w-full sm:w-64">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tasks Table -->
+    <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Scheduled Tasks</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Schedule</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Next Run</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Last Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tasksTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <!-- Tasks will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+        <div id="noTasksMessage" class="hidden px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+            No scheduled tasks found. <a href="#" id="createFirstTask" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">Create your first task</a>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Task Modal -->
+<div id="taskModal" class="fixed inset-0 bg-gray-600 dark:bg-gray-900 bg-opacity-50 dark:bg-opacity-75 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto p-5 border border-gray-200 dark:border-gray-700 w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white dark:bg-gray-800">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white" id="modalTitle">Create New Task</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-100">
+                    <span class="sr-only">Close</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="taskForm" class="space-y-4">
+                <input type="hidden" id="taskId" name="taskId">
+
+                <div>
+                    <label for="taskName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Task Name</label>
+                    <input type="text" id="taskName" name="name" required
+                           class="mt-1 block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="taskType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Task Type</label>
+                    <select id="taskType" name="task_type" required
+                            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select task type</option>
+                        <option value="scan">Vulnerability Scan</option>
+                        <option value="db_update">Database Update</option>
+                    </select>
+                </div>
+
+                <div id="hostSelection" class="hidden">
+                    <label for="hostId" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Target Host</label>
+                    <select id="hostId" name="host_id"
+                            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select host</option>
+                    </select>
+                </div>
+
+                <div id="scanTypeSelection" class="hidden">
+                    <label for="scanType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Scan Type</label>
+                    <select id="scanType" name="scan_type"
+                            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="fast">Fast Scan</option>
+                        <option value="full">Full Scan</option>
+                    </select>
+                </div>
+
+                <div id="dbTypeSelection" class="hidden">
+                    <label for="dbType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Database Type</label>
+                    <select id="dbType" name="database_type"
+                            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="all">All Databases</option>
+                        <option value="nvd">NVD Database</option>
+                        <option value="ubuntu">Ubuntu OVAL</option>
+                        <option value="debian">Debian OVAL</option>
+                        <option value="redhat">Red Hat OVAL</option>
+                        <option value="amazon">Amazon Linux OVAL</option>
+                        <option value="alpine">Alpine OVAL</option>
+                        <option value="gost_ubuntu">GOST Ubuntu</option>
+                        <option value="gost_debian">GOST Debian</option>
+                        <option value="gost_redhat">GOST Red Hat</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="cronExpression" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Schedule (Cron Expression)</label>
+                    <input type="text" id="cronExpression" name="cron_expression" required
+                           placeholder="0 2 * * *"
+                           class="mt-1 block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Examples: "0 2 * * *" (daily at 2 AM), "0 0 * * 0" (weekly on Sunday)</p>
+                </div>
+
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                    <textarea id="description" name="description" rows="3"
+                              class="mt-1 block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" id="isActive" name="is_active" checked
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded">
+                    <label for="isActive" class="ml-2 block text-sm text-gray-900 dark:text-white">Active</label>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" id="cancelBtn"
+                            class="bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-bold py-2 px-4 rounded">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Save Task
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Scheduler functionality
+document.addEventListener('DOMContentLoaded', function() {
+    let tasks = [];
+    let hosts = [];
+    let currentEditingTask = null;
+
+    // Load initial data
+    loadTasks();
+    loadHosts();
+    loadRecentActivity();
+    loadRunningJobs();
+
+    // Event listeners
+    document.getElementById('createTaskBtn').addEventListener('click', () => openTaskModal());
+    document.getElementById('createFirstTask').addEventListener('click', () => openTaskModal());
+    document.getElementById('closeModal').addEventListener('click', closeTaskModal);
+    document.getElementById('cancelBtn').addEventListener('click', closeTaskModal);
+    document.getElementById('taskForm').addEventListener('submit', handleTaskSubmit);
+    document.getElementById('taskType').addEventListener('change', handleTaskTypeChange);
+    document.getElementById('taskTypeFilter').addEventListener('change', filterTasks);
+    document.getElementById('statusFilter').addEventListener('change', filterTasks);
+    document.getElementById('searchInput').addEventListener('input', filterTasks);
+
+    // Close modal when clicking outside
+    document.getElementById('taskModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeTaskModal();
+        }
+    });
+
+    async function loadTasks() {
+        try {
+            const response = await fetch('/api/scheduled-tasks/', {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            if (response.ok) {
+                tasks = await response.json();
+                updateStatistics();
+                renderTasks();
+            } else if (response.status === 401) {
+                // Redirect to login if not authenticated
+                window.location.href = '/login';
+            } else {
+                console.error('Failed to load tasks');
+            }
+        } catch (error) {
+            console.error('Error loading tasks:', error);
+        }
+    }
+
+    async function loadHosts() {
+        try {
+            const response = await fetch('/api/hosts/', {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            if (response.ok) {
+                hosts = await response.json();
+                populateHostSelect();
+            } else if (response.status === 401) {
+                // Redirect to login if not authenticated
+                window.location.href = '/login';
+            } else {
+                console.error('Failed to load hosts');
+            }
+        } catch (error) {
+            console.error('Error loading hosts:', error);
+        }
+    }
+
+    function populateHostSelect() {
+        const hostSelect = document.getElementById('hostId');
+        hostSelect.innerHTML = '<option value="">Select host</option>';
+        hosts.forEach(host => {
+            const option = document.createElement('option');
+            option.value = host.id;
+            option.textContent = `${host.name} (${host.hostname})`;
+            hostSelect.appendChild(option);
+        });
+    }
+
+    function updateStatistics() {
+        const totalTasks = tasks.length;
+        const activeTasks = tasks.filter(t => t.is_active).length;
+        const scanTasks = tasks.filter(t => t.task_type === 'scan').length;
+        const dbTasks = tasks.filter(t => t.task_type === 'db_update').length;
+
+        document.getElementById('totalTasks').textContent = totalTasks;
+        document.getElementById('totalTasksText').textContent = totalTasks;
+        document.getElementById('activeTasks').textContent = activeTasks;
+        document.getElementById('activeTasksText').textContent = activeTasks;
+        document.getElementById('scanTasks').textContent = scanTasks;
+        document.getElementById('scanTasksText').textContent = scanTasks;
+        document.getElementById('dbTasks').textContent = dbTasks;
+        document.getElementById('dbTasksText').textContent = dbTasks;
+    }
+
+    function renderTasks() {
+        const tbody = document.getElementById('tasksTableBody');
+        const noTasksMessage = document.getElementById('noTasksMessage');
+
+        if (tasks.length === 0) {
+            tbody.innerHTML = '';
+            noTasksMessage.classList.remove('hidden');
+            return;
+        }
+
+        noTasksMessage.classList.add('hidden');
+
+        tbody.innerHTML = tasks.map(task => `
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">${task.name}</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">${task.description || ''}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        task.task_type === 'scan' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                    }">
+                        ${task.task_type === 'scan' ? 'Scan' : 'DB Update'}
+                    </span>
+                    ${task.host_name ? `<div class="text-xs text-gray-500 dark:text-gray-400 mt-1">${task.host_name}</div>` : ''}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    <code class="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white px-2 py-1 rounded">${task.cron_expression}</code>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                    ${task.next_run_at ? new Date(task.next_run_at).toLocaleString() : 'Not scheduled'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    ${getStatusBadge(task.last_status)}
+                    ${task.last_run_at ? `<div class="text-xs text-gray-500 dark:text-gray-400 mt-1">${new Date(task.last_run_at).toLocaleString()}</div>` : ''}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        task.is_active ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    }">
+                        ${task.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button onclick="runTask(${task.id})" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3">Run Now</button>
+                    <button onclick="editTask(${task.id})" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">Edit</button>
+                    <button onclick="deleteTask(${task.id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function getStatusBadge(status) {
+        if (!status) return '<span class="text-gray-500">Never run</span>';
+
+        const statusClasses = {
+            'success': 'bg-green-100 text-green-800',
+            'failed': 'bg-red-100 text-red-800',
+            'running': 'bg-blue-100 text-blue-800'
+        };
+
+        const className = statusClasses[status] || 'bg-gray-100 text-gray-800';
+        return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${className}">${status}</span>`;
+    }
+
+    function filterTasks() {
+        const taskTypeFilter = document.getElementById('taskTypeFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+        let filteredTasks = tasks;
+
+        if (taskTypeFilter) {
+            filteredTasks = filteredTasks.filter(task => task.task_type === taskTypeFilter);
+        }
+
+        if (statusFilter !== '') {
+            const isActive = statusFilter === 'true';
+            filteredTasks = filteredTasks.filter(task => task.is_active === isActive);
+        }
+
+        if (searchTerm) {
+            filteredTasks = filteredTasks.filter(task =>
+                task.name.toLowerCase().includes(searchTerm) ||
+                (task.description && task.description.toLowerCase().includes(searchTerm)) ||
+                (task.host_name && task.host_name.toLowerCase().includes(searchTerm))
+            );
+        }
+
+        // Temporarily replace tasks for rendering
+        const originalTasks = tasks;
+        tasks = filteredTasks;
+        renderTasks();
+        tasks = originalTasks;
+    }
+
+    function openTaskModal(task = null) {
+        currentEditingTask = task;
+        const modal = document.getElementById('taskModal');
+        const form = document.getElementById('taskForm');
+        const title = document.getElementById('modalTitle');
+
+        if (task) {
+            title.textContent = 'Edit Task';
+            populateForm(task);
+        } else {
+            title.textContent = 'Create New Task';
+            form.reset();
+            document.getElementById('isActive').checked = true;
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+    function closeTaskModal() {
+        document.getElementById('taskModal').classList.add('hidden');
+        currentEditingTask = null;
+    }
+
+    function populateForm(task) {
+        document.getElementById('taskId').value = task.id;
+        document.getElementById('taskName').value = task.name;
+        document.getElementById('taskType').value = task.task_type;
+        document.getElementById('cronExpression').value = task.cron_expression;
+        document.getElementById('description').value = task.description || '';
+        document.getElementById('isActive').checked = task.is_active;
+
+        if (task.host_id) {
+            document.getElementById('hostId').value = task.host_id;
+        }
+
+        // Set config values
+        if (task.config) {
+            if (task.config.scan_type) {
+                document.getElementById('scanType').value = task.config.scan_type;
+            }
+            if (task.config.database_type) {
+                document.getElementById('dbType').value = task.config.database_type;
+            }
+        }
+
+        handleTaskTypeChange();
+    }
+
+    function handleTaskTypeChange() {
+        const taskType = document.getElementById('taskType').value;
+        const hostSelection = document.getElementById('hostSelection');
+        const scanTypeSelection = document.getElementById('scanTypeSelection');
+        const dbTypeSelection = document.getElementById('dbTypeSelection');
+
+        // Hide all conditional fields
+        hostSelection.classList.add('hidden');
+        scanTypeSelection.classList.add('hidden');
+        dbTypeSelection.classList.add('hidden');
+
+        if (taskType === 'scan') {
+            hostSelection.classList.remove('hidden');
+            scanTypeSelection.classList.remove('hidden');
+            document.getElementById('hostId').required = true;
+        } else if (taskType === 'db_update') {
+            dbTypeSelection.classList.remove('hidden');
+            document.getElementById('hostId').required = false;
+        }
+    }
+
+    async function handleTaskSubmit(e) {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const taskData = {
+            name: formData.get('name'),
+            task_type: formData.get('task_type'),
+            description: formData.get('description'),
+            cron_expression: formData.get('cron_expression'),
+            is_active: formData.has('is_active'),
+            config: {}
+        };
+
+        if (taskData.task_type === 'scan') {
+            taskData.host_id = parseInt(formData.get('host_id'));
+            taskData.config.scan_type = formData.get('scan_type');
+        } else if (taskData.task_type === 'db_update') {
+            taskData.config.database_type = formData.get('database_type');
+        }
+
+        try {
+            const url = currentEditingTask
+                ? `/api/scheduled-tasks/${currentEditingTask.id}`
+                : '/api/scheduled-tasks/';
+
+            const method = currentEditingTask ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(taskData)
+            });
+
+            if (response.ok) {
+                closeTaskModal();
+                loadTasks();
+            } else if (response.status === 401) {
+                window.location.href = '/login';
+            } else {
+                const error = await response.json();
+                alert(`Error: ${error.detail}`);
+            }
+        } catch (error) {
+            console.error('Error saving task:', error);
+            alert('Error saving task');
+        }
+    }
+
+    // Global functions for button actions
+    window.editTask = function(taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        if (task) {
+            openTaskModal(task);
+        }
+    };
+
+    window.deleteTask = async function(taskId) {
+        if (!confirm('Are you sure you want to delete this task?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/scheduled-tasks/${taskId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                loadTasks();
+            } else if (response.status === 401) {
+                window.location.href = '/login';
+            } else {
+                alert('Error deleting task');
+            }
+        } catch (error) {
+            console.error('Error deleting task:', error);
+            alert('Error deleting task');
+        }
+    };
+
+    window.runTask = async function(taskId) {
+        const button = event.target;
+        const originalText = button.textContent;
+
+        try {
+            // Show loading state
+            button.disabled = true;
+            button.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Starting...
+            `;
+
+            const response = await fetch(`/api/scheduled-tasks/${taskId}/run`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+
+                // Show success notification
+                showNotification(`Task started successfully! Task Run ID: ${result.task_run_id}`, 'success');
+
+                // Update button to show running state
+                button.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Running...
+                `;
+                button.className = 'text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300 mr-3';
+
+                // Refresh tasks to show updated status
+                loadTasks();
+
+                // Start monitoring this task
+                monitorTaskExecution(taskId, result.task_run_id);
+
+            } else if (response.status === 401) {
+                window.location.href = '/login';
+            } else {
+                const error = await response.json();
+                showNotification(`Error: ${error.detail}`, 'error');
+
+                // Reset button
+                button.disabled = false;
+                button.textContent = originalText;
+                button.className = 'text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3';
+            }
+        } catch (error) {
+            console.error('Error running task:', error);
+            showNotification('Error starting task', 'error');
+
+            // Reset button
+            button.disabled = false;
+            button.textContent = originalText;
+            button.className = 'text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3';
+        }
+    };
+
+    // Function to show toast notifications
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg max-w-sm transition-all duration-300 transform translate-x-full`;
+
+        const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+        notification.className += ` ${bgColor} text-white`;
+
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <p class="text-sm font-medium">${message}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Animate in
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+        }, 100);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+
+    // Function to monitor task execution
+    async function monitorTaskExecution(taskId, taskRunId) {
+        const checkInterval = setInterval(async () => {
+            try {
+                const response = await fetch(`/api/scheduled-tasks/${taskId}/runs`, {
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const runs = await response.json();
+                    const currentRun = runs.find(run => run.id === taskRunId);
+
+                    if (currentRun && currentRun.status !== 'running' && currentRun.status !== 'pending') {
+                        // Task completed
+                        clearInterval(checkInterval);
+
+                        // Show completion notification
+                        if (currentRun.status === 'success') {
+                            showNotification(`Task completed successfully!`, 'success');
+                        } else {
+                            showNotification(`Task failed: ${currentRun.error_message || 'Unknown error'}`, 'error');
+                        }
+
+                        // Refresh the tasks list
+                        loadTasks();
+                    }
+                }
+            } catch (error) {
+                console.error('Error monitoring task:', error);
+                clearInterval(checkInterval);
+            }
+        }, 5000); // Check every 5 seconds
+
+        // Stop monitoring after 30 minutes
+        setTimeout(() => {
+            clearInterval(checkInterval);
+        }, 30 * 60 * 1000);
+    }
+
+    // Function to load recent activity
+    async function loadRecentActivity() {
+        // Use the fallback method directly since the recent-activity endpoint doesn't exist
+        loadRecentActivityFallback();
+    }
+
+    // Fallback function to load recent activity from task runs
+    async function loadRecentActivityFallback() {
+        try {
+            // Get recent runs from all tasks
+            const allRuns = [];
+            for (const task of tasks) {
+                try {
+                    const response = await fetch(`/api/scheduled-tasks/${task.id}/runs?limit=5`, {
+                        credentials: 'include'
+                    });
+                    if (response.ok) {
+                        const runs = await response.json();
+                        runs.forEach(run => {
+                            run.task_name = task.name;
+                            run.task_type = task.task_type;
+                        });
+                        allRuns.push(...runs);
+                    }
+                } catch (error) {
+                    console.error(`Error loading runs for task ${task.id}:`, error);
+                }
+            }
+
+            // Sort by start time and take the most recent 10
+            allRuns.sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
+            const recentRuns = allRuns.slice(0, 10);
+
+            renderRecentActivity(recentRuns);
+        } catch (error) {
+            console.error('Error in fallback activity loading:', error);
+            document.getElementById('recentActivityList').innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-4">No recent activity</div>';
+        }
+    }
+
+    // Function to render recent activity
+    function renderRecentActivity(activities) {
+        const activityList = document.getElementById('recentActivityList');
+
+        if (!activities || activities.length === 0) {
+            activityList.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-4">No recent activity</div>';
+            return;
+        }
+
+        activityList.innerHTML = activities.map(activity => {
+            const startTime = new Date(activity.started_at);
+            const duration = activity.completed_at ?
+                Math.round((new Date(activity.completed_at) - startTime) / 1000) : null;
+
+            return `
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex-shrink-0">
+                            ${getActivityIcon(activity.status)}
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                ${activity.task_name || 'Unknown Task'}
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                ${activity.task_type === 'scan' ? 'Vulnerability Scan' : 'Database Update'}
+                                ${duration ? ` • ${duration}s` : ''}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            ${startTime.toLocaleString()}
+                        </p>
+                        ${getStatusBadge(activity.status)}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Function to get activity icon based on status
+    function getActivityIcon(status) {
+        const iconClasses = "w-6 h-6";
+
+        switch (status) {
+            case 'success':
+                return `<svg class="${iconClasses} text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>`;
+            case 'failed':
+                return `<svg class="${iconClasses} text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>`;
+            case 'running':
+                return `<svg class="${iconClasses} text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>`;
+            default:
+                return `<svg class="${iconClasses} text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>`;
+        }
+    }
+
+    // Function to load running jobs
+    async function loadRunningJobs() {
+        try {
+            const runningJobs = [];
+
+            // Check each task for running jobs
+            for (const task of tasks) {
+                try {
+                    const response = await fetch(`/api/scheduled-tasks/${task.id}/runs?status_filter=running`, {
+                        credentials: 'include'
+                    });
+                    if (response.ok) {
+                        const runs = await response.json();
+                        runs.forEach(run => {
+                            run.task_name = task.name;
+                            run.task_type = task.task_type;
+                            run.task_config = task.config;
+                        });
+                        runningJobs.push(...runs);
+                    }
+                } catch (error) {
+                    console.error(`Error loading running jobs for task ${task.id}:`, error);
+                }
+            }
+
+            renderRunningJobs(runningJobs);
+        } catch (error) {
+            console.error('Error loading running jobs:', error);
+        }
+    }
+
+    // Function to render running jobs
+    function renderRunningJobs(jobs) {
+        const runningJobsSection = document.getElementById('runningJobsSection');
+        const runningJobsList = document.getElementById('runningJobsList');
+        const runningJobsCount = document.getElementById('runningJobsCount');
+
+        if (!jobs || jobs.length === 0) {
+            runningJobsSection.classList.add('hidden');
+            return;
+        }
+
+        runningJobsSection.classList.remove('hidden');
+        runningJobsCount.textContent = `${jobs.length} running`;
+
+        runningJobsList.innerHTML = jobs.map(job => {
+            const startTime = new Date(job.started_at);
+            const elapsed = Math.round((new Date() - startTime) / 1000);
+            const elapsedMinutes = Math.floor(elapsed / 60);
+            const elapsedSeconds = elapsed % 60;
+
+            return `
+                <div class="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0">
+                            <svg class="w-8 h-8 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-900 dark:text-white">
+                                ${job.task_name}
+                            </h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">
+                                ${job.task_type === 'scan' ? 'Vulnerability Scan' : 'Database Update'}
+                                ${job.task_config && job.task_config.database_type ? ` (${job.task_config.database_type})` : ''}
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                Started: ${startTime.toLocaleString()}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                            ${elapsedMinutes}:${elapsedSeconds.toString().padStart(2, '0')}
+                        </div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                            elapsed
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Add refresh button event listener
+    document.getElementById('refreshActivityBtn').addEventListener('click', () => {
+        loadRecentActivity();
+        loadRunningJobs();
+    });
+
+    // Add cleanup stale jobs button event listener
+    document.getElementById('cleanupStaleJobsBtn').addEventListener('click', async () => {
+        const button = document.getElementById('cleanupStaleJobsBtn');
+        const originalText = button.textContent;
+
+        try {
+            // Show loading state
+            button.disabled = true;
+            button.textContent = 'Cleaning...';
+
+            const response = await fetch('/api/scheduled-tasks/cleanup-stale-jobs', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                showNotification(result.message, 'success');
+
+                // Refresh the interface to show updated status
+                loadTasks();
+                loadRecentActivity();
+                loadRunningJobs();
+            } else if (response.status === 401) {
+                window.location.href = '/login';
+            } else {
+                const error = await response.json();
+                showNotification(`Error: ${error.detail}`, 'error');
+            }
+        } catch (error) {
+            console.error('Error cleaning up stale jobs:', error);
+            showNotification('Error cleaning up stale jobs', 'error');
+        } finally {
+            // Reset button
+            button.disabled = false;
+            button.textContent = originalText;
+        }
+    });
+
+    // Auto-refresh tasks, activity, and running jobs every 30 seconds
+    setInterval(() => {
+        loadTasks();
+        loadRecentActivity();
+        loadRunningJobs();
+    }, 30000);
+
+    // Auto-refresh running jobs more frequently (every 10 seconds)
+    setInterval(() => {
+        loadRunningJobs();
+    }, 10000);
+});
+</script>
+{% endblock %}

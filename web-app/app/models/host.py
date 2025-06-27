@@ -13,7 +13,7 @@ class Host(Base):
     name = Column(String, unique=True, index=True, nullable=False)
     hostname = Column(String, nullable=False)
     port = Column(Integer, default=22)
-    username = Column(String, nullable=False)
+    username = Column(String, nullable=True)
 
     # Connection details
     key_path = Column(String)  # Path to SSH key
@@ -32,7 +32,11 @@ class Host(Base):
     # Scan configuration
     scan_schedule = Column(String)  # Cron expression
     scan_type = Column(String, default="fast")  # fast, full, custom
+    scan_mode = Column(String, default="fast")  # Vuls scan mode: fast, offline, etc.
     scan_enabled = Column(Boolean, default=True)
+
+    # Vuls configuration
+    vuls_config = Column(JSON)  # Store the original Vuls config for this host
 
     # Additional configuration
     tags = Column(JSON)  # For grouping and filtering
@@ -49,6 +53,7 @@ class Host(Base):
 
     # Relationships
     scans = relationship("Scan", back_populates="host", cascade="all, delete-orphan")
+    scheduled_tasks = relationship("ScheduledTask", back_populates="host", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Host(name='{self.name}', hostname='{self.hostname}')>"

@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from ..auth import get_current_active_user_from_cookie
 from ..models.base import get_db
 from ..models.user import User
+from ..tasks.host_sync_tasks import sync_hosts_from_config_task
 
 router = APIRouter()
 
@@ -288,12 +289,20 @@ async def update_ssh_config(
         # Update Vuls config.toml
         update_vuls_config(validation.hosts)
 
+        # Trigger host synchronization in the background
+        try:
+            sync_hosts_from_config_task.delay()
+        except Exception as e:
+            # Log the error but don't fail the SSH config update
+            print(f"Warning: Failed to trigger host sync task: {e}")
+
         return {
             "success": True,
             "message": "SSH config updated successfully",
             "backup_path": backup_path,
             "validation": validation.dict(),
-            "hosts_updated": len(validation.hosts)
+            "hosts_updated": len(validation.hosts),
+            "host_sync_triggered": True
         }
 
     except HTTPException:
@@ -374,11 +383,19 @@ async def restore_backup(
         # Update Vuls config.toml
         update_vuls_config(validation.hosts)
 
+        # Trigger host synchronization in the background
+        try:
+            sync_hosts_from_config_task.delay()
+        except Exception as e:
+            # Log the error but don't fail the restore operation
+            print(f"Warning: Failed to trigger host sync task: {e}")
+
         return {
             "success": True,
             "message": f"SSH config restored from {backup_filename}",
             "current_backup": current_backup,
-            "validation": validation.dict()
+            "validation": validation.dict(),
+            "host_sync_triggered": True
         }
 
     except HTTPException:

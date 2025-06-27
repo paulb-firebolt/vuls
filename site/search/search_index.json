@@ -1,0 +1,1635 @@
+{
+  "config": {
+    "lang": ["en"],
+    "separator": "[\\s\\-,:!=\\[\\]()\"`/]+|\\.(?!\\d)|&[lg]t;|(?!\\b)(?=[A-Z][a-z])",
+    "pipeline": ["stopWordFilter"]
+  },
+  "docs": [
+    {
+      "location": "",
+      "title": "Vuls Vulnerability Management System",
+      "text": "<p>Welcome to the comprehensive documentation for the Vuls Vulnerability Management System - a powerful, containerized solution for automated vulnerability scanning, analysis, and reporting.</p>"
+    },
+    {
+      "location": "#quick-start",
+      "title": "\ud83d\ude80 Quick Start",
+      "text": "<p>Get up and running with Vuls in minutes:</p> <pre><code># Clone the repository\ngit clone https://github.com/your-org/vuls-vulnerability-scanner.git\ncd vuls-vulnerability-scanner\n\n# Start the complete stack\ndocker compose --profile web up -d\n\n# Access the web interface\nopen http://localhost:8000\n</code></pre>"
+    },
+    {
+      "location": "#what-is-vuls",
+      "title": "\ud83c\udfaf What is Vuls?",
+      "text": "<p>Vuls is a comprehensive vulnerability management platform that combines:</p> <ul> <li>Automated Scanning: Regular vulnerability assessments using OVAL and GOST databases</li> <li>Web Interface: Modern, responsive dashboard for managing hosts and scans</li> <li>Advanced Reporting: Interactive HTML reports with charts and filtering</li> <li>Multi-Database Support: Integration with CVE, OVAL, GOST, and custom databases</li> <li>Container-First: Fully containerized with Docker Compose orchestration</li> </ul>"
+    },
+    {
+      "location": "#system-architecture",
+      "title": "\ud83c\udfd7\ufe0f System Architecture",
+      "text": "<pre><code>graph TB\n    A[Web Interface] --&gt; B[FastAPI Backend]\n    B --&gt; C[PostgreSQL Database]\n    B --&gt; D[Celery Workers]\n    D --&gt; E[Vuls Scanner]\n    E --&gt; F[OVAL Database]\n    E --&gt; G[GOST Database]\n    E --&gt; H[CVE Database]\n\n    I[Target Systems] --&gt; E\n    E --&gt; J[Scan Results]\n    J --&gt; K[Report Generator]\n    K --&gt; L[HTML Reports]</code></pre>"
+    },
+    {
+      "location": "#key-features",
+      "title": "\ud83d\udcca Key Features",
+      "text": ""
+    },
+    {
+      "location": "#vulnerability-scanning",
+      "title": "\ud83d\udd0d Vulnerability Scanning",
+      "text": "<ul> <li>Support for Ubuntu, Debian, RHEL, CentOS, and Amazon Linux</li> <li>OVAL and GOST database integration</li> <li>Intelligent package filtering (206+ high-risk packages)</li> <li>Version comparison with Debian-style versioning support</li> </ul>"
+    },
+    {
+      "location": "#web-management",
+      "title": "\ud83c\udf10 Web Management",
+      "text": "<ul> <li>Modern React-like interface with TailwindCSS</li> <li>Host management with SSH configuration</li> <li>Real-time scan monitoring</li> <li>User authentication and authorization</li> </ul>"
+    },
+    {
+      "location": "#advanced-analytics",
+      "title": "\ud83d\udcc8 Advanced Analytics",
+      "text": "<ul> <li>Interactive vulnerability dashboards</li> <li>Severity distribution charts</li> <li>Timeline analysis</li> <li>Package risk scoring</li> <li>Export capabilities (PDF, CSV, JSON)</li> </ul>"
+    },
+    {
+      "location": "#container-integration",
+      "title": "\ud83d\udc33 Container Integration",
+      "text": "<ul> <li>Docker Compose orchestration</li> <li>Service profiles for different deployment scenarios</li> <li>Volume mapping for data persistence</li> <li>Environment-based configuration</li> </ul>"
+    },
+    {
+      "location": "#documentation-sections",
+      "title": "\ud83d\udcda Documentation Sections",
+      "text": ""
+    },
+    {
+      "location": "#getting-started",
+      "title": "Getting Started",
+      "text": "<p>Learn how to install, configure, and run your first vulnerability scan.</p>"
+    },
+    {
+      "location": "#user-guide",
+      "title": "User Guide",
+      "text": "<p>Comprehensive guides for daily operations, including monthly scanning workflows and report generation.</p>"
+    },
+    {
+      "location": "#development",
+      "title": "Development",
+      "text": "<p>Technical documentation for developers, including architecture details and API references.</p>"
+    },
+    {
+      "location": "#reference",
+      "title": "Reference",
+      "text": "<p>Database schemas, configuration options, troubleshooting guides, and version history.</p>"
+    },
+    {
+      "location": "#deployment",
+      "title": "Deployment",
+      "text": "<p>Production deployment guides, Docker setup, and security best practices.</p>"
+    },
+    {
+      "location": "#interactive-reports",
+      "title": "\ud83c\udfa8 Interactive Reports",
+      "text": "<p>Our vulnerability reports feature:</p> <ul> <li>Real-time Filtering: Search and filter by CVE, package, severity</li> <li>Visual Analytics: Charts showing vulnerability distribution and trends</li> <li>Export Options: PDF, CSV, and JSON export capabilities</li> <li>Mobile Responsive: Works on all devices</li> <li>Dark/Light Themes: User preference support</li> </ul>"
+    },
+    {
+      "location": "#supported-operating-systems",
+      "title": "\ud83d\udd27 Supported Operating Systems",
+      "text": "OS Versions OVAL Support GOST Support Ubuntu 20.04, 22.04, 24.04 LTS \u2705 \u2705 Debian 10, 11, 12 \u2705 \u274c RHEL/CentOS 7, 8, 9 \u2705 \u274c Amazon Linux 1, 2, 2023 \u2705 \u274c <p>End-of-Life Systems</p> <p>Ubuntu 16.04/18.04 and Debian 8/9 are no longer supported by vulnerability databases. Consider upgrading to supported versions for accurate scanning.</p>"
+    },
+    {
+      "location": "#system-status",
+      "title": "\ud83d\udea6 System Status",
+      "text": "<p>The system provides comprehensive monitoring:</p> <ul> <li>Database Health: OVAL, GOST, and CVE database status</li> <li>Scan Progress: Real-time scan execution monitoring</li> <li>Host Connectivity: SSH and cloud proxy connection status</li> <li>Report Generation: Background report processing status</li> </ul>"
+    },
+    {
+      "location": "#contributing",
+      "title": "\ud83e\udd1d Contributing",
+      "text": "<p>We welcome contributions! See our Contributing Guide for:</p> <ul> <li>Development environment setup</li> <li>Code style guidelines</li> <li>Testing procedures</li> <li>Pull request process</li> </ul>"
+    },
+    {
+      "location": "#support",
+      "title": "\ud83d\udcde Support",
+      "text": "<ul> <li>Documentation: Browse the sections above for detailed guides</li> <li>Issues: Report bugs and feature requests on GitHub</li> <li>Discussions: Join community discussions for help and ideas</li> </ul>"
+    },
+    {
+      "location": "#security",
+      "title": "\ud83d\udd12 Security",
+      "text": "<p>Security is our priority:</p> <ul> <li>JWT-based authentication</li> <li>Encrypted database connections</li> <li>Secure SSH key management</li> <li>Container isolation</li> <li>Regular security updates</li> </ul> <p>Ready to get started? Head to the Installation Guide to set up your vulnerability management system.</p>"
+    },
+    {
+      "location": "deployment/",
+      "title": "Deployment Guide",
+      "text": "<p>This guide covers deploying the Vuls Web application with the complete scheduling system, including the secure Docker Executor Sidecar architecture.</p>"
+    },
+    {
+      "location": "deployment/#architecture-overview",
+      "title": "Architecture Overview",
+      "text": "<p>The Vuls Web application uses a microservices architecture with the following components:</p>"
+    },
+    {
+      "location": "deployment/#core-services",
+      "title": "Core Services",
+      "text": "<ul> <li>Web Application (<code>vuls-web-dev</code>) - Main web interface and API</li> <li>PostgreSQL Database (<code>vuls-db</code>) - Application data storage</li> <li>Redis (<code>vuls-redis</code>) - Message broker and cache</li> <li>Celery Worker (<code>vuls-worker</code>) - Background task processing</li> <li>Celery Beat Scheduler (<code>vuls-scheduler</code>) - Cron-based task scheduling</li> <li>Docker Executor Sidecar (<code>vuls-executor</code>) - Secure Docker operations</li> </ul>"
+    },
+    {
+      "location": "deployment/#security-architecture",
+      "title": "Security Architecture",
+      "text": "<p>The system implements a sidecar pattern for enhanced security:</p> <ul> <li>Isolated Execution - All Docker operations run in a separate container</li> <li>API-Based Communication - Secure API communication using API keys</li> <li>Function-Based Endpoints - Only predefined operations allowed</li> <li>Non-Root Execution - All containers run with minimal privileges</li> </ul>"
+    },
+    {
+      "location": "deployment/#prerequisites",
+      "title": "Prerequisites",
+      "text": "<ul> <li>Docker and Docker Compose</li> <li>Sufficient disk space for vulnerability databases (10+ GB recommended)</li> <li>Network access for downloading vulnerability data</li> <li>SSH access to target hosts (for scanning)</li> </ul>"
+    },
+    {
+      "location": "deployment/#quick-start",
+      "title": "Quick Start",
+      "text": ""
+    },
+    {
+      "location": "deployment/#1-clone-and-setup",
+      "title": "1. Clone and Setup",
+      "text": "<pre><code>git clone &lt;repository-url&gt;\ncd vuls\n</code></pre>"
+    },
+    {
+      "location": "deployment/#2-configure-environment",
+      "title": "2. Configure Environment",
+      "text": "<p>Create a <code>.env</code> file with secure configuration:</p> <pre><code># Generate a secure API key\nEXECUTOR_API_KEY=$(openssl rand -hex 32)\necho \"EXECUTOR_API_KEY=$EXECUTOR_API_KEY\" &gt; .env\n</code></pre>"
+    },
+    {
+      "location": "deployment/#3-start-development-environment",
+      "title": "3. Start Development Environment",
+      "text": "<pre><code># Start all services including scheduler\ndocker compose --profile dev up -d\n\n# Check service status\ndocker compose --profile dev ps\n</code></pre>"
+    },
+    {
+      "location": "deployment/#4-initialize-database",
+      "title": "4. Initialize Database",
+      "text": "<pre><code># The database will be automatically initialized on first startup\n# Check logs to ensure successful initialization\ndocker compose logs vuls-web-dev\n</code></pre>"
+    },
+    {
+      "location": "deployment/#5-access-the-application",
+      "title": "5. Access the Application",
+      "text": "<ul> <li>Web Interface: http://localhost:8000</li> <li>Scheduler: http://localhost:8000/scheduler</li> <li>API Documentation: http://localhost:8000/docs</li> </ul>"
+    },
+    {
+      "location": "deployment/#production-deployment",
+      "title": "Production Deployment",
+      "text": ""
+    },
+    {
+      "location": "deployment/#1-environment-configuration",
+      "title": "1. Environment Configuration",
+      "text": "<p>Create a production <code>.env</code> file:</p> <pre><code># Security\nEXECUTOR_API_KEY=your-secure-api-key-here\nJWT_SECRET_KEY=your-jwt-secret-key-here\n\n# Database\nDATABASE_URL=postgresql+psycopg://vuls:your-db-password@vuls-db:5432/vuls\n\n# Redis\nREDIS_URL=redis://vuls-redis:6379\n\n# Optional: External database\n# DATABASE_URL=postgresql+psycopg://user:pass@external-db:5432/vuls\n</code></pre>"
+    },
+    {
+      "location": "deployment/#2-production-compose-override",
+      "title": "2. Production Compose Override",
+      "text": "<p>Create <code>docker-compose.prod.yml</code>:</p> <pre><code>version: \"3.8\"\n\nservices:\n  vuls-web:\n    build: ./web-app\n    container_name: vuls-web-prod\n    ports:\n      - \"80:8000\"\n    environment:\n      - DATABASE_URL=${DATABASE_URL}\n      - REDIS_URL=${REDIS_URL}\n      - JWT_SECRET_KEY=${JWT_SECRET_KEY}\n    restart: unless-stopped\n\n  vuls-worker:\n    restart: unless-stopped\n    environment:\n      - EXECUTOR_URL=http://vuls-executor:8080\n      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY}\n\n  vuls-scheduler:\n    restart: unless-stopped\n\n  vuls-executor:\n    restart: unless-stopped\n    environment:\n      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY}\n\n  vuls-db:\n    restart: unless-stopped\n    volumes:\n      - vuls_db_data:/var/lib/postgresql/data\n    environment:\n      - POSTGRES_PASSWORD=your-secure-db-password\n\n  vuls-redis:\n    restart: unless-stopped\n</code></pre>"
+    },
+    {
+      "location": "deployment/#3-start-production-services",
+      "title": "3. Start Production Services",
+      "text": "<pre><code># Start production environment\ndocker compose -f compose.yml -f docker-compose.prod.yml --profile web up -d\n\n# Verify all services are running\ndocker compose ps\n</code></pre>"
+    },
+    {
+      "location": "deployment/#service-configuration",
+      "title": "Service Configuration",
+      "text": ""
+    },
+    {
+      "location": "deployment/#docker-executor-sidecar",
+      "title": "Docker Executor Sidecar",
+      "text": "<p>The executor sidecar requires specific configuration for secure operation:</p>"
+    },
+    {
+      "location": "deployment/#environment-variables",
+      "title": "Environment Variables",
+      "text": "<pre><code># Required\nEXECUTOR_API_KEY=your-secure-api-key\n\n# Optional\nEXECUTOR_PORT=8080\nEXECUTOR_HOST=0.0.0.0\n</code></pre>"
+    },
+    {
+      "location": "deployment/#volume-mounts",
+      "title": "Volume Mounts",
+      "text": "<pre><code>volumes:\n  - /var/run/docker.sock:/var/run/docker.sock # Docker socket access\n  - .:/compose:ro # Compose project directory\n</code></pre>"
+    },
+    {
+      "location": "deployment/#security-considerations",
+      "title": "Security Considerations",
+      "text": "<ul> <li>The executor runs as a non-root user with Docker group permissions</li> <li>Only predefined API endpoints are exposed</li> <li>All communication is secured with API keys</li> <li>No shell access or arbitrary command execution</li> </ul>"
+    },
+    {
+      "location": "deployment/#celery-configuration",
+      "title": "Celery Configuration",
+      "text": ""
+    },
+    {
+      "location": "deployment/#worker-configuration",
+      "title": "Worker Configuration",
+      "text": "<pre><code>environment:\n  - DATABASE_URL=${DATABASE_URL}\n  - REDIS_URL=${REDIS_URL}\n  - EXECUTOR_URL=http://vuls-executor:8080\n  - EXECUTOR_API_KEY=${EXECUTOR_API_KEY}\n</code></pre>"
+    },
+    {
+      "location": "deployment/#scheduler-configuration",
+      "title": "Scheduler Configuration",
+      "text": "<pre><code>environment:\n  - DATABASE_URL=${DATABASE_URL}\n  - REDIS_URL=${REDIS_URL}\n</code></pre>"
+    },
+    {
+      "location": "deployment/#monitoring-and-maintenance",
+      "title": "Monitoring and Maintenance",
+      "text": ""
+    },
+    {
+      "location": "deployment/#health-checks",
+      "title": "Health Checks",
+      "text": "<p>Monitor service health using:</p> <pre><code># Check all services\ndocker compose ps\n\n# Check specific service logs\ndocker compose logs vuls-worker\ndocker compose logs vuls-executor\ndocker compose logs vuls-scheduler\n\n# Check executor health\ncurl http://localhost:8080/health\n</code></pre>"
+    },
+    {
+      "location": "deployment/#database-maintenance",
+      "title": "Database Maintenance",
+      "text": "<pre><code># Backup database\ndocker exec vuls-db pg_dump -U vuls vuls &gt; backup.sql\n\n# Restore database\ndocker exec -i vuls-db psql -U vuls vuls &lt; backup.sql\n</code></pre>"
+    },
+    {
+      "location": "deployment/#log-management",
+      "title": "Log Management",
+      "text": "<p>Logs are available through Docker:</p> <pre><code># View real-time logs\ndocker compose logs -f vuls-worker\n\n# View specific service logs\ndocker compose logs vuls-executor --tail 100\n</code></pre>"
+    },
+    {
+      "location": "deployment/#security-considerations_1",
+      "title": "Security Considerations",
+      "text": ""
+    },
+    {
+      "location": "deployment/#api-key-management",
+      "title": "API Key Management",
+      "text": "<ul> <li>Generate strong, unique API keys for production</li> <li>Rotate API keys regularly</li> <li>Store keys securely (environment variables, secrets management)</li> <li>Never commit API keys to version control</li> </ul>"
+    },
+    {
+      "location": "deployment/#network-security",
+      "title": "Network Security",
+      "text": "<ul> <li>Use reverse proxy (nginx, traefik) for production</li> <li>Enable HTTPS/TLS encryption</li> <li>Restrict network access to necessary ports only</li> <li>Use firewall rules to limit access</li> </ul>"
+    },
+    {
+      "location": "deployment/#container-security",
+      "title": "Container Security",
+      "text": "<ul> <li>All containers run as non-root users</li> <li>Minimal base images used</li> <li>Regular security updates applied</li> <li>No unnecessary privileges granted</li> </ul>"
+    },
+    {
+      "location": "deployment/#database-security",
+      "title": "Database Security",
+      "text": "<ul> <li>Use strong database passwords</li> <li>Enable database encryption at rest</li> <li>Regular database backups</li> <li>Restrict database network access</li> </ul>"
+    },
+    { "location": "deployment/#scaling", "title": "Scaling", "text": "" },
+    {
+      "location": "deployment/#horizontal-scaling",
+      "title": "Horizontal Scaling",
+      "text": "<p>Scale Celery workers for increased throughput:</p> <pre><code># Scale workers\ndocker compose up -d --scale vuls-worker=3\n\n# Monitor worker performance\ndocker compose logs vuls-worker\n</code></pre>"
+    },
+    {
+      "location": "deployment/#resource-allocation",
+      "title": "Resource Allocation",
+      "text": "<p>Adjust resource limits in compose files:</p> <pre><code>services:\n  vuls-worker:\n    deploy:\n      resources:\n        limits:\n          memory: 2G\n          cpus: \"1.0\"\n        reservations:\n          memory: 1G\n          cpus: \"0.5\"\n</code></pre>"
+    },
+    {
+      "location": "deployment/#backup-and-recovery",
+      "title": "Backup and Recovery",
+      "text": ""
+    },
+    {
+      "location": "deployment/#database-backup",
+      "title": "Database Backup",
+      "text": "<pre><code># Automated backup script\n#!/bin/bash\nDATE=$(date +%Y%m%d_%H%M%S)\ndocker exec vuls-db pg_dump -U vuls vuls | gzip &gt; \"backup_${DATE}.sql.gz\"\n</code></pre>"
+    },
+    {
+      "location": "deployment/#configuration-backup",
+      "title": "Configuration Backup",
+      "text": "<pre><code># Backup configuration files\ntar -czf config_backup.tar.gz config/ .env compose.yml\n</code></pre>"
+    },
+    {
+      "location": "deployment/#recovery-procedure",
+      "title": "Recovery Procedure",
+      "text": "<ol> <li>Stop all services</li> <li>Restore database from backup</li> <li>Restore configuration files</li> <li>Restart services</li> <li>Verify system functionality</li> </ol>"
+    },
+    {
+      "location": "deployment/#troubleshooting",
+      "title": "Troubleshooting",
+      "text": ""
+    },
+    {
+      "location": "deployment/#common-issues",
+      "title": "Common Issues",
+      "text": ""
+    },
+    {
+      "location": "deployment/#services-not-starting",
+      "title": "Services Not Starting",
+      "text": "<pre><code># Check service status\ndocker compose ps\n\n# Check logs for errors\ndocker compose logs\n\n# Restart specific service\ndocker compose restart vuls-worker\n</code></pre>"
+    },
+    {
+      "location": "deployment/#database-connection-issues",
+      "title": "Database Connection Issues",
+      "text": "<pre><code># Check database connectivity\ndocker exec vuls-web-dev python -c \"\nfrom app.config import settings\nprint('Database URL:', settings.database_url)\n\"\n\n# Test database connection\ndocker exec vuls-db psql -U vuls -c \"SELECT version();\"\n</code></pre>"
+    },
+    {
+      "location": "deployment/#executor-sidecar-issues",
+      "title": "Executor Sidecar Issues",
+      "text": "<pre><code># Check executor health\ncurl http://localhost:8080/health\n\n# Check executor logs\ndocker compose logs vuls-executor\n\n# Verify API key configuration\ndocker exec vuls-worker env | grep EXECUTOR\n</code></pre>"
+    },
+    {
+      "location": "deployment/#task-execution-failures",
+      "title": "Task Execution Failures",
+      "text": "<pre><code># Check worker logs\ndocker compose logs vuls-worker\n\n# Check Redis connectivity\ndocker exec vuls-worker python -c \"\nimport redis\nr = redis.from_url('redis://vuls-redis:6379')\nprint('Redis ping:', r.ping())\n\"\n\n# Monitor task queue\ndocker exec vuls-worker celery -A app.tasks inspect active\n</code></pre>"
+    },
+    {
+      "location": "deployment/#performance-optimization",
+      "title": "Performance Optimization",
+      "text": ""
+    },
+    {
+      "location": "deployment/#database-performance",
+      "title": "Database Performance",
+      "text": "<ul> <li>Regular VACUUM and ANALYZE operations</li> <li>Appropriate indexing for query patterns</li> <li>Connection pooling configuration</li> <li>Query optimization</li> </ul>"
+    },
+    {
+      "location": "deployment/#worker-performance",
+      "title": "Worker Performance",
+      "text": "<ul> <li>Adjust worker concurrency based on CPU cores</li> <li>Monitor memory usage and adjust limits</li> <li>Use appropriate task routing</li> <li>Implement task result expiration</li> </ul>"
+    },
+    {
+      "location": "deployment/#storage-optimization",
+      "title": "Storage Optimization",
+      "text": "<ul> <li>Regular cleanup of old task results</li> <li>Compress vulnerability database files</li> <li>Use appropriate storage drivers</li> <li>Monitor disk usage</li> </ul>"
+    },
+    {
+      "location": "deployment/#support",
+      "title": "Support",
+      "text": "<p>For additional support:</p> <ol> <li>Check the troubleshooting section above</li> <li>Review service logs for error messages</li> <li>Consult the user guide documentation</li> <li>Contact your system administrator</li> </ol>"
+    },
+    {
+      "location": "deployment/#updates-and-maintenance",
+      "title": "Updates and Maintenance",
+      "text": ""
+    },
+    {
+      "location": "deployment/#updating-the-application",
+      "title": "Updating the Application",
+      "text": "<pre><code># Pull latest changes\ngit pull origin main\n\n# Rebuild and restart services\ndocker compose --profile dev up -d --build\n\n# Check for any migration requirements\ndocker compose logs vuls-web-dev | grep -i migration\n</code></pre>"
+    },
+    {
+      "location": "deployment/#security-updates",
+      "title": "Security Updates",
+      "text": "<ul> <li>Regularly update base Docker images</li> <li>Apply security patches to the host system</li> <li>Update dependency packages</li> <li>Review and rotate API keys</li> </ul>"
+    },
+    {
+      "location": "deployment/#monitoring",
+      "title": "Monitoring",
+      "text": "<p>Set up monitoring for:</p> <ul> <li>Service availability and health</li> <li>Resource usage (CPU, memory, disk)</li> <li>Task execution success rates</li> <li>Database performance metrics</li> <li>Security events and access logs</li> </ul>"
+    },
+    {
+      "location": "development/",
+      "title": "Development",
+      "text": "<p>This section provides technical documentation for developers working on the Vuls Vulnerability Management System.</p>"
+    },
+    {
+      "location": "development/#overview",
+      "title": "Overview",
+      "text": "<p>The Vuls system is built with modern technologies and follows best practices for containerized applications. Whether you're contributing to the core system, developing integrations, or customizing the platform, this section will guide you through the development process.</p>"
+    },
+    {
+      "location": "development/#what-youll-find-here",
+      "title": "What You'll Find Here",
+      "text": ""
+    },
+    {
+      "location": "development/#architecture",
+      "title": "Architecture",
+      "text": "<p>Comprehensive overview of the system architecture, including:</p> <ul> <li>System components and their interactions</li> <li>Database design and relationships</li> <li>Container orchestration with Docker Compose</li> <li>API design patterns and conventions</li> <li>Security architecture and authentication flows</li> </ul>"
+    },
+    {
+      "location": "development/#web-application-development",
+      "title": "Web Application Development",
+      "text": "<p>Detailed guide for developing the web interface:</p> <ul> <li>Development environment setup with hot reload</li> <li>FastAPI backend development</li> <li>Frontend development with TailwindCSS and Alpine.js</li> <li>Database models and migrations</li> <li>Authentication and authorization implementation</li> </ul>"
+    },
+    {
+      "location": "development/#api-reference",
+      "title": "API Reference",
+      "text": "<p>Complete API documentation:</p> <ul> <li>RESTful endpoint specifications</li> <li>Authentication and authorization</li> <li>Request/response formats</li> <li>Error handling and status codes</li> <li>Integration examples and SDKs</li> </ul>"
+    },
+    {
+      "location": "development/#contributing",
+      "title": "Contributing",
+      "text": "<p>Guidelines for contributing to the project:</p> <ul> <li>Development workflow and Git practices</li> <li>Code style and formatting standards</li> <li>Testing procedures and requirements</li> <li>Pull request process and review guidelines</li> <li>Community guidelines and communication</li> </ul>"
+    },
+    {
+      "location": "development/#technology-stack",
+      "title": "Technology Stack",
+      "text": ""
+    },
+    {
+      "location": "development/#backend-technologies",
+      "title": "Backend Technologies",
+      "text": "<ul> <li>FastAPI: Modern, fast web framework for building APIs</li> <li>SQLAlchemy: SQL toolkit and Object-Relational Mapping (ORM)</li> <li>PostgreSQL: Primary application database</li> <li>SQLite: Vulnerability databases (OVAL, GOST, CVE)</li> <li>Celery: Distributed task queue for background processing</li> <li>Redis: Message broker and caching</li> </ul>"
+    },
+    {
+      "location": "development/#frontend-technologies",
+      "title": "Frontend Technologies",
+      "text": "<ul> <li>TailwindCSS: Utility-first CSS framework</li> <li>Alpine.js: Lightweight JavaScript framework</li> <li>Chart.js: Interactive charts and visualizations</li> <li>Jinja2: Template engine for server-side rendering</li> </ul>"
+    },
+    {
+      "location": "development/#infrastructure",
+      "title": "Infrastructure",
+      "text": "<ul> <li>Docker: Containerization platform</li> <li>Docker Compose: Multi-container orchestration</li> <li>uv: Fast Python package manager</li> <li>MkDocs Material: Documentation site generator</li> </ul>"
+    },
+    {
+      "location": "development/#development-principles",
+      "title": "Development Principles",
+      "text": ""
+    },
+    {
+      "location": "development/#code-quality",
+      "title": "Code Quality",
+      "text": "<ul> <li>Type Hints: Full Python type annotation</li> <li>Linting: Automated code quality checks</li> <li>Testing: Comprehensive test coverage</li> <li>Documentation: Inline and external documentation</li> </ul>"
+    },
+    {
+      "location": "development/#security-first",
+      "title": "Security First",
+      "text": "<ul> <li>Input Validation: Strict input sanitization</li> <li>Authentication: JWT-based secure authentication</li> <li>Authorization: Role-based access control</li> <li>Secrets Management: Secure handling of sensitive data</li> </ul>"
+    },
+    {
+      "location": "development/#performance",
+      "title": "Performance",
+      "text": "<ul> <li>Async Operations: Non-blocking I/O operations</li> <li>Database Optimization: Efficient queries and indexing</li> <li>Caching: Strategic use of caching layers</li> <li>Resource Management: Efficient container resource usage</li> </ul>"
+    },
+    {
+      "location": "development/#maintainability",
+      "title": "Maintainability",
+      "text": "<ul> <li>Modular Design: Clear separation of concerns</li> <li>Configuration Management: Environment-based configuration</li> <li>Logging: Comprehensive logging and monitoring</li> <li>Error Handling: Graceful error handling and recovery</li> </ul>"
+    },
+    {
+      "location": "development/#development-workflow",
+      "title": "Development Workflow",
+      "text": ""
+    },
+    {
+      "location": "development/#1-environment-setup",
+      "title": "1. Environment Setup",
+      "text": "<pre><code># Clone the repository\ngit clone https://github.com/your-org/vuls-vulnerability-scanner.git\ncd vuls-vulnerability-scanner\n\n# Set up development environment\n./web-app/start-dev.sh\n\n# Install development dependencies\nuv sync --dev\n</code></pre>"
+    },
+    {
+      "location": "development/#2-development-process",
+      "title": "2. Development Process",
+      "text": "<pre><code># Create feature branch\ngit checkout -b feature/new-functionality\n\n# Make changes with hot reload\n# Edit files in web-app/app/ or docs/\n\n# Test changes\nuv run pytest\n\n# Commit changes\ngit add .\ngit commit -m \"feat: add new functionality\"\n\n# Push and create pull request\ngit push origin feature/new-functionality\n</code></pre>"
+    },
+    {
+      "location": "development/#3-testing",
+      "title": "3. Testing",
+      "text": "<pre><code># Run unit tests\nuv run pytest tests/\n\n# Run integration tests\nuv run pytest tests/integration/\n\n# Run with coverage\nuv run pytest --cov=app tests/\n\n# Run specific test file\nuv run pytest tests/test_vulnerabilities.py\n</code></pre>"
+    },
+    {
+      "location": "development/#architecture-overview",
+      "title": "Architecture Overview",
+      "text": "<pre><code>graph TB\n    subgraph \"Frontend Layer\"\n        A[Web Interface]\n        B[API Client]\n    end\n\n    subgraph \"Application Layer\"\n        C[FastAPI Backend]\n        D[Authentication]\n        E[API Endpoints]\n    end\n\n    subgraph \"Business Logic Layer\"\n        F[Vulnerability Scanner]\n        G[Report Generator]\n        H[Host Manager]\n    end\n\n    subgraph \"Data Layer\"\n        I[PostgreSQL]\n        J[SQLite Databases]\n        K[File Storage]\n    end\n\n    subgraph \"Infrastructure Layer\"\n        L[Docker Containers]\n        M[Background Workers]\n        N[Message Queue]\n    end\n\n    A --&gt; C\n    B --&gt; C\n    C --&gt; D\n    C --&gt; E\n    E --&gt; F\n    E --&gt; G\n    E --&gt; H\n    F --&gt; J\n    G --&gt; I\n    H --&gt; I\n    C --&gt; L\n    F --&gt; M\n    M --&gt; N</code></pre>"
+    },
+    {
+      "location": "development/#key-components",
+      "title": "Key Components",
+      "text": ""
+    },
+    {
+      "location": "development/#vulnerability-scanner-engine",
+      "title": "Vulnerability Scanner Engine",
+      "text": "<ul> <li>OVAL Integration: Operating system vulnerability definitions</li> <li>GOST Integration: Go Security Tracker for Ubuntu-specific data</li> <li>CVE Database: Common Vulnerabilities and Exposures</li> <li>Version Comparison: Intelligent package version analysis</li> </ul>"
+    },
+    {
+      "location": "development/#web-application-framework",
+      "title": "Web Application Framework",
+      "text": "<ul> <li>RESTful API: Clean, consistent API design</li> <li>Real-time Updates: WebSocket integration for live updates</li> <li>Responsive UI: Mobile-friendly interface design</li> <li>Interactive Reports: Dynamic charts and filtering</li> </ul>"
+    },
+    {
+      "location": "development/#database-architecture",
+      "title": "Database Architecture",
+      "text": "<ul> <li>Application Data: User accounts, hosts, scan metadata</li> <li>Vulnerability Data: CVE details, OVAL definitions, GOST data</li> <li>Relationships: Proper foreign key constraints and indexing</li> <li>Migrations: Version-controlled schema changes</li> </ul>"
+    },
+    {
+      "location": "development/#background-processing",
+      "title": "Background Processing",
+      "text": "<ul> <li>Scan Orchestration: Automated vulnerability scanning</li> <li>Report Generation: Background report processing</li> <li>Database Updates: Scheduled vulnerability database updates</li> <li>Cleanup Tasks: Automated maintenance and archival</li> </ul>"
+    },
+    {
+      "location": "development/#development-tools",
+      "title": "Development Tools",
+      "text": ""
+    },
+    {
+      "location": "development/#code-quality-tools",
+      "title": "Code Quality Tools",
+      "text": "<pre><code># Format code\nuv run black .\nuv run isort .\n\n# Lint code\nuv run flake8 .\nuv run mypy .\n\n# Security scanning\nuv run bandit -r app/\n</code></pre>"
+    },
+    {
+      "location": "development/#database-tools",
+      "title": "Database Tools",
+      "text": "<pre><code># Create migration\nuv run alembic revision --autogenerate -m \"description\"\n\n# Apply migrations\nuv run alembic upgrade head\n\n# Database shell\ndocker exec -it vuls-db psql -U vuls -d vuls\n</code></pre>"
+    },
+    {
+      "location": "development/#documentation-tools",
+      "title": "Documentation Tools",
+      "text": "<pre><code># Serve documentation locally\nuv run mkdocs serve\n\n# Build documentation\nuv run mkdocs build\n\n# Deploy documentation\nuv run mkdocs gh-deploy\n</code></pre>"
+    },
+    {
+      "location": "development/#integration-points",
+      "title": "Integration Points",
+      "text": ""
+    },
+    {
+      "location": "development/#external-systems",
+      "title": "External Systems",
+      "text": "<ul> <li>SIEM Integration: Forward vulnerability data to security systems</li> <li>Ticketing Systems: Create tickets for vulnerability remediation</li> <li>Configuration Management: Track system changes and updates</li> <li>Monitoring Systems: Health checks and performance metrics</li> </ul>"
+    },
+    {
+      "location": "development/#api-integrations",
+      "title": "API Integrations",
+      "text": "<ul> <li>REST API: Full programmatic access to functionality</li> <li>Webhooks: Event-driven notifications and updates</li> <li>Bulk Operations: Efficient handling of large datasets</li> <li>Rate Limiting: Protect against abuse and overload</li> </ul>"
+    },
+    {
+      "location": "development/#performance-considerations",
+      "title": "Performance Considerations",
+      "text": ""
+    },
+    {
+      "location": "development/#scalability",
+      "title": "Scalability",
+      "text": "<ul> <li>Horizontal Scaling: Multiple worker containers</li> <li>Database Optimization: Proper indexing and query optimization</li> <li>Caching Strategy: Redis for frequently accessed data</li> <li>Load Balancing: Distribute requests across instances</li> </ul>"
+    },
+    {
+      "location": "development/#resource-management",
+      "title": "Resource Management",
+      "text": "<ul> <li>Memory Usage: Efficient data structures and garbage collection</li> <li>CPU Utilization: Async operations and worker pools</li> <li>Disk I/O: Optimized database queries and file operations</li> <li>Network: Efficient API design and data transfer</li> </ul>"
+    },
+    {
+      "location": "development/#security-considerations",
+      "title": "Security Considerations",
+      "text": ""
+    },
+    {
+      "location": "development/#application-security",
+      "title": "Application Security",
+      "text": "<ul> <li>Input Validation: Comprehensive input sanitization</li> <li>SQL Injection Prevention: Parameterized queries and ORM usage</li> <li>XSS Protection: Template auto-escaping and CSP headers</li> <li>CSRF Protection: Token-based request validation</li> </ul>"
+    },
+    {
+      "location": "development/#infrastructure-security",
+      "title": "Infrastructure Security",
+      "text": "<ul> <li>Container Security: Minimal base images and security scanning</li> <li>Network Security: Proper firewall rules and network isolation</li> <li>Secrets Management: Environment variables and secret stores</li> <li>Access Control: Role-based permissions and audit logging</li> </ul>"
+    },
+    {
+      "location": "development/#getting-started",
+      "title": "Getting Started",
+      "text": "<p>Ready to start developing? Here's your next steps:</p> <ol> <li>Set up your development environment - Get the development stack running</li> <li>Understand the architecture - Learn how the system works</li> <li>Review the API documentation - Understand the available endpoints</li> <li>Read the contributing guidelines - Learn our development practices</li> </ol>"
+    },
+    {
+      "location": "development/#community",
+      "title": "Community",
+      "text": "<ul> <li>GitHub Issues: Report bugs and request features</li> <li>Discussions: Ask questions and share ideas</li> <li>Pull Requests: Contribute code and documentation</li> <li>Code Reviews: Participate in the review process</li> </ul> <p>Ready to contribute? Start with the Web Application Development Guide to set up your development environment.</p>"
+    },
+    {
+      "location": "development/upgrades/",
+      "title": "Upgrade Notes",
+      "text": ""
+    },
+    {
+      "location": "development/upgrades/#psycopg2-to-psycopg3-migration-2025-06-27",
+      "title": "psycopg2 to psycopg3 Migration (2025-06-27)",
+      "text": ""
+    },
+    {
+      "location": "development/upgrades/#changes-made",
+      "title": "Changes Made",
+      "text": "<ol> <li>Dependencies Updated</li> <li>Replaced <code>psycopg2-binary&gt;=2.9.10</code> with <code>psycopg[binary]&gt;=3.1.0</code> in <code>pyproject.toml</code></li> <li> <p>psycopg3 version 3.2.9 was installed</p> </li> <li> <p>Database URL Updated</p> </li> <li>Changed database URL dialect from <code>postgresql://</code> to <code>postgresql+psycopg://</code></li> <li>Updated in <code>web-app/app/config.py</code> (default configuration)</li> <li> <p>Updated in <code>compose.yml</code> (all service environment variables)</p> </li> <li> <p>Compatibility</p> </li> <li>No code changes required as SQLAlchemy handles the driver abstraction</li> <li>All existing models and database operations remain unchanged</li> <li>Docker configuration remains the same (libpq-dev still required)</li> </ol>"
+    },
+    {
+      "location": "development/upgrades/#benefits-of-psycopg3",
+      "title": "Benefits of psycopg3",
+      "text": "<ul> <li>Better performance and memory usage</li> <li>Improved async support</li> <li>Better type annotations</li> <li>More modern codebase</li> <li>Active development and support</li> </ul>"
+    },
+    {
+      "location": "development/upgrades/#testing",
+      "title": "Testing",
+      "text": "<ul> <li>All models import successfully</li> <li>Database engine creation works correctly</li> <li>SQLAlchemy integration verified</li> <li>No breaking changes to existing functionality</li> </ul>"
+    },
+    {
+      "location": "development/upgrades/#rollback-instructions",
+      "title": "Rollback Instructions",
+      "text": "<p>If rollback is needed:</p> <ol> <li>Change <code>psycopg[binary]&gt;=3.1.0</code> back to <code>psycopg2-binary&gt;=2.9.10</code> in <code>pyproject.toml</code></li> <li>Change all <code>postgresql+psycopg://</code> URLs back to <code>postgresql://</code></li> <li>Run <code>uv sync</code> to reinstall dependencies</li> </ol>"
+    },
+    {
+      "location": "getting-started/",
+      "title": "Getting Started",
+      "text": "<p>Welcome to Vuls! This section will guide you through the initial setup and configuration of your vulnerability management system.</p>"
+    },
+    {
+      "location": "getting-started/#overview",
+      "title": "Overview",
+      "text": "<p>The Vuls Vulnerability Management System is designed to be easy to deploy and use. Whether you're setting up a development environment or a production system, these guides will help you get started quickly.</p>"
+    },
+    {
+      "location": "getting-started/#what-youll-learn",
+      "title": "What You'll Learn",
+      "text": "<ul> <li>Installation - Set up Docker, dependencies, and the Vuls system</li> <li>Configuration - Configure databases, SSH keys, and target systems</li> <li>First Scan - Run your first vulnerability scan and generate reports</li> </ul>"
+    },
+    {
+      "location": "getting-started/#prerequisites",
+      "title": "Prerequisites",
+      "text": "<p>Before you begin, ensure you have:</p> <ul> <li>Docker &amp; Docker Compose: Version 20.10+ recommended</li> <li>SSH Access: To target systems you want to scan</li> <li>System Resources: 4GB RAM, 10GB disk space minimum</li> <li>Network Access: Internet connectivity for database updates</li> </ul>"
+    },
+    {
+      "location": "getting-started/#quick-start-checklist",
+      "title": "Quick Start Checklist",
+      "text": "<ul> <li> Install Docker and Docker Compose</li> <li> Clone the Vuls repository</li> <li> Configure target systems in <code>config/config.toml</code></li> <li> Set up SSH keys for system access</li> <li> Update vulnerability databases</li> <li> Run your first scan</li> <li> Generate and view reports</li> </ul>"
+    },
+    {
+      "location": "getting-started/#architecture-overview",
+      "title": "Architecture Overview",
+      "text": "<pre><code>graph LR\n    A[Your Computer] --&gt; B[Vuls Container]\n    B --&gt; C[Target Systems]\n    B --&gt; D[Vulnerability Databases]\n    B --&gt; E[Web Interface]\n    E --&gt; F[Reports &amp; Analytics]</code></pre>"
+    },
+    {
+      "location": "getting-started/#support",
+      "title": "Support",
+      "text": "<p>If you encounter issues during setup:</p> <ol> <li>Check the Troubleshooting Guide</li> <li>Review the Configuration Reference</li> <li>Consult the FAQ</li> </ol> <p>Ready to begin? Start with the Installation Guide.</p>"
+    },
+    {
+      "location": "getting-started/installation/",
+      "title": "Installation",
+      "text": "<p>This guide will walk you through installing and setting up the Vuls Vulnerability Management System.</p>"
+    },
+    {
+      "location": "getting-started/installation/#prerequisites",
+      "title": "Prerequisites",
+      "text": "<p>Before installing Vuls, ensure your system meets these requirements:</p>"
+    },
+    {
+      "location": "getting-started/installation/#system-requirements",
+      "title": "System Requirements",
+      "text": "<ul> <li>Operating System: Linux, macOS, or Windows with WSL2</li> <li>RAM: 4GB minimum, 8GB recommended</li> <li>Disk Space: 10GB minimum for databases and results</li> <li>Network: Internet connectivity for database updates</li> </ul>"
+    },
+    {
+      "location": "getting-started/installation/#required-software",
+      "title": "Required Software",
+      "text": "<ul> <li>Docker: Version 20.10 or later</li> <li>Docker Compose: Version 2.0 or later</li> <li>Git: For cloning the repository</li> </ul>"
+    },
+    {
+      "location": "getting-started/installation/#installation-steps",
+      "title": "Installation Steps",
+      "text": ""
+    },
+    {
+      "location": "getting-started/installation/#1-install-docker-and-docker-compose",
+      "title": "1. Install Docker and Docker Compose",
+      "text": ""
+    },
+    {
+      "location": "getting-started/installation/#ubuntudebian",
+      "title": "Ubuntu/Debian",
+      "text": "<pre><code># Update package index\nsudo apt update\n\n# Install Docker\nsudo apt install -y docker.io docker-compose-plugin\n\n# Add user to docker group\nsudo usermod -aG docker $USER\n\n# Log out and back in, or run:\nnewgrp docker\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#centosrhel",
+      "title": "CentOS/RHEL",
+      "text": "<pre><code># Install Docker\nsudo yum install -y docker docker-compose-plugin\n\n# Start and enable Docker\nsudo systemctl start docker\nsudo systemctl enable docker\n\n# Add user to docker group\nsudo usermod -aG docker $USER\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#macos",
+      "title": "macOS",
+      "text": "<pre><code># Install Docker Desktop from https://docker.com/products/docker-desktop\n# Or use Homebrew:\nbrew install --cask docker\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#2-clone-the-vuls-repository",
+      "title": "2. Clone the Vuls Repository",
+      "text": "<pre><code># Clone the repository\ngit clone https://github.com/your-org/vuls-vulnerability-scanner.git\ncd vuls-vulnerability-scanner\n\n# Verify the structure\nls -la\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#3-initial-setup",
+      "title": "3. Initial Setup",
+      "text": "<pre><code># Create necessary directories\nmkdir -p {db,logs,results,config/backups}\n\n# Set proper permissions\nchmod 755 db logs results config\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#4-configure-environment",
+      "title": "4. Configure Environment",
+      "text": "<pre><code># Copy example configuration\ncp config/config.toml.example config/config.toml\n\n# Edit configuration for your environment\nnano config/config.toml\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#5-download-vulnerability-databases",
+      "title": "5. Download Vulnerability Databases",
+      "text": "<pre><code># Update all vulnerability databases (this may take 30-60 minutes)\ndocker compose --profile fetch up vuls-nvd\ndocker compose --profile fetch up vuls-ubuntu\ndocker compose --profile fetch up vuls-debian\ndocker compose --profile fetch up vuls-redhat\n\n# Verify database downloads\nls -lh db/\n</code></pre> <p>Expected output: <pre><code>-rw-r--r-- 1 user user 1.2G cve.sqlite3\n-rw-r--r-- 1 user user 350M oval.sqlite3\n-rw-r--r-- 1 user user  45M gost.sqlite3\n</code></pre></p>"
+    },
+    {
+      "location": "getting-started/installation/#6-test-installation",
+      "title": "6. Test Installation",
+      "text": "<pre><code># Test configuration\ndocker compose run --rm vuls configtest\n\n# Test database connectivity\ndocker compose run --rm vuls version\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#web-interface-setup-optional",
+      "title": "Web Interface Setup (Optional)",
+      "text": "<p>To enable the web management interface:</p> <pre><code># Start the web application stack\ndocker compose --profile web up -d\n\n# Access the web interface\nopen http://localhost:8000\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#create-initial-admin-user",
+      "title": "Create Initial Admin User",
+      "text": "<ol> <li>Navigate to http://localhost:8000</li> <li>Click \"Create Admin\"</li> <li>Use default credentials: <code>admin</code> / <code>admin123</code></li> <li>Change the password after first login</li> </ol>"
+    },
+    {
+      "location": "getting-started/installation/#verification",
+      "title": "Verification",
+      "text": ""
+    },
+    {
+      "location": "getting-started/installation/#test-basic-functionality",
+      "title": "Test Basic Functionality",
+      "text": "<pre><code># Test SSH connectivity (replace with your target)\ndocker compose run --rm --entrypoint ssh vuls user@target-system\n\n# Run a test scan (if you have a configured target)\ndocker compose run --rm vuls scan\n\n# Generate a test report\ndocker compose run --rm vuls report -format-list\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#check-service-status",
+      "title": "Check Service Status",
+      "text": "<pre><code># View running containers\ndocker compose ps\n\n# Check logs\ndocker compose logs vuls\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#troubleshooting",
+      "title": "Troubleshooting",
+      "text": ""
+    },
+    {
+      "location": "getting-started/installation/#common-issues",
+      "title": "Common Issues",
+      "text": ""
+    },
+    {
+      "location": "getting-started/installation/#docker-permission-denied",
+      "title": "Docker Permission Denied",
+      "text": "<pre><code># Add user to docker group\nsudo usermod -aG docker $USER\nnewgrp docker\n\n# Or run with sudo (not recommended for production)\nsudo docker compose up\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#database-download-failures",
+      "title": "Database Download Failures",
+      "text": "<pre><code># Check internet connectivity\nping google.com\n\n# Retry specific database\ndocker compose --profile fetch up vuls-nvd --force-recreate\n\n# Check disk space\ndf -h\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#port-conflicts",
+      "title": "Port Conflicts",
+      "text": "<pre><code># Check what's using port 8000\nsudo lsof -i :8000\n\n# Change port in docker-compose.yml\n# ports:\n#   - \"8001:8000\"  # Change external port\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#ssh-connection-issues",
+      "title": "SSH Connection Issues",
+      "text": "<pre><code># Test SSH manually\nssh -vvv user@target-system\n\n# Check SSH key permissions\nls -la ~/.ssh/\nchmod 600 ~/.ssh/id_*\nchmod 644 ~/.ssh/*.pub\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#getting-help",
+      "title": "Getting Help",
+      "text": "<p>If you encounter issues:</p> <ol> <li>Check the Troubleshooting Guide</li> <li>Review Docker and system logs</li> <li>Verify all prerequisites are met</li> <li>Consult the community forums</li> </ol>"
+    },
+    {
+      "location": "getting-started/installation/#next-steps",
+      "title": "Next Steps",
+      "text": "<p>Once installation is complete:</p> <ol> <li>Configure your system - Set up target hosts and scanning parameters</li> <li>Run your first scan - Execute a vulnerability assessment</li> <li>Explore the web interface - Use the management dashboard</li> </ol>"
+    },
+    {
+      "location": "getting-started/installation/#security-considerations",
+      "title": "Security Considerations",
+      "text": ""
+    },
+    {
+      "location": "getting-started/installation/#file-permissions",
+      "title": "File Permissions",
+      "text": "<pre><code># Secure configuration files\nchmod 600 config/config.toml\nchmod 600 .ssh/id_*\n\n# Secure database files\nchmod 600 db/*.sqlite3\n</code></pre>"
+    },
+    {
+      "location": "getting-started/installation/#network-security",
+      "title": "Network Security",
+      "text": "<ul> <li>Ensure Docker daemon is properly secured</li> <li>Use SSH keys instead of passwords</li> <li>Consider VPN for remote scanning</li> <li>Implement proper firewall rules</li> </ul>"
+    },
+    {
+      "location": "getting-started/installation/#data-protection",
+      "title": "Data Protection",
+      "text": "<ul> <li>Encrypt sensitive configuration data</li> <li>Regularly backup scan results</li> <li>Implement log rotation</li> <li>Monitor system access</li> </ul> <p>Installation complete! Continue to Configuration to set up your scanning targets.</p>"
+    },
+    {
+      "location": "user-guide/",
+      "title": "User Guide",
+      "text": "<p>This section provides comprehensive guides for daily operations and management of your Vuls vulnerability scanning system.</p>"
+    },
+    {
+      "location": "user-guide/#overview",
+      "title": "Overview",
+      "text": "<p>Once your Vuls system is installed and configured, this user guide will help you:</p> <ul> <li>Establish regular scanning workflows</li> <li>Analyze vulnerability results effectively</li> <li>Generate professional reports</li> <li>Use the web interface efficiently</li> <li>Manage hosts and scan schedules</li> </ul>"
+    },
+    {
+      "location": "user-guide/#what-youll-find-here",
+      "title": "What You'll Find Here",
+      "text": ""
+    },
+    {
+      "location": "user-guide/#monthly-scanning-workflow",
+      "title": "Monthly Scanning Workflow",
+      "text": "<p>Complete guide to establishing a regular monthly vulnerability assessment process, including:</p> <ul> <li>Database update procedures</li> <li>System discovery and inventory management</li> <li>Scan execution and verification</li> <li>Results analysis and prioritization</li> <li>Compliance reporting</li> </ul>"
+    },
+    {
+      "location": "user-guide/#vulnerability-analysis",
+      "title": "Vulnerability Analysis",
+      "text": "<p>Deep dive into understanding and interpreting scan results:</p> <ul> <li>OVAL vs GOST database differences</li> <li>Severity assessment and prioritization</li> <li>False positive identification</li> <li>End-of-life system considerations</li> <li>Risk scoring methodologies</li> </ul>"
+    },
+    {
+      "location": "user-guide/#web-interface-guide",
+      "title": "Web Interface Guide",
+      "text": "<p>Comprehensive guide to using the web-based management interface:</p> <ul> <li>Dashboard overview and navigation</li> <li>Host management and configuration</li> <li>Scan scheduling and monitoring</li> <li>User management and authentication</li> <li>Real-time status monitoring</li> </ul>"
+    },
+    {
+      "location": "user-guide/#report-generation",
+      "title": "Report Generation",
+      "text": "<p>Creating professional vulnerability reports:</p> <ul> <li>Interactive HTML reports with charts</li> <li>Export options (PDF, CSV, JSON)</li> <li>Custom report templates</li> <li>Automated report distribution</li> <li>Executive summary generation</li> </ul>"
+    },
+    {
+      "location": "user-guide/#key-concepts",
+      "title": "Key Concepts",
+      "text": ""
+    },
+    {
+      "location": "user-guide/#vulnerability-databases",
+      "title": "Vulnerability Databases",
+      "text": "<ul> <li>OVAL: Operating system vendor vulnerability definitions</li> <li>GOST: Go Security Tracker with Ubuntu-specific data</li> <li>CVE: Common Vulnerabilities and Exposures database</li> <li>GOST: Exploit and Metasploit integration</li> </ul>"
+    },
+    {
+      "location": "user-guide/#scanning-modes",
+      "title": "Scanning Modes",
+      "text": "<ul> <li>Fast Scan: Quick assessment for regular monitoring</li> <li>Deep Scan: Comprehensive analysis with all databases</li> <li>Targeted Scan: Focus on specific packages or systems</li> <li>Scheduled Scan: Automated recurring assessments</li> </ul>"
+    },
+    {
+      "location": "user-guide/#report-types",
+      "title": "Report Types",
+      "text": "<ul> <li>Executive Summary: High-level overview for management</li> <li>Technical Report: Detailed findings for IT teams</li> <li>Compliance Report: Formatted for audit requirements</li> <li>Trend Analysis: Historical vulnerability tracking</li> </ul>"
+    },
+    {
+      "location": "user-guide/#best-practices",
+      "title": "Best Practices",
+      "text": ""
+    },
+    {
+      "location": "user-guide/#regular-scanning-schedule",
+      "title": "\ud83d\uddd3\ufe0f Regular Scanning Schedule",
+      "text": "<ul> <li>Monthly comprehensive scans for all systems</li> <li>Weekly quick scans for critical infrastructure</li> <li>Immediate scans after system changes</li> <li>Database updates before each scan cycle</li> </ul>"
+    },
+    {
+      "location": "user-guide/#effective-prioritization",
+      "title": "\ud83c\udfaf Effective Prioritization",
+      "text": "<ul> <li>Focus on Critical and High severity vulnerabilities first</li> <li>Consider system exposure and business impact</li> <li>Track remediation progress over time</li> <li>Document risk acceptance decisions</li> </ul>"
+    },
+    {
+      "location": "user-guide/#report-management",
+      "title": "\ud83d\udcca Report Management",
+      "text": "<ul> <li>Generate reports immediately after scans</li> <li>Archive historical reports for trend analysis</li> <li>Customize reports for different audiences</li> <li>Automate distribution to stakeholders</li> </ul>"
+    },
+    {
+      "location": "user-guide/#system-maintenance",
+      "title": "\ud83d\udd27 System Maintenance",
+      "text": "<ul> <li>Keep vulnerability databases current</li> <li>Monitor scan execution for errors</li> <li>Validate SSH connectivity regularly</li> <li>Review and update host inventory</li> </ul>"
+    },
+    {
+      "location": "user-guide/#workflow-integration",
+      "title": "Workflow Integration",
+      "text": ""
+    },
+    {
+      "location": "user-guide/#with-existing-tools",
+      "title": "With Existing Tools",
+      "text": "<ul> <li>Ticketing Systems: Integrate vulnerability findings</li> <li>Patch Management: Coordinate remediation efforts</li> <li>SIEM/Logging: Forward scan results and alerts</li> <li>Configuration Management: Track system changes</li> </ul>"
+    },
+    {
+      "location": "user-guide/#compliance-frameworks",
+      "title": "Compliance Frameworks",
+      "text": "<ul> <li>NIST Cybersecurity Framework: Align with Identify, Protect, Detect</li> <li>ISO 27001: Support risk assessment processes</li> <li>PCI DSS: Meet vulnerability scanning requirements</li> <li>SOC 2: Demonstrate continuous monitoring</li> </ul>"
+    },
+    {
+      "location": "user-guide/#getting-help",
+      "title": "Getting Help",
+      "text": "<ul> <li>Troubleshooting: Common issues and solutions</li> <li>Configuration: System and scan configuration options</li> <li>API Reference: Programmatic access to functionality</li> <li>Community: Discussion forums and support channels</li> </ul> <p>Ready to establish your scanning workflow? Start with the Monthly Scanning Guide.</p>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/",
+      "title": "Monthly Vulnerability Scanning Workflow",
+      "text": "<p>This guide outlines the process for conducting regular monthly vulnerability scans using Vuls in a containerized environment. The process ensures consistent, automated vulnerability assessments across your infrastructure.</p>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#prerequisites",
+      "title": "Prerequisites",
+      "text": "<ul> <li>Docker and Docker Compose installed</li> <li>Vuls container with AWS CLI and GCP CLI</li> <li>SSH access to target systems (direct or via AWS Session Manager)</li> <li>Vulnerability databases configured</li> </ul>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#phase-1-database-updates-1st-of-each-month",
+      "title": "Phase 1: Database Updates (1<sup>st</sup> of each month)",
+      "text": ""
+    },
+    {
+      "location": "user-guide/monthly-scanning/#11-update-vulnerability-databases",
+      "title": "1.1 Update Vulnerability Databases",
+      "text": "<p>Frequency: Monthly (or weekly for high-security environments)</p> <p>!!! warning \"OS Version Limitations\" - Ubuntu OVAL: Only covers currently supported LTS versions (20.04, 22.04, 24.04) - Debian OVAL: Only covers currently supported versions (10, 11, 12) - End-of-Life (EOL) systems: Cannot be properly scanned due to missing OVAL data - Recently released versions: May show 0 vulnerabilities if well-patched</p> <p>Supported OS Versions for Vulnerability Scanning:</p> OS Supported Versions Status Ubuntu 20.04 LTS (Focal), 22.04 LTS (Jammy), 24.04 LTS (Noble) \u2705 Fully Supported Debian 10 (Buster), 11 (Bullseye), 12 (Bookworm) \u2705 Fully Supported RHEL/CentOS 7, 8, 9 \u2705 Fully Supported Amazon Linux 1, 2, 2023 \u2705 Fully Supported Ubuntu 16.04/18.04 EOL versions \u274c Limited or no OVAL data Debian 8/9 EOL versions \u274c Limited or no OVAL data <pre><code># Navigate to your Vuls directory\ncd ~/docker/vuls\n\n# Update NVD (CVE) database - most critical\ndocker compose --profile fetch up vuls-nvd\n\n# Update OS-specific databases (only supported versions)\ndocker compose --profile fetch up vuls-ubuntu    # Ubuntu 20.04, 22.04, 24.04\ndocker compose --profile fetch up vuls-debian    # Debian 10, 11, 12\ndocker compose --profile fetch up vuls-redhat    # RHEL/CentOS 7, 8, 9\ndocker compose --profile fetch up vuls-amazon    # Amazon Linux 1, 2, 2023\n\n# Verify database updates\nls -la ./db/\ndu -sh ./db/*\n</code></pre> <p>Expected Database Sizes:</p> <ul> <li><code>cve.sqlite3</code>: 1-2GB (NVD database - ~280K CVEs)</li> <li><code>oval.sqlite3</code>: 200-400MB (OS-specific vulnerabilities - ~200K definitions)</li> </ul> <p>Database Coverage Verification:</p> <pre><code># Check which OS versions are covered\ndocker compose run --rm --entrypoint sqlite3 vuls /vuls/db/oval.sqlite3 \"SELECT DISTINCT substr(title, instr(title, 'Ubuntu'), 20) FROM definitions WHERE title LIKE '%Ubuntu%' LIMIT 5;\"\n\n# Check total definitions count\ndocker compose run --rm --entrypoint sqlite3 vuls /vuls/db/oval.sqlite3 \"SELECT COUNT(*) FROM definitions;\"\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#12-validate-database-updates",
+      "title": "1.2 Validate Database Updates",
+      "text": "<pre><code># Check database timestamps\nstat ./db/*.sqlite3\n\n# Test database connectivity\ndocker-compose run --rm vuls configtest\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#phase-2-system-discovery-and-inventory",
+      "title": "Phase 2: System Discovery and Inventory",
+      "text": ""
+    },
+    {
+      "location": "user-guide/monthly-scanning/#21-update-target-systems-inventory",
+      "title": "2.1 Update Target Systems Inventory",
+      "text": "<p>Review and update your <code>config/config.toml</code>:</p> <pre><code>[cveDict]\ntype = \"sqlite3\"\nSQLite3Path = \"/vuls/db/cve.sqlite3\"\n\n[ovalDict]\ntype = \"sqlite3\"\nSQLite3Path = \"/vuls/db/oval.sqlite3\"\n\n[gost]\ntype = \"sqlite3\"\nSQLite3Path = \"/vuls/db/gost.sqlite3\"\n\n[exploit]\ntype = \"sqlite3\"\nSQLite3Path = \"/vuls/db/go-exploitdb.sqlite3\"\n\n[metasploit]\ntype = \"sqlite3\"\nSQLite3Path = \"/vuls/db/go-msfdb.sqlite3\"\n\n[kevuln]\ntype = \"sqlite3\"\nSQLite3Path = \"/vuls/db/go-kev.sqlite3\"\n\n[cti]\ntype = \"sqlite3\"\nSQLite3Path = \"/vuls/db/go-cti.sqlite3\"\n\n[servers]\n\n[servers.icinga2]\nhost = \"icinga2\"\nport = \"22\"\nuser = \"admin\"\nkeypath = \"/root/.ssh/id_aws\"\n\n[servers.anisette-v3]\nhost = \"anisette-v3\"\nport = \"22\"\nuser = \"ubuntu\"\nkeypath = \"/root/.ssh/id_aws\"\n\n[servers.retailaware-u16tbpe]\nhost = \"retailaware-u16tbpe\"\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#22-validate-system-access",
+      "title": "2.2 Validate System Access",
+      "text": "<pre><code># Test configuration for all systems\ndocker compose run --rm vuls configtest\n\n# Test SSH connectivity to each system\ndocker compose run --rm --entrypoint ssh vuls admin@target-system\n\n# Enter container for manual testing if needed\ndocker compose run --rm --entrypoint /bin/sh vuls\n# Inside container:\n# ssh -vvv admin@target-system\n# aws sts get-caller-identity\n# gcloud auth list\n# exit\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#23-ssh-agent-configuration-for-multiple-keys",
+      "title": "2.3 SSH Agent Configuration for Multiple Keys",
+      "text": "<p>When scanning multiple systems with different SSH keys, use SSH agent for seamless key management:</p> <p>On Host System (before scanning):</p> <pre><code># Start SSH agent\neval $(ssh-agent)\n\n# Add specific keys for different systems\nssh-add ~/.ssh/id_aws          # AWS EC2 instances\nssh-add ~/.ssh/id_gcp          # GCP instances\nssh-add ~/.ssh/id_ed25519      # On-premise systems\nssh-add ~/.ssh/id_rsa          # Legacy systems\n\n# Verify keys are loaded\nssh-add -l\n\n# Test connectivity with agent\nssh your-target-system         # Should work without specifying key\n</code></pre> <p>Configure SSH agent forwarding in your SSH config:</p> <pre><code>cat &gt;&gt; ~/.ssh/config &lt;&lt; 'EOF'\nhost *\n  IdentityFile ~/.ssh/id_aws\n  IdentitiesOnly yes\n\nhost icinga2\n  User admin\n  Hostname i-0a1347a614cf7cea5\n  ProxyCommand sh -c \"aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'\"\n  ControlPersist 72h\n\nhost anisette-v3\n  User ubuntu\n  HostName i-022d1ec1b8c62660b\n  ProxyCommand sh -c \"aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'\"\n\nHost retailaware-u16tbpe\n  User paulb\n  IdentityFile ~/.ssh/id_gcp\n  IdentitiesOnly yes\n  ProxyCommand gcloud compute ssh %h --tunnel-through-iap --zone=us-east1-b --project=thingsboard-210800 -- -W %h:%p\nEOF\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#phase-3-vulnerability-scanning",
+      "title": "Phase 3: Vulnerability Scanning",
+      "text": ""
+    },
+    {
+      "location": "user-guide/monthly-scanning/#31-pre-scan-checklist",
+      "title": "3.1 Pre-Scan Checklist",
+      "text": "<ul> <li> Vulnerability databases updated</li> <li> All target systems accessible</li> <li> SSH keys properly mounted</li> <li> AWS/GCP credentials configured</li> <li> Previous scan results backed up</li> </ul>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#32-execute-monthly-scan",
+      "title": "3.2 Execute Monthly Scan",
+      "text": "<pre><code># Create monthly results directory\nSCAN_DATE=$(date +%Y-%m)\nmkdir -p ./results/monthly-scans/$SCAN_DATE\n\n# Run comprehensive scan\ndocker compose run --rm vuls scan\n\n# Generate detailed reports\ndocker compose run --rm vuls report -format-json\ndocker compose run --rm vuls report -format-full-text\ndocker compose run --rm vuls report -format-csv\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#33-scan-verification",
+      "title": "3.3 Scan Verification",
+      "text": "<pre><code># Check scan completed successfully\nls -la ./results/$(date +%Y-%m-%d)*\n\n# Verify all systems were scanned\ndocker-compose run --rm vuls report -format-one-line-text\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#phase-4-results-analysis-and-reporting",
+      "title": "Phase 4: Results Analysis and Reporting",
+      "text": ""
+    },
+    {
+      "location": "user-guide/monthly-scanning/#41-generate-management-reports",
+      "title": "4.1 Generate Management Reports",
+      "text": "<pre><code># Create executive summary\ndocker compose run --rm vuls report -format-list &gt; ./results/monthly-scans/$SCAN_DATE/executive-summary.txt\n\n# Generate detailed CSV for tracking\ndocker compose run --rm vuls report -format-csv &gt; ./results/monthly-scans/$SCAN_DATE/detailed-vulnerabilities.csv\n\n# Create system-by-system breakdown\ndocker compose run --rm vuls report -format-full-text &gt; ./results/monthly-scans/$SCAN_DATE/full-report.txt\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#42-vulnerability-prioritization-and-interpretation",
+      "title": "4.2 Vulnerability Prioritization and Interpretation",
+      "text": "<p>Critical Actions Required:</p> <ol> <li>Critical/High vulnerabilities: Immediate action required</li> <li>Medium vulnerabilities: Plan remediation within 30 days</li> <li>Low vulnerabilities: Include in next maintenance window</li> <li>0 vulnerabilities: Verify interpretation (see below)</li> </ol> <p>Understanding Zero Vulnerability Results</p> <p>\u2705 Legitimate Zero Vulnerabilities (Good): - Recent LTS systems: Ubuntu 24.04, Debian 12 (well-patched) - Actively maintained systems: Regular security updates applied - Container images: Recent base images with security patches</p> <p>\u26a0\ufe0f False Zero Vulnerabilities (Concerning): - EOL systems: Ubuntu 16.04/18.04, Debian 8/9 showing 0 CVEs - Scan errors: \"Skip OVAL\" messages in logs - Database issues: Missing OVAL data for target OS version</p> <p>Validation Steps for Zero Vulnerability Results:</p> <pre><code># Check if OVAL database covers your OS version\ndocker compose run --rm --entrypoint sqlite3 vuls /vuls/db/oval.sqlite3 \"SELECT COUNT(*) FROM definitions WHERE title LIKE '%Ubuntu 18.04%';\"\n\n# Look for OVAL skip messages in scan logs\ndocker compose run --rm vuls scan -debug 2&gt;&amp;1 | grep -i \"skip.*oval\"\n\n# Verify system is actually supported\ndocker compose run --rm vuls configtest -debug | grep -i \"detected\"\n</code></pre> <p>Priority Matrix:</p> <ul> <li>CVSS 9.0-10.0 (Critical) \u2192 Patch within 72 hours</li> <li>CVSS 7.0-8.9 (High) \u2192 Patch within 7 days</li> <li>CVSS 4.0-6.9 (Medium) \u2192 Patch within 30 days</li> <li>CVSS 0.1-3.9 (Low) \u2192 Next maintenance cycle</li> <li>0 CVEs on EOL systems \u2192 Urgent OS upgrade required</li> </ul>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#43-trend-analysis",
+      "title": "4.3 Trend Analysis",
+      "text": "<pre><code># Compare with previous month\ndiff ./results/monthly-scans/$(date -d \"last month\" +%Y-%m)/executive-summary.txt \\\n     ./results/monthly-scans/$SCAN_DATE/executive-summary.txt\n\n# Track vulnerability counts over time\necho \"$(date +%Y-%m): $(grep -c 'CVE-' ./results/monthly-scans/$SCAN_DATE/detailed-vulnerabilities.csv)\" &gt;&gt; vulnerability-trends.log\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#phase-5-remediation-tracking",
+      "title": "Phase 5: Remediation Tracking",
+      "text": ""
+    },
+    {
+      "location": "user-guide/monthly-scanning/#51-create-remediation-plan",
+      "title": "5.1 Create Remediation Plan",
+      "text": "<pre><code># Extract high-priority vulnerabilities\ngrep -E \"(Critical|High)\" ./results/monthly-scans/$SCAN_DATE/detailed-vulnerabilities.csv &gt; high-priority-vulns.csv\n\n# Create remediation tickets/tasks\n# (Integrate with your ticketing system)\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#52-track-remediation-progress",
+      "title": "5.2 Track Remediation Progress",
+      "text": "<p>Create a tracking spreadsheet with:</p> <ul> <li>CVE ID</li> <li>Affected System</li> <li>Severity</li> <li>Discovery Date</li> <li>Assigned Owner</li> <li>Target Remediation Date</li> <li>Status</li> <li>Verification Date</li> </ul>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#phase-6-compliance-and-documentation",
+      "title": "Phase 6: Compliance and Documentation",
+      "text": ""
+    },
+    {
+      "location": "user-guide/monthly-scanning/#61-compliance-reporting",
+      "title": "6.1 Compliance Reporting",
+      "text": "<pre><code># Generate compliance report\ncat &gt; ./results/monthly-scans/$SCAN_DATE/compliance-report.md &lt;&lt; EOF\n# Monthly Vulnerability Assessment Report - $SCAN_DATE\n\n## Executive Summary\n- Systems Scanned: $(grep -c \"\\[servers\\.\" config/config.toml)\n- Total Vulnerabilities: $(grep -c \"CVE-\" ./results/monthly-scans/$SCAN_DATE/detailed-vulnerabilities.csv)\n- Critical: $(grep -c \"Critical\" ./results/monthly-scans/$SCAN_DATE/detailed-vulnerabilities.csv)\n- High: $(grep -c \"High\" ./results/monthly-scans/$SCAN_DATE/detailed-vulnerabilities.csv)\n- Medium: $(grep -c \"Medium\" ./results/monthly-scans/$SCAN_DATE/detailed-vulnerabilities.csv)\n- Low: $(grep -c \"Low\" ./results/monthly-scans/$SCAN_DATE/detailed-vulnerabilities.csv)\n\n## Remediation Status\n- Patched This Month: [To be filled]\n- In Progress: [To be filled]\n- Scheduled: [To be filled]\n\n## Next Month Actions\n- [List planned remediation activities]\nEOF\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#62-archive-results",
+      "title": "6.2 Archive Results",
+      "text": "<pre><code># Compress monthly results\ntar -czf ./archive/vulnerability-scan-$SCAN_DATE.tar.gz ./results/monthly-scans/$SCAN_DATE/\n\n# Clean up old detailed results (keep last 6 months)\nfind ./results/ -type d -name \"20*\" -mtime +180 -exec rm -rf {} \\;\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#automation-scripts",
+      "title": "Automation Scripts",
+      "text": ""
+    },
+    {
+      "location": "user-guide/monthly-scanning/#monthly-scan-script",
+      "title": "Monthly Scan Script",
+      "text": "<pre><code>#!/bin/bash\n# monthly-vuln-scan.sh\n\nset -e\n\nSCAN_DATE=$(date +%Y-%m)\nLOG_FILE=\"./logs/monthly-scan-$SCAN_DATE.log\"\n\necho \"Starting monthly vulnerability scan for $SCAN_DATE\" | tee -a $LOG_FILE\n\n# Update databases\necho \"Updating vulnerability databases...\" | tee -a $LOG_FILE\ndocker compose --profile fetch up vuls-nvd vuls-ubuntu vuls-debian\n\n# Validate configuration\necho \"Validating configuration...\" | tee -a $LOG_FILE\ndocker compose run --rm vuls configtest\n\n# Run scan\necho \"Executing vulnerability scan...\" | tee -a $LOG_FILE\ndocker compose run --rm vuls scan\n\n# Generate reports\necho \"Generating reports...\" | tee -a $LOG_FILE\nmkdir -p ./results/monthly-scans/$SCAN_DATE\ndocker compose run --rm vuls report -format-csv &gt; ./results/monthly-scans/$SCAN_DATE/vulnerabilities.csv\ndocker compose run --rm vuls report -format-list &gt; ./results/monthly-scans/$SCAN_DATE/summary.txt\n\necho \"Monthly scan completed successfully\" | tee -a $LOG_FILE\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#database-update-script",
+      "title": "Database Update Script",
+      "text": "<pre><code>#!/bin/bash\n# update-vuln-databases.sh\n\necho \"Updating Vuls vulnerability databases...\"\n\n# Update all databases\ndocker compose --profile fetch up vuls-nvd\ndocker compose --profile fetch up vuls-ubuntu\ndocker compose --profile fetch up vuls-debian\ndocker compose --profile fetch up vuls-redhat\n\n# Log update completion\necho \"$(date): Database update completed\" &gt;&gt; ./logs/database-updates.log\n\n# Check database sizes\ndu -sh ./db/* &gt;&gt; ./logs/database-sizes.log\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#troubleshooting-common-issues",
+      "title": "Troubleshooting Common Issues",
+      "text": ""
+    },
+    {
+      "location": "user-guide/monthly-scanning/#why-oval-scanning-may-be-skipped",
+      "title": "Why OVAL Scanning May Be Skipped",
+      "text": "<p>If you see \"Skip OVAL and Scan with gost alone\" message, it indicates that OVAL scanning has been programmatically disabled for End-of-Life (EOL) operating systems.</p> <p>Root Cause: Vuls automatically skips OVAL scanning for EOL systems, even when the OVAL database contains vulnerability definitions.</p> <p>Affected Systems:</p> <ul> <li>\u274c Ubuntu 16.04 (Xenial): EOL April 2021 - OVAL scanning skipped</li> <li>\u274c Ubuntu 18.04 (Bionic): EOL May 2023 - OVAL scanning skipped</li> <li>\u274c Debian 8 (Jessie): EOL June 2020 - OVAL scanning skipped</li> <li>\u274c Debian 9 (Stretch): EOL July 2022 - OVAL scanning skipped</li> </ul> <p>What This Means:</p> <ol> <li>Database is OK: Your OVAL database may contain 30,000+ vulnerability definitions for the EOL system</li> <li>Configuration is OK: Vuls correctly detects the target OS version</li> <li>Intentional Behavior: Vuls skips OVAL scanning by design for EOL systems</li> <li>Limited Detection: Only GOST, CPE, and other detection methods are used</li> </ol> <p>Solutions:</p> <ol> <li>Recommended: Upgrade EOL systems to supported versions (Ubuntu 20.04+, Debian 10+)</li> <li>Temporary: Accept limited vulnerability detection and implement compensating controls</li> <li>Documentation: Note the limitation in security assessments and compliance reports</li> </ol>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#ssh-connection-failures",
+      "title": "SSH Connection Failures",
+      "text": "<pre><code># Test SSH connectivity\ndocker compose run --rm --entrypoint ssh vuls -vvv target-system\n\n# Check SSH key permissions\nls -la ./.ssh/\n\n# Enter container for manual debugging\ndocker compose run --rm --entrypoint /bin/sh vuls\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#aws-session-manager-issues",
+      "title": "AWS Session Manager Issues",
+      "text": "<pre><code># Verify AWS credentials\ndocker compose run --rm --entrypoint aws vuls sts get-caller-identity\n\n# Test Session Manager\ndocker compose run --rm --entrypoint aws vuls ssm describe-instance-information\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#database-issues",
+      "title": "Database Issues",
+      "text": "<pre><code># Verify database integrity\nsqlite3 ./db/cve.sqlite3 \"PRAGMA integrity_check;\"\n\n# Check database sizes\ndu -sh ./db/*\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#compliance-considerations",
+      "title": "Compliance Considerations",
+      "text": ""
+    },
+    {
+      "location": "user-guide/monthly-scanning/#standards-alignment",
+      "title": "Standards Alignment",
+      "text": "<ul> <li>NIST Cybersecurity Framework: Identify, Protect, Detect, Respond, Recover</li> <li>ISO 27001: Risk assessment and treatment</li> <li>PCI DSS: Regular vulnerability assessments</li> <li>SOC 2: System monitoring and vulnerability management</li> </ul>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#documentation-requirements",
+      "title": "Documentation Requirements",
+      "text": "<ul> <li>Scan frequency and coverage</li> <li>Vulnerability assessment procedures</li> <li>Remediation timelines and tracking</li> <li>Risk acceptance documentation</li> <li>Evidence of continuous monitoring</li> <li>OS version limitations and coverage gaps</li> </ul> <p>Compliance Reporting Considerations</p> <p>Important Compliance Notes: - EOL System Risk: Document that EOL systems (Ubuntu 16.04/18.04, Debian 8/9) cannot be properly scanned - Coverage Gaps: Explicitly note OS versions not covered by vulnerability databases - False Negatives: Acknowledge potential for missed vulnerabilities on unsupported systems - Compensating Controls: Implement additional security measures for EOL systems</p> <p>Sample Compliance Language:</p> <pre><code>\"Vulnerability scanning covers all systems running supported operating system versions\n(Ubuntu 20.04+, Debian 10+, RHEL 7+). End-of-life systems require additional manual\nsecurity review and compensating controls due to limited vulnerability database coverage.\"\n</code></pre>"
+    },
+    {
+      "location": "user-guide/monthly-scanning/#conclusion",
+      "title": "Conclusion",
+      "text": "<p>Regular monthly vulnerability scanning with Vuls provides continuous visibility into your security posture. This systematic approach ensures vulnerabilities are identified, prioritized, and remediated in a timely manner, supporting your overall cybersecurity strategy and compliance requirements.</p> <p>Key Takeaways:</p> <ul> <li>OS Version Awareness: Ensure target systems run supported OS versions for accurate scanning</li> <li>Zero Vulnerability Validation: Always verify whether 0 CVEs indicates good security or scanning limitations</li> <li>EOL System Management: Plan upgrades for end-of-life systems that cannot be properly scanned</li> <li>Database Coverage: Regularly verify vulnerability database coverage matches your environment</li> </ul> <p>Critical Success Factors:</p> <ol> <li>Maintain supported OS versions across your infrastructure</li> <li>Validate scan results don't just accept zero vulnerability counts</li> <li>Document coverage limitations for compliance and risk management</li> <li>Plan EOL system transitions before vulnerability database support ends</li> </ol> <p>Remember to adapt this process to your organization's specific needs, risk tolerance, compliance requirements, and the reality of OS version limitations in vulnerability scanning tools.</p>"
+    },
+    {
+      "location": "user-guide/reporting/",
+      "title": "Report Generation",
+      "text": "<p>A comprehensive guide to generating professional vulnerability reports using the Vuls interactive HTML report generator and other reporting formats.</p>"
+    },
+    {
+      "location": "user-guide/reporting/#overview",
+      "title": "Overview",
+      "text": "<p>The Vuls system provides multiple reporting options:</p> <ul> <li>Interactive HTML Reports: Modern, professional reports with charts and filtering</li> <li>CSV Exports: Structured data for analysis and tracking</li> <li>JSON Outputs: Machine-readable format for integration</li> <li>Text Reports: Simple summaries for quick review</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#interactive-html-reports",
+      "title": "Interactive HTML Reports",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#features",
+      "title": "Features",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#interactive-dashboard",
+      "title": "\ud83d\udcca Interactive Dashboard",
+      "text": "<ul> <li>Executive summary with key metrics</li> <li>Real-time vulnerability statistics</li> <li>Color-coded severity indicators</li> <li>Package risk scoring</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#advanced-analytics",
+      "title": "\ud83d\udcc8 Advanced Analytics",
+      "text": "<ul> <li>Severity Distribution: Donut chart showing vulnerability breakdown</li> <li>Timeline Analysis: Line chart of vulnerability publication dates</li> <li>CVSS Score Distribution: Bar chart of score ranges</li> <li>Package Risk Assessment: Horizontal bar chart of highest-risk packages</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#powerful-filtering",
+      "title": "\ud83d\udd0d Powerful Filtering",
+      "text": "<ul> <li>Real-time search across CVE IDs, packages, and descriptions</li> <li>Severity level filtering (Critical/High/Medium/Low)</li> <li>CVSS score range sliders</li> <li>Advanced sorting options</li> <li>Filter statistics and clear functionality</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#modern-uiux",
+      "title": "\ud83c\udfa8 Modern UI/UX",
+      "text": "<ul> <li>Responsive design (mobile/desktop)</li> <li>Dark/light theme toggle</li> <li>TailwindCSS styling with custom enhancements</li> <li>Smooth animations and transitions</li> <li>Print-friendly layout</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#export-capabilities",
+      "title": "\ud83d\udce4 Export Capabilities",
+      "text": "<ul> <li>PDF export (via browser print)</li> <li>CSV export of filtered results</li> <li>Self-contained HTML reports</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#generating-html-reports",
+      "title": "Generating HTML Reports",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#prerequisites",
+      "title": "Prerequisites",
+      "text": "<pre><code>pip install jinja2  # or uv add jinja2\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#basic-usage",
+      "title": "Basic Usage",
+      "text": "<pre><code>cd vulnerability-reports\n\npython generate_report.py \\\n  --input ../realistic_vulnerabilities.json \\\n  --output reports/vulnerability_report.html \\\n  --title \"System Vulnerability Assessment Report\"\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#command-line-options",
+      "title": "Command Line Options",
+      "text": "<pre><code>python generate_report.py [OPTIONS]\n\nOptions:\n  -i, --input PATH        Input JSON file (required)\n  -o, --output PATH       Output HTML file (required)\n  -t, --title TEXT        Report title (default: \"Vulnerability Report\")\n  --theme [light|dark]    Report theme (default: \"light\")\n  --template-dir PATH     Template directory (default: \"templates\")\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#example-commands",
+      "title": "Example Commands",
+      "text": "<pre><code># Generate a basic report\npython generate_report.py -i ../comprehensive_vulnerabilities.json -o reports/security_report.html\n\n# Generate with custom title and dark theme\npython generate_report.py \\\n  -i ../scan_results.json \\\n  -o reports/monthly_security_audit.html \\\n  -t \"Monthly Security Audit - December 2024\" \\\n  --theme dark\n\n# Use custom template directory\npython generate_report.py \\\n  -i ../vulnerabilities.json \\\n  -o reports/custom_report.html \\\n  --template-dir custom_templates/\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#input-data-format",
+      "title": "Input Data Format",
+      "text": "<p>The HTML report generator expects JSON data in the following format:</p> <pre><code>{\n  \"total_vulnerabilities\": 36,\n  \"packages_affected\": 8,\n  \"vulnerability_breakdown\": {\n    \"CRITICAL\": 3,\n    \"HIGH\": 8,\n    \"MEDIUM\": 20,\n    \"LOW\": 5,\n    \"unknown\": 0\n  },\n  \"high_risk_packages\": [\n    {\n      \"package\": \"git\",\n      \"total_vulns\": 10,\n      \"critical\": 3,\n      \"high\": 1,\n      \"medium\": 4,\n      \"low\": 2,\n      \"risk_score\": 45\n    }\n  ],\n  \"vulnerabilities\": [\n    {\n      \"cve_id\": \"CVE-2022-4203\",\n      \"definition_id\": \"oval:org.debian:def:...\",\n      \"title\": \"CVE-2022-4203 openssl\",\n      \"description\": \"Vulnerability description...\",\n      \"affected_package\": \"openssl\",\n      \"installed_version\": \"3.0.16-1~deb12u1\",\n      \"cvss_score\": 4.9,\n      \"severity\": \"MEDIUM\",\n      \"summary\": \"Detailed summary...\",\n      \"published_date\": \"2023-02-24 15:15:11.98+00:00\"\n    }\n  ]\n}\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#standard-vuls-reports",
+      "title": "Standard Vuls Reports",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#json-reports",
+      "title": "JSON Reports",
+      "text": "<pre><code># Generate JSON report\ndocker compose run --rm vuls report -format-json\n\n# Save to specific file\ndocker compose run --rm vuls report -format-json &gt; reports/scan-$(date +%Y%m%d).json\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#csv-reports",
+      "title": "CSV Reports",
+      "text": "<pre><code># Generate CSV report\ndocker compose run --rm vuls report -format-csv\n\n# Save to specific file\ndocker compose run --rm vuls report -format-csv &gt; reports/vulnerabilities-$(date +%Y%m%d).csv\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#text-reports",
+      "title": "Text Reports",
+      "text": "<pre><code># Generate full text report\ndocker compose run --rm vuls report -format-full-text\n\n# Generate one-line summary\ndocker compose run --rm vuls report -format-one-line-text\n\n# Generate list format\ndocker compose run --rm vuls report -format-list\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#report-automation",
+      "title": "Report Automation",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#automated-report-generation-script",
+      "title": "Automated Report Generation Script",
+      "text": "<pre><code>#!/bin/bash\n# generate-reports.sh\n\nset -e\n\nDATE=$(date +%Y%m%d)\nREPORT_DIR=\"reports/$(date +%Y-%m)\"\nmkdir -p \"$REPORT_DIR\"\n\necho \"Generating vulnerability reports for $DATE...\"\n\n# Generate Vuls native reports\necho \"Generating JSON report...\"\ndocker compose run --rm vuls report -format-json &gt; \"$REPORT_DIR/scan-$DATE.json\"\n\necho \"Generating CSV report...\"\ndocker compose run --rm vuls report -format-csv &gt; \"$REPORT_DIR/vulnerabilities-$DATE.csv\"\n\necho \"Generating text summary...\"\ndocker compose run --rm vuls report -format-list &gt; \"$REPORT_DIR/summary-$DATE.txt\"\n\n# Process with comprehensive vulnerability checker\necho \"Processing with enhanced vulnerability checker...\"\npython comprehensive_vulnerability_checker.py \\\n  --vuls-result \"results/$(ls results/ | tail -1)\" \\\n  --output \"$REPORT_DIR/comprehensive-$DATE.json\"\n\n# Generate interactive HTML report\necho \"Generating interactive HTML report...\"\ncd vulnerability-reports\npython generate_report.py \\\n  -i \"../$REPORT_DIR/comprehensive-$DATE.json\" \\\n  -o \"../$REPORT_DIR/interactive-report-$DATE.html\" \\\n  -t \"Vulnerability Assessment Report - $(date +%B\\ %Y)\"\n\necho \"Reports generated in $REPORT_DIR/\"\nls -la \"$REPORT_DIR/\"\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#integration-with-vulnerability-scanners",
+      "title": "Integration with Vulnerability Scanners",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#with-comprehensive_vulnerability_checkerpy",
+      "title": "With comprehensive_vulnerability_checker.py",
+      "text": "<pre><code># Run vulnerability scan\npython comprehensive_vulnerability_checker.py \\\n  --vuls-result results/scan_result.json \\\n  --output comprehensive_vulnerabilities.json\n\n# Generate HTML report\ncd vulnerability-reports\npython generate_report.py \\\n  -i ../comprehensive_vulnerabilities.json \\\n  -o reports/security_assessment.html \\\n  -t \"Infrastructure Security Assessment\"\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#complete-workflow-example",
+      "title": "Complete Workflow Example",
+      "text": "<pre><code>#!/bin/bash\n# complete-scan-and-report.sh\n\nDATE=$(date +%Y%m%d)\nSCAN_FILE=\"results/scan_${DATE}.json\"\nVULN_FILE=\"vulnerabilities_${DATE}.json\"\nREPORT_FILE=\"reports/security_report_${DATE}.html\"\n\n# Run Vuls scan\necho \"Running vulnerability scan...\"\ndocker compose run --rm vuls scan\n\n# Process results\necho \"Processing scan results...\"\npython comprehensive_vulnerability_checker.py \\\n  --vuls-result \"$SCAN_FILE\" \\\n  --output \"$VULN_FILE\"\n\n# Generate HTML report\necho \"Generating interactive report...\"\ncd vulnerability-reports\npython generate_report.py \\\n  -i \"../$VULN_FILE\" \\\n  -o \"../$REPORT_FILE\" \\\n  -t \"Security Assessment - $(date +%B\\ %Y)\"\n\necho \"Complete! Report available at: $REPORT_FILE\"\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#report-customization",
+      "title": "Report Customization",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#custom-templates",
+      "title": "Custom Templates",
+      "text": "<p>The HTML report generator uses Jinja2 templates that can be customized:</p> <pre><code>vulnerability-reports/\n\u251c\u2500\u2500 templates/\n\u2502   \u2514\u2500\u2500 vulnerability_report_template.html  # Main template\n\u251c\u2500\u2500 static/\n\u2502   \u251c\u2500\u2500 css/\n\u2502   \u2502   \u2514\u2500\u2500 custom.css                     # Custom styling\n\u2502   \u2514\u2500\u2500 js/\n\u2502       \u2514\u2500\u2500 report.js                      # Interactive functionality\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#modifying-the-template",
+      "title": "Modifying the Template",
+      "text": "<ol> <li>Edit <code>templates/vulnerability_report_template.html</code></li> <li>Add new sections or charts</li> <li>Customize layout and structure</li> </ol>"
+    },
+    {
+      "location": "user-guide/reporting/#custom-styling",
+      "title": "Custom Styling",
+      "text": "<ol> <li>Edit <code>static/css/custom.css</code> for custom styles</li> <li>Modify TailwindCSS classes in the template</li> <li>Add custom animations and themes</li> </ol>"
+    },
+    {
+      "location": "user-guide/reporting/#adding-functionality",
+      "title": "Adding Functionality",
+      "text": "<ol> <li>Edit <code>static/js/report.js</code> for new interactive features</li> <li>Add custom filtering logic</li> <li>Implement additional chart types</li> </ol>"
+    },
+    {
+      "location": "user-guide/reporting/#report-themes",
+      "title": "Report Themes",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#light-theme-default",
+      "title": "Light Theme (Default)",
+      "text": "<pre><code>python generate_report.py \\\n  -i input.json \\\n  -o output.html \\\n  --theme light\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#dark-theme",
+      "title": "Dark Theme",
+      "text": "<pre><code>python generate_report.py \\\n  -i input.json \\\n  -o output.html \\\n  --theme dark\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#report-distribution",
+      "title": "Report Distribution",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#email-distribution",
+      "title": "Email Distribution",
+      "text": "<pre><code>#!/bin/bash\n# email-reports.sh\n\nREPORT_FILE=\"reports/security_report_$(date +%Y%m%d).html\"\nRECIPIENTS=\"security-team@company.com,management@company.com\"\n\n# Generate report\n./generate-reports.sh\n\n# Email the report\nmail -s \"Monthly Vulnerability Report - $(date +%B\\ %Y)\" \\\n     -a \"$REPORT_FILE\" \\\n     \"$RECIPIENTS\" &lt; email-template.txt\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#web-publishing",
+      "title": "Web Publishing",
+      "text": "<pre><code>#!/bin/bash\n# publish-reports.sh\n\nREPORT_DIR=\"reports/$(date +%Y-%m)\"\nWEB_DIR=\"/var/www/security-reports\"\n\n# Copy reports to web directory\ncp -r \"$REPORT_DIR\" \"$WEB_DIR/\"\n\n# Set permissions\nchmod -R 644 \"$WEB_DIR/$(date +%Y-%m)\"\nchmod 755 \"$WEB_DIR/$(date +%Y-%m)\"\n\necho \"Reports published to: https://internal.company.com/security-reports/$(date +%Y-%m)/\"\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#automated-archival",
+      "title": "Automated Archival",
+      "text": "<pre><code>#!/bin/bash\n# archive-reports.sh\n\nARCHIVE_DIR=\"/backup/security-reports\"\nCURRENT_MONTH=$(date +%Y-%m)\n\n# Create archive\ntar -czf \"$ARCHIVE_DIR/reports-$CURRENT_MONTH.tar.gz\" \"reports/$CURRENT_MONTH/\"\n\n# Clean up old reports (keep last 12 months)\nfind reports/ -type d -name \"20*\" -mtime +365 -exec rm -rf {} \\;\n\necho \"Reports archived to: $ARCHIVE_DIR/reports-$CURRENT_MONTH.tar.gz\"\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#report-analysis",
+      "title": "Report Analysis",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#key-metrics-to-track",
+      "title": "Key Metrics to Track",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#executive-summary-metrics",
+      "title": "Executive Summary Metrics",
+      "text": "<ul> <li>Total vulnerabilities found</li> <li>Breakdown by severity (Critical/High/Medium/Low)</li> <li>Number of affected packages</li> <li>Systems scanned vs. systems with vulnerabilities</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#trend-analysis",
+      "title": "Trend Analysis",
+      "text": "<ul> <li>Month-over-month vulnerability counts</li> <li>Time to remediation tracking</li> <li>Recurring vulnerabilities</li> <li>New vs. resolved vulnerabilities</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#risk-assessment",
+      "title": "Risk Assessment",
+      "text": "<ul> <li>Package risk scores</li> <li>CVSS score distribution</li> <li>Vulnerability age analysis</li> <li>Exposure timeline</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#sample-analysis-queries",
+      "title": "Sample Analysis Queries",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#csv-analysis-with-command-line-tools",
+      "title": "CSV Analysis with Command Line Tools",
+      "text": "<pre><code># Count vulnerabilities by severity\ncut -d',' -f5 vulnerabilities.csv | sort | uniq -c\n\n# Find highest CVSS scores\nsort -t',' -k6 -nr vulnerabilities.csv | head -10\n\n# Count vulnerabilities by package\ncut -d',' -f4 vulnerabilities.csv | sort | uniq -c | sort -nr\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#python-analysis-script",
+      "title": "Python Analysis Script",
+      "text": "<pre><code>#!/usr/bin/env python3\n# analyze-vulnerabilities.py\n\nimport pandas as pd\nimport json\nfrom datetime import datetime\n\ndef analyze_vulnerabilities(csv_file):\n    \"\"\"Analyze vulnerability data from CSV file.\"\"\"\n    df = pd.read_csv(csv_file)\n\n    print(\"=== Vulnerability Analysis ===\")\n    print(f\"Total vulnerabilities: {len(df)}\")\n    print(f\"Unique packages affected: {df['package'].nunique()}\")\n    print(f\"Average CVSS score: {df['cvss_score'].mean():.2f}\")\n\n    print(\"\\n=== Severity Breakdown ===\")\n    severity_counts = df['severity'].value_counts()\n    for severity, count in severity_counts.items():\n        print(f\"{severity}: {count}\")\n\n    print(\"\\n=== Top 10 Vulnerable Packages ===\")\n    package_counts = df['package'].value_counts().head(10)\n    for package, count in package_counts.items():\n        print(f\"{package}: {count}\")\n\n    print(\"\\n=== High Risk Vulnerabilities (CVSS &gt;= 7.0) ===\")\n    high_risk = df[df['cvss_score'] &gt;= 7.0]\n    print(f\"Count: {len(high_risk)}\")\n    for _, vuln in high_risk.head(5).iterrows():\n        print(f\"  {vuln['cve_id']}: {vuln['package']} (CVSS: {vuln['cvss_score']})\")\n\nif __name__ == \"__main__\":\n    import sys\n    if len(sys.argv) != 2:\n        print(\"Usage: python analyze-vulnerabilities.py &lt;csv_file&gt;\")\n        sys.exit(1)\n\n    analyze_vulnerabilities(sys.argv[1])\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#browser-compatibility",
+      "title": "Browser Compatibility",
+      "text": "<p>The interactive HTML reports are compatible with:</p> <ul> <li>Modern Browsers: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+</li> <li>Features: ES6+, CSS Grid, Flexbox, Chart.js</li> <li>Mobile: Responsive design works on all screen sizes</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#performance-considerations",
+      "title": "Performance Considerations",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#large-datasets",
+      "title": "Large Datasets",
+      "text": "<ul> <li>Optimized for: 1000+ vulnerabilities</li> <li>Lazy Loading: Vulnerability details loaded on demand</li> <li>Debounced Search: Smooth filtering experience</li> <li>Virtual Scrolling: Handles large lists efficiently</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#report-size-optimization",
+      "title": "Report Size Optimization",
+      "text": "<pre><code># Compress large HTML reports\ngzip -9 reports/large-report.html\n\n# Serve compressed reports\npython -m http.server 8080 --directory reports/\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#security-considerations",
+      "title": "Security Considerations",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#report-security",
+      "title": "Report Security",
+      "text": "<ul> <li>Self-Contained: No external dependencies in generated reports</li> <li>No Data Transmission: All processing happens locally</li> <li>Safe HTML: Jinja2 auto-escaping prevents XSS</li> <li>Print Security: Sensitive data can be excluded from print view</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#access-control",
+      "title": "Access Control",
+      "text": "<pre><code># Set restrictive permissions on report files\nchmod 600 reports/*.html\nchmod 700 reports/\n\n# Use web server authentication for published reports\n# Configure .htaccess or nginx auth for web-published reports\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#troubleshooting",
+      "title": "Troubleshooting",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#common-issues",
+      "title": "Common Issues",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#template-not-found",
+      "title": "Template Not Found",
+      "text": "<pre><code># Ensure you're in the correct directory\ncd vulnerability-reports\npython generate_report.py ...\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#json-parse-error",
+      "title": "JSON Parse Error",
+      "text": "<pre><code># Validate your JSON input\npython -m json.tool ../your_input.json\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#permission-denied",
+      "title": "Permission Denied",
+      "text": "<pre><code># Check file permissions\nchmod +x generate_report.py\nchmod 755 reports/\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#missing-dependencies",
+      "title": "Missing Dependencies",
+      "text": "<pre><code># Install required packages\nuv add jinja2\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#debug-mode",
+      "title": "Debug Mode",
+      "text": "<pre><code># Add debug output\npython -v generate_report.py -i input.json -o output.html\n</code></pre>"
+    },
+    {
+      "location": "user-guide/reporting/#best-practices",
+      "title": "Best Practices",
+      "text": ""
+    },
+    {
+      "location": "user-guide/reporting/#report-generation_1",
+      "title": "Report Generation",
+      "text": "<ul> <li>Generate reports immediately after scans</li> <li>Use consistent naming conventions</li> <li>Include timestamps in filenames</li> <li>Archive historical reports</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#report-distribution_1",
+      "title": "Report Distribution",
+      "text": "<ul> <li>Customize reports for different audiences</li> <li>Use appropriate security measures for sensitive data</li> <li>Automate distribution to stakeholders</li> <li>Provide both summary and detailed versions</li> </ul>"
+    },
+    {
+      "location": "user-guide/reporting/#report-analysis_1",
+      "title": "Report Analysis",
+      "text": "<ul> <li>Track trends over time</li> <li>Focus on actionable metrics</li> <li>Correlate with remediation efforts</li> <li>Use reports to drive security improvements</li> </ul> <p>The Vuls reporting system provides comprehensive options for generating professional vulnerability reports. Choose the format that best fits your needs and audience, and consider automating the process for regular assessments.</p>"
+    },
+    {
+      "location": "user-guide/scheduling/",
+      "title": "Task Scheduling",
+      "text": "<p>The Vuls Web application includes a comprehensive task scheduling system that allows you to automate vulnerability scans and database updates. This system is built on Celery and Redis, providing reliable and scalable task execution.</p>"
+    },
+    {
+      "location": "user-guide/scheduling/#overview",
+      "title": "Overview",
+      "text": "<p>The scheduler supports two main types of tasks:</p> <ol> <li>Vulnerability Scans - Automated scans of your configured hosts</li> <li>Database Updates - Regular updates of vulnerability databases (NVD, OVAL, GOST)</li> </ol>"
+    },
+    {
+      "location": "user-guide/scheduling/#architecture",
+      "title": "Architecture",
+      "text": "<p>The scheduling system uses a secure, multi-component architecture:</p>"
+    },
+    {
+      "location": "user-guide/scheduling/#core-components",
+      "title": "Core Components",
+      "text": "<ul> <li>Web Application - User interface and API endpoints</li> <li>Celery Worker - Background task processing</li> <li>Celery Beat Scheduler - Cron-based task scheduling</li> <li>Redis - Message broker and result backend</li> <li>PostgreSQL - Task metadata and history storage</li> <li>Docker Executor Sidecar - Secure Docker operations</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#security-architecture",
+      "title": "Security Architecture",
+      "text": "<p>The system implements a sidecar pattern for enhanced security:</p> <ul> <li>Isolated Execution - All Docker operations run in a separate, dedicated container</li> <li>API-Based Communication - Secure API communication between components using API keys</li> <li>Function-Based Endpoints - Only predefined operations are allowed (no arbitrary command execution)</li> <li>Non-Root Execution - All containers run with minimal privileges</li> <li>Async Operations - Non-blocking task execution with real-time monitoring</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#data-flow",
+      "title": "Data Flow",
+      "text": "<ol> <li>Task Creation - Users create scheduled tasks via web interface or API</li> <li>Task Scheduling - Celery Beat checks for due tasks every minute</li> <li>Task Execution - Celery Worker processes tasks asynchronously</li> <li>Secure Operations - Worker communicates with Docker Executor Sidecar via secure API</li> <li>Container Execution - Sidecar manages Docker containers for scans and database updates</li> <li>Result Processing - Results are collected and stored in PostgreSQL</li> <li>Status Updates - Real-time status updates available via web interface and API</li> </ol>"
+    },
+    {
+      "location": "user-guide/scheduling/#features",
+      "title": "Features",
+      "text": "<ul> <li>Cron-based Scheduling - Use standard cron expressions for flexible scheduling</li> <li>Manual Execution - Trigger any scheduled task manually</li> <li>Task History - View execution history and results for each task</li> <li>Real-time Status - Monitor task execution status in real-time</li> <li>Error Handling - Comprehensive error logging and notification</li> <li>Web Interface - Easy-to-use web interface for managing tasks</li> <li>Automatic Host Sync - Hosts are automatically synchronized from Vuls configuration when SSH config is updated</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#automatic-host-synchronization",
+      "title": "Automatic Host Synchronization",
+      "text": "<p>The scheduler automatically synchronizes hosts from your Vuls configuration whenever you update the SSH configuration. This ensures that your scheduled tasks always use the most current host definitions.</p>"
+    },
+    {
+      "location": "user-guide/scheduling/#how-it-works",
+      "title": "How It Works",
+      "text": "<ol> <li>SSH Config Update - When you save changes to the SSH configuration via the web interface</li> <li>Vuls Config Update - The system automatically updates the <code>config/config.toml</code> file with the new host definitions</li> <li>Host Sync Trigger - A background Celery task is automatically triggered to synchronize the hosts</li> <li>Database Update - The hosts table is updated with the latest host information from the Vuls config</li> </ol>"
+    },
+    {
+      "location": "user-guide/scheduling/#benefits",
+      "title": "Benefits",
+      "text": "<ul> <li>Single Source of Truth - Hosts are defined once in the SSH/Vuls config and automatically synchronized</li> <li>No Manual Entry - No need to manually add hosts to the scheduler interface</li> <li>Consistency - Scan modes and settings match the Vuls configuration exactly</li> <li>Real-time Updates - Changes are synchronized immediately when SSH config is saved</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#synchronized-data",
+      "title": "Synchronized Data",
+      "text": "<p>The following host information is automatically synchronized:</p> <ul> <li>Host Name - Unique identifier from SSH config</li> <li>Hostname/IP - Target address for scanning</li> <li>Scan Mode - Automatically determined based on connection type:</li> <li>AWS SSM \u2192 Fast scan mode</li> <li>GCP IAP \u2192 Fast scan mode</li> <li>Cloudflare Access \u2192 Offline scan mode</li> <li>Direct SSH \u2192 Fast and offline scan modes</li> <li>Vuls Configuration - Complete Vuls config section for the host</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#manual-synchronization",
+      "title": "Manual Synchronization",
+      "text": "<p>You can also manually trigger host synchronization using the API:</p> <pre><code>POST /api/hosts/sync-from-vuls-config\n</code></pre> <p>This is useful for:</p> <ul> <li>Troubleshooting synchronization issues</li> <li>Forcing a sync after manual config file changes</li> <li>Initial setup and testing</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#accessing-the-scheduler",
+      "title": "Accessing the Scheduler",
+      "text": "<p>Navigate to the Scheduler section in the main navigation menu. This will take you to the task management interface where you can:</p> <ul> <li>View all scheduled tasks</li> <li>Create new tasks</li> <li>Edit existing tasks</li> <li>Monitor task execution</li> <li>View task history</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#creating-scheduled-tasks",
+      "title": "Creating Scheduled Tasks",
+      "text": ""
+    },
+    {
+      "location": "user-guide/scheduling/#vulnerability-scan-tasks",
+      "title": "Vulnerability Scan Tasks",
+      "text": "<p>To create a scheduled vulnerability scan:</p> <ol> <li>Click Create New Task</li> <li>Enter a descriptive Task Name</li> <li>Select Vulnerability Scan as the task type</li> <li>Choose the Target Host from your configured hosts</li> <li>Select the Scan Type:</li> <li>Fast Scan - Quick vulnerability assessment</li> <li>Full Scan - Comprehensive deep scan</li> <li>Set the Schedule using cron expression</li> <li>Add an optional Description</li> <li>Ensure the task is Active</li> </ol>"
+    },
+    {
+      "location": "user-guide/scheduling/#database-update-tasks",
+      "title": "Database Update Tasks",
+      "text": "<p>To create a scheduled database update:</p> <ol> <li>Click Create New Task</li> <li>Enter a descriptive Task Name</li> <li>Select Database Update as the task type</li> <li>Choose the Database Type:</li> <li>All Databases - Update all vulnerability databases</li> <li>NVD Database - National Vulnerability Database</li> <li>Ubuntu OVAL - Ubuntu vulnerability data</li> <li>Debian OVAL - Debian vulnerability data</li> <li>Red Hat OVAL - Red Hat/CentOS vulnerability data</li> <li>Amazon Linux OVAL - Amazon Linux vulnerability data</li> <li>Alpine OVAL - Alpine Linux vulnerability data</li> <li>GOST Ubuntu - Ubuntu security tracker data</li> <li>GOST Debian - Debian security tracker data</li> <li>GOST Red Hat - Red Hat security tracker data</li> <li>Set the Schedule using cron expression</li> <li>Add an optional Description</li> <li>Ensure the task is Active</li> </ol>"
+    },
+    {
+      "location": "user-guide/scheduling/#cron-expressions",
+      "title": "Cron Expressions",
+      "text": "<p>The scheduler uses standard cron expressions with five fields:</p> <pre><code>* * * * *\n\u2502 \u2502 \u2502 \u2502 \u2502\n\u2502 \u2502 \u2502 \u2502 \u2514\u2500\u2500\u2500 Day of week (0-7, Sunday = 0 or 7)\n\u2502 \u2502 \u2502 \u2514\u2500\u2500\u2500\u2500\u2500 Month (1-12)\n\u2502 \u2502 \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Day of month (1-31)\n\u2502 \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Hour (0-23)\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Minute (0-59)\n</code></pre>"
+    },
+    {
+      "location": "user-guide/scheduling/#common-examples",
+      "title": "Common Examples",
+      "text": "Schedule Cron Expression Description Every day at 2 AM <code>0 2 * * *</code> Daily maintenance scans Every Sunday at midnight <code>0 0 * * 0</code> Weekly comprehensive scans Every hour <code>0 * * * *</code> Frequent monitoring Every 15 minutes <code>*/15 * * * *</code> High-frequency checks First day of month at 3 AM <code>0 3 1 * *</code> Monthly database updates Weekdays at 6 AM <code>0 6 * * 1-5</code> Business day scans"
+    },
+    {
+      "location": "user-guide/scheduling/#default-scheduled-tasks",
+      "title": "Default Scheduled Tasks",
+      "text": "<p>The system comes with some pre-configured scheduled tasks:</p>"
+    },
+    {
+      "location": "user-guide/scheduling/#monthly-database-updates",
+      "title": "Monthly Database Updates",
+      "text": "<ul> <li>Schedule: <code>0 2 1 * *</code> (1<sup>st</sup> of every month at 2 AM)</li> <li>Type: Database Update (All Databases)</li> <li>Purpose: Keep vulnerability databases current</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#task-scheduler-monitoring",
+      "title": "Task Scheduler Monitoring",
+      "text": "<ul> <li>Schedule: Every minute</li> <li>Type: Internal system task</li> <li>Purpose: Check for and execute scheduled tasks</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#task-management",
+      "title": "Task Management",
+      "text": ""
+    },
+    {
+      "location": "user-guide/scheduling/#viewing-tasks",
+      "title": "Viewing Tasks",
+      "text": "<p>The main scheduler interface shows:</p> <ul> <li>Task Statistics - Overview of total, active, scan, and database update tasks</li> <li>Task List - Detailed view of all scheduled tasks with:</li> <li>Task name and description</li> <li>Task type and target (for scans)</li> <li>Cron schedule</li> <li>Next scheduled run time</li> <li>Last execution status and time</li> <li>Active/inactive status</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#filtering-and-search",
+      "title": "Filtering and Search",
+      "text": "<p>Use the filter options to find specific tasks:</p> <ul> <li>Task Type Filter - Show only scan tasks or database updates</li> <li>Status Filter - Show only active or inactive tasks</li> <li>Search - Search by task name, description, or host name</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#manual-execution",
+      "title": "Manual Execution",
+      "text": "<p>You can manually trigger any scheduled task by clicking the Run Now button. This will:</p> <ul> <li>Create a new task run record</li> <li>Execute the task immediately</li> <li>Update the task status</li> <li>Show the execution results</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#task-history",
+      "title": "Task History",
+      "text": "<p>Click on any task to view its execution history, including:</p> <ul> <li>Execution start and end times</li> <li>Duration</li> <li>Status (success, failed, running)</li> <li>Result data (vulnerabilities found, databases updated)</li> <li>Error messages (if any)</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#monitoring-and-troubleshooting",
+      "title": "Monitoring and Troubleshooting",
+      "text": ""
+    },
+    {
+      "location": "user-guide/scheduling/#task-status-indicators",
+      "title": "Task Status Indicators",
+      "text": "<ul> <li>Green (Success) - Task completed successfully</li> <li>Red (Failed) - Task encountered an error</li> <li>Blue (Running) - Task is currently executing</li> <li>Gray (Never run) - Task has not been executed yet</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#common-issues",
+      "title": "Common Issues",
+      "text": ""
+    },
+    {
+      "location": "user-guide/scheduling/#task-not-running",
+      "title": "Task Not Running",
+      "text": "<ul> <li>Check if the task is Active</li> <li>Verify the cron expression is valid</li> <li>Ensure the Celery worker and scheduler services are running</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#scan-failures",
+      "title": "Scan Failures",
+      "text": "<ul> <li>Verify host connectivity and SSH configuration</li> <li>Check if the target host is accessible</li> <li>Review error messages in the task history</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#database-update-failures",
+      "title": "Database Update Failures",
+      "text": "<ul> <li>Check internet connectivity</li> <li>Verify Docker is running and has access to pull images</li> <li>Review disk space for database storage</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#logs-and-debugging",
+      "title": "Logs and Debugging",
+      "text": "<p>Task execution logs are available in:</p> <ul> <li>Web interface task history</li> <li>Application logs (<code>/app/logs/</code>)</li> <li>Celery worker logs</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#best-practices",
+      "title": "Best Practices",
+      "text": ""
+    },
+    {
+      "location": "user-guide/scheduling/#scheduling-guidelines",
+      "title": "Scheduling Guidelines",
+      "text": "<ol> <li>Avoid Peak Hours - Schedule intensive tasks during off-peak hours</li> <li>Stagger Tasks - Don't schedule multiple heavy tasks at the same time</li> <li>Regular Updates - Keep vulnerability databases updated monthly</li> <li>Monitor Resources - Ensure adequate system resources for scheduled tasks</li> </ol>"
+    },
+    {
+      "location": "user-guide/scheduling/#security-considerations",
+      "title": "Security Considerations",
+      "text": "<ol> <li>SSH Keys - Use SSH keys instead of passwords for host access</li> <li>Network Access - Ensure proper network security for scan targets</li> <li>User Permissions - Limit scheduler access to authorized users</li> <li>Audit Trail - Regularly review task execution history</li> </ol>"
+    },
+    {
+      "location": "user-guide/scheduling/#performance-optimization",
+      "title": "Performance Optimization",
+      "text": "<ol> <li>Fast Scans - Use fast scans for frequent monitoring</li> <li>Full Scans - Reserve full scans for comprehensive assessments</li> <li>Database Updates - Update only necessary databases if storage is limited</li> <li>Cleanup - Old task run records are automatically cleaned up after 30 days</li> </ol>"
+    },
+    {
+      "location": "user-guide/scheduling/#api-integration",
+      "title": "API Integration",
+      "text": "<p>The scheduler provides REST API endpoints for programmatic access:</p> <ul> <li><code>GET /api/scheduled-tasks/</code> - List all scheduled tasks</li> <li><code>POST /api/scheduled-tasks/</code> - Create a new scheduled task</li> <li><code>GET /api/scheduled-tasks/{id}</code> - Get specific task details</li> <li><code>PUT /api/scheduled-tasks/{id}</code> - Update a scheduled task</li> <li><code>DELETE /api/scheduled-tasks/{id}</code> - Delete a scheduled task</li> <li><code>POST /api/scheduled-tasks/{id}/run</code> - Manually trigger a task</li> <li><code>GET /api/scheduled-tasks/{id}/runs</code> - Get task execution history</li> </ul> <p>See the API documentation for detailed request/response formats.</p>"
+    },
+    {
+      "location": "user-guide/scheduling/#docker-executor-sidecar",
+      "title": "Docker Executor Sidecar",
+      "text": "<p>The Docker Executor Sidecar is a critical security component that handles all Docker operations in an isolated environment.</p>"
+    },
+    {
+      "location": "user-guide/scheduling/#security-features",
+      "title": "Security Features",
+      "text": "<ul> <li>Isolated Container - Runs in a separate container with minimal privileges</li> <li>API Key Authentication - All communication secured with API keys</li> <li>Function-Based Operations - Only predefined operations allowed (no shell access)</li> <li>Non-Root Execution - Runs as non-root user with Docker group permissions</li> <li>Async Processing - Non-blocking operations with real-time status monitoring</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#supported-operations",
+      "title": "Supported Operations",
+      "text": "<p>The sidecar provides secure endpoints for:</p> <ul> <li>Database Updates - NVD, OVAL, and GOST database fetching</li> <li>Vulnerability Scans - Host scanning operations</li> <li>Job Monitoring - Real-time status tracking and result collection</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#api-endpoints",
+      "title": "API Endpoints",
+      "text": "<p>The sidecar exposes the following internal API endpoints:</p> <ul> <li><code>GET /health</code> - Health check endpoint</li> <li><code>POST /database/update</code> - Start database update job</li> <li><code>POST /scan</code> - Start vulnerability scan job</li> <li><code>GET /jobs/{job_id}</code> - Get job status and results</li> <li><code>GET /jobs/{job_id}/logs</code> - Get job execution logs</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#configuration",
+      "title": "Configuration",
+      "text": "<p>The sidecar is configured via environment variables:</p> <ul> <li><code>EXECUTOR_API_KEY</code> - API key for secure communication</li> <li>Docker socket access for container management</li> <li>Compose project directory mount for accessing configuration</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#monitoring",
+      "title": "Monitoring",
+      "text": "<p>You can monitor sidecar operations through:</p> <ul> <li>Web Interface - Task status and history in the scheduler</li> <li>API Responses - Real-time job status via REST API</li> <li>Container Logs - Docker logs for the executor container</li> <li>Health Checks - Built-in health monitoring endpoint</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#troubleshooting",
+      "title": "Troubleshooting",
+      "text": "<p>If you encounter issues with the scheduler:</p> <ol> <li>Check the system status in the dashboard</li> <li>Verify Celery worker and Redis services are running</li> <li>Review task execution logs</li> <li>Ensure proper network connectivity for scans and database updates</li> <li>Check system resources (CPU, memory, disk space)</li> <li>Verify Docker Executor Sidecar is running and accessible</li> <li>Check API key configuration in environment variables</li> </ol>"
+    },
+    {
+      "location": "user-guide/scheduling/#common-sidecar-issues",
+      "title": "Common Sidecar Issues",
+      "text": ""
+    },
+    {
+      "location": "user-guide/scheduling/#sidecar-not-responding",
+      "title": "Sidecar Not Responding",
+      "text": "<ul> <li>Check if the <code>vuls-executor</code> container is running</li> <li>Verify API key configuration matches between services</li> <li>Ensure Docker socket permissions are correct</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#database-update-failures_1",
+      "title": "Database Update Failures",
+      "text": "<ul> <li>Check internet connectivity for downloading vulnerability data</li> <li>Verify sufficient disk space for database storage</li> <li>Review Docker container logs for specific error messages</li> </ul>"
+    },
+    {
+      "location": "user-guide/scheduling/#permission-errors",
+      "title": "Permission Errors",
+      "text": "<ul> <li>Ensure the executor user has proper Docker group membership</li> <li>Verify Docker socket group ID matches container configuration</li> <li>Check file system permissions for mounted volumes</li> </ul> <p>For additional support, consult the system logs or contact your administrator.</p>"
+    }
+  ]
+}

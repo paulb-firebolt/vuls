@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     """Application settings"""
 
     # Database
-    database_url: str = "postgresql://vuls:password@localhost:5432/vuls"
+    database_url: str = "postgresql+psycopg://vuls:password@localhost:5432/vuls"
 
     # Redis
     redis_url: str = "redis://localhost:6379"

@@ -7,12 +7,11 @@ services:
       - ./config/config.toml:/vuls/config.toml:rw
       - ./logs:/vuls/logs:rw
       - ./results:/vuls/results:rw
-      - ./db:/vuls/db:rw  # Database storage
+      - ./db:/vuls/db:rw # Database storage
       - ./.ssh:/root/.ssh:rw
-      - /var/run/docker.sock:/var/run/docker.sock  # If scanning containers
+      - /var/run/docker.sock:/var/run/docker.sock # If scanning containers
       - /home/paulb/.config/gcloud:/root/.config/gcloud:rw
       - /home/paulb/.aws:/root/.aws:ro
-      - $SSH_AUTH_SOCK:/ssh-agent
     environment:
       - VULS_CONFIG_PATH=/vuls/config.toml
       # AWS environment variables
@@ -24,7 +23,6 @@ services:
       #- GOOGLE_CLOUD_PROJECT=your-project-id
       - GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json
       - CLOUDSDK_CONFIG=/root/.config/gcloud
-      - SSH_AUTH_SOCK=/ssh-agent
     command: [scan, -config=/vuls/config.toml]
 
   # NVD database fetcher
@@ -42,7 +40,18 @@ services:
     container_name: vuls-ubuntu
     volumes:
       - ./db:/vuls/db:rw
-    command: [fetch, ubuntu, "16.04", "18.04", "20.04", "22.04", "24.04", --dbpath, /vuls/db/oval.sqlite3]
+    command:
+      [
+        fetch,
+        ubuntu,
+        "16.04",
+        "18.04",
+        "20.04",
+        "22.04",
+        "24.04",
+        --dbpath,
+        /vuls/db/oval.sqlite3,
+      ]
     profiles: [fetch]
 
   # Debian database fetcher
@@ -78,7 +87,19 @@ services:
     container_name: vuls-alpine
     volumes:
       - ./db:/vuls/db:rw
-    command: [fetch, alpine, "3.15", "3.16", "3.17", "3.18", "3.19", "3.20", --dbpath, /vuls/db/oval.sqlite3]
+    command:
+      [
+        fetch,
+        alpine,
+        "3.15",
+        "3.16",
+        "3.17",
+        "3.18",
+        "3.19",
+        "3.20",
+        --dbpath,
+        /vuls/db/oval.sqlite3,
+      ]
     profiles: [fetch]
 
   # GOST database fetcher for Ubuntu
@@ -142,12 +163,24 @@ services:
       - POSTGRES_PASSWORD=SuperSecretKey
     volumes:
       - vuls_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U vuls -d vuls]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     profiles: [web, dev]
 
   # Redis for task queue
   vuls-redis:
     image: redis:7-alpine
     container_name: vuls-redis
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
     profiles: [web, dev]
 
   # Main web application
@@ -155,14 +188,14 @@ services:
     build: ./web-app
     container_name: vuls-web
     ports:
-      - "8000:8000"
+      - 8000:8000
     volumes:
       - ./config:/app/config:ro
       - ./results:/app/results:rw
       - ./db:/app/db:ro
       - ./logs:/app/logs:rw
     environment:
-      - DATABASE_URL=postgresql://vuls:SuperSecretKey@vuls-db:5432/vuls
+      - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
       - REDIS_URL=redis://vuls-redis:6379
       - JWT_SECRET_KEY=your-secret-key-change-in-production
     depends_on:
@@ -177,7 +210,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: vuls-web-dev
     ports:
-      - "8000:8000"
+      - 8000:8000
     volumes:
       - ./config:/app/config:ro
       - ./config:/vuls/config:rw
@@ -190,7 +223,7 @@ services:
       - ./web-app/static:/app/static:rw
       - ./web-app/pyproject.toml:/app/pyproject.toml:ro
     environment:
-      - DATABASE_URL=postgresql://vuls:SuperSecretKey@vuls-db:5432/vuls
+      - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
       - REDIS_URL=redis://vuls-redis:6379
       - JWT_SECRET_KEY=your-secret-key-change-in-production
     depends_on:
@@ -202,36 +235,67 @@ services:
   vuls-worker:
     build: ./web-app
     container_name: vuls-worker
-    command: ["uv", "run", "celery", "-A", "app.tasks", "worker", "--loglevel=info"]
+    command: [uv, run, celery, -A, app.tasks, worker, --loglevel=info]
     volumes:
       - ./config:/app/config:rw
       - ./results:/app/results:rw
       - ./db:/app/db:ro
       - ./logs:/app/logs:rw
       - ./.ssh:/root/.ssh:rw
-      - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - DATABASE_URL=postgresql://vuls:SuperSecretKey@vuls-db:5432/vuls
+      - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
       - REDIS_URL=redis://vuls-redis:6379
+      - EXECUTOR_URL=http://vuls-executor:8080
+      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
+    healthcheck:
+      test: [CMD-SHELL, uv run celery -A app.tasks inspect ping]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       - vuls-db
       - vuls-redis
-    profiles: [web]
+      - vuls-executor
+    profiles: [web, dev]
 
   # Celery beat for scheduled tasks
   vuls-scheduler:
     build: ./web-app
     container_name: vuls-scheduler
-    command: ["uv", "run", "celery", "-A", "app.tasks", "beat", "--loglevel=info"]
+    command: [uv, run, celery, -A, app.tasks, beat, --loglevel=info]
     volumes:
       - ./config:/app/config:rw
     environment:
-      - DATABASE_URL=postgresql://vuls:SuperSecretKey@vuls-db:5432/vuls
+      - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
       - REDIS_URL=redis://vuls-redis:6379
+    healthcheck:
+      test:
+        [
+          CMD-SHELL,
+          set -o pipefail && ps aux | grep 'celery.*beat' | grep -v grep || exit 1,
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
       - vuls-db
       - vuls-redis
-    profiles: [web]
+    profiles: [web, dev]
+
+  # Docker executor sidecar for secure Docker operations
+  vuls-executor:
+    build: ./docker-executor
+    container_name: vuls-executor
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/compose:ro # Mount compose project directory
+    environment:
+      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
+    ports:
+      - 8080:8080
+    profiles: [web, dev]
 
 volumes:
   vuls_db_data:

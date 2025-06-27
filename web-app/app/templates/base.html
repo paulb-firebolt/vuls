@@ -24,20 +24,23 @@
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white">Vuls Web</h1>
                     </div>
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="/" class="border-indigo-500 text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="/" class="{% if request.url.path == '/' %}border-indigo-500 text-gray-900 dark:text-white{% else %}border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Dashboard
                         </a>
-                        <a href="/hosts" class="border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="/hosts" class="{% if request.url.path.startswith('/hosts') %}border-indigo-500 text-gray-900 dark:text-white{% else %}border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Hosts
                         </a>
-                        <a href="/scans" class="border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="/scans" class="{% if request.url.path.startswith('/scans') %}border-indigo-500 text-gray-900 dark:text-white{% else %}border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Scans
                         </a>
-                        <a href="/reports" class="border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="/reports" class="{% if request.url.path.startswith('/reports') %}border-indigo-500 text-gray-900 dark:text-white{% else %}border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             Reports
                         </a>
-                        <a href="/ssh-config" class="border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        <a href="/ssh-config" class="{% if request.url.path.startswith('/ssh-config') %}border-indigo-500 text-gray-900 dark:text-white{% else %}border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             SSH Config
+                        </a>
+                        <a href="/scheduler" class="{% if request.url.path.startswith('/scheduler') %}border-indigo-500 text-gray-900 dark:text-white{% else %}border-transparent text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Scheduler
                         </a>
                     </div>
                 </div>
