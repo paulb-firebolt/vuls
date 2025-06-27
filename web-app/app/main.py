@@ -102,7 +102,7 @@ async def health_check():
 
 
 # Include API routes
-from .api import auth, hosts, scans, reports, ssh_config, scheduled_tasks
+from .api import auth, hosts, scans, reports, ssh_config, scheduled_tasks, websocket
 
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(hosts.router, prefix="/api/hosts", tags=["hosts"])
@@ -110,6 +110,37 @@ app.include_router(scans.router, prefix="/api/scans", tags=["scans"])
 app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
 app.include_router(ssh_config.router, prefix="/api/ssh", tags=["ssh-config"])
 app.include_router(scheduled_tasks.router, prefix="/api/scheduled-tasks", tags=["scheduled-tasks"])
+app.include_router(websocket.router, prefix="/api", tags=["websocket"])
+
+
+# Global subscriber instance
+notification_subscriber = None
+
+async def startup():
+    """Initialize services on startup"""
+    global notification_subscriber
+    from .utils.notification_service import NotificationSubscriber
+    from .api.websocket import manager
+
+    # Start the Redis notification subscriber
+    notification_subscriber = NotificationSubscriber(manager)
+    await notification_subscriber.start_listening()
+    print("Redis notification subscriber started")
+
+async def shutdown():
+    """Cleanup on shutdown"""
+    global notification_subscriber
+    if notification_subscriber:
+        notification_subscriber.stop_listening()
+
+# Add startup and shutdown events
+@app.on_event("startup")
+async def startup_event():
+    await startup()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await shutdown()
 
 
 if __name__ == "__main__":

@@ -48,6 +48,16 @@ Guidelines for contributing to the project:
 - Pull request process and review guidelines
 - Community guidelines and communication
 
+### [Task Scheduler Fix](task-scheduler-fix.md)
+
+Documentation of the Docker executor implementation fix:
+
+- Problem analysis and root cause identification
+- Solution implementation with direct Docker run commands
+- Dynamic path resolution for containerized environments
+- Testing and verification procedures
+- Troubleshooting guide for SSH connectivity issues
+
 ## Technology Stack
 
 ### Backend Technologies

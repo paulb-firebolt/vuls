@@ -21,9 +21,15 @@ COPY static/ ./static/
 # Install dependencies
 RUN uv sync
 
-# Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+# Create non-root user with home directory and matching host UID/GID
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+RUN groupadd -g $GROUP_ID appuser && useradd -l -u $USER_ID -g appuser -m appuser
 RUN chown -R appuser:appuser /app
+# Create and set permissions for UV cache directory
+RUN mkdir -p /home/appuser/.cache && chown -R appuser:appuser /home/appuser/.cache
+# Create volume directories with proper permissions
+RUN mkdir -p /app/results /app/logs /app/config && chown -R appuser:appuser /app/results /app/logs /app/config
 USER appuser
 
 # Expose port

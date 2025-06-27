@@ -1,19 +1,15 @@
 """Celery tasks for updating vulnerability databases"""
 
 import logging
-import requests
 import os
 from datetime import datetime, timezone
 from typing import Optional
 from ..celery_app import celery_app
 from ..config import settings
+from ..utils.executor_client import sync_update_database, sync_wait_for_job_completion, sync_health_check
 from .task_utils import update_task_status
 
 logger = logging.getLogger(__name__)
-
-# Executor service configuration
-EXECUTOR_URL = os.getenv("EXECUTOR_URL", "http://vuls-executor:8080")
-EXECUTOR_API_KEY = os.getenv("EXECUTOR_API_KEY", "change-me-in-production")
 
 
 @celery_app.task(bind=True)
@@ -84,41 +80,39 @@ def update_vulnerability_database(self, database_type: str = "all", task_run_id:
         return {"status": "error", "error": str(e)}
 
 
-@celery_app.task(bind=True, max_retries=180, default_retry_delay=10)
-def monitor_database_update(self, database: str, job_id: str):
-    """Monitor a database update job until completion"""
+def call_executor_api(database: str) -> dict:
+    """Call the executor sidecar to update a specific database"""
     try:
-        headers = {
-            'X-API-Key': EXECUTOR_API_KEY,
-            'Content-Type': 'application/json'
-        }
+        # Check if executor service is healthy
+        if not sync_health_check():
+            return {
+                "status": "error",
+                "database": database,
+                "error": "Docker executor service is not available"
+            }
 
-        # Check job status
-        response = requests.get(
-            f"{EXECUTOR_URL}/jobs/{job_id}",
-            headers=headers,
-            timeout=10
-        )
+        logger.info(f"Starting database update via executor for: {database}")
 
-        if response.status_code != 200:
-            error_msg = f"Failed to check job status: {response.status_code} - {response.text}"
-            logger.error(error_msg)
-            return {"status": "error", "database": database, "error": error_msg}
+        # Start the database update job
+        job_response = sync_update_database(database)
+        job_id = job_response["job_id"]
 
-        status_data = response.json()
-        job_status = status_data['status']
+        logger.info(f"Database update job started: {job_id}")
 
-        if job_status == 'completed':
+        # Wait for completion
+        result = sync_wait_for_job_completion(job_id, timeout=1800)  # 30 minutes
+
+        if result["status"] == "completed":
             logger.info(f"Database {database} updated successfully")
             return {
                 "status": "success",
                 "database": database,
                 "updated_at": datetime.now(timezone.utc).isoformat(),
                 "job_id": job_id,
-                "result": status_data.get('result')
+                "result": result.get("result")
             }
-        elif job_status == 'failed':
-            error_msg = status_data.get('error', 'Unknown error')
+        else:
+            error_msg = result.get("error", "Unknown error from executor")
             logger.error(f"Database {database} update failed: {error_msg}")
             return {
                 "status": "error",
@@ -126,61 +120,6 @@ def monitor_database_update(self, database: str, job_id: str):
                 "error": error_msg,
                 "job_id": job_id
             }
-        elif job_status in ['starting', 'running']:
-            # Job still in progress, retry after delay
-            logger.info(f"Database {database} update still in progress (attempt {self.request.retries + 1}/180)")
-            raise self.retry(countdown=10)
-        else:
-            error_msg = f"Unknown job status: {job_status}"
-            logger.error(error_msg)
-            return {"status": "error", "database": database, "error": error_msg}
-
-    except Exception as e:
-        # Check if it's a retry exception
-        if hasattr(e, 'retry') or 'retry' in str(type(e)).lower():
-            raise e
-        error_msg = f"Error monitoring job {job_id} for {database}: {str(e)}"
-        logger.error(error_msg)
-        return {"status": "error", "database": database, "error": error_msg}
-
-
-def call_executor_api(database: str) -> dict:
-    """Call the executor sidecar to update a specific database"""
-    try:
-        headers = {
-            'X-API-Key': EXECUTOR_API_KEY,
-            'Content-Type': 'application/json'
-        }
-
-        payload = {'database': database}
-
-        logger.info(f"Calling executor API for database: {database}")
-
-        # Start the database update job
-        response = requests.post(
-            f"{EXECUTOR_URL}/database/update",
-            json=payload,
-            headers=headers,
-            timeout=30
-        )
-
-        if response.status_code != 200:
-            error_msg = f"Executor API error: {response.status_code} - {response.text}"
-            logger.error(error_msg)
-            return {"status": "error", "database": database, "error": error_msg}
-
-        job_data = response.json()
-        job_id = job_data['job_id']
-
-        logger.info(f"Database update job started: {job_id}")
-
-        # Start monitoring task and wait for result
-        monitor_result = monitor_database_update.apply_async(args=[database, job_id])
-
-        # Wait for the monitoring task to complete (this will handle retries automatically)
-        result = monitor_result.get(timeout=1900)  # 31+ minutes timeout
-
-        return result
 
     except Exception as e:
         error_msg = f"Error calling executor API for {database}: {str(e)}"

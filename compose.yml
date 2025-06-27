@@ -198,6 +198,8 @@ services:
       - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
       - REDIS_URL=redis://vuls-redis:6379
       - JWT_SECRET_KEY=your-secret-key-change-in-production
+      - EXECUTOR_URL=http://vuls-executor:8080
+      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
     depends_on:
       - vuls-db
       - vuls-redis
@@ -226,6 +228,8 @@ services:
       - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
       - REDIS_URL=redis://vuls-redis:6379
       - JWT_SECRET_KEY=your-secret-key-change-in-production
+      - EXECUTOR_URL=http://vuls-executor:8080
+      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
     depends_on:
       - vuls-db
       - vuls-redis
@@ -290,9 +294,11 @@ services:
     container_name: vuls-executor
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - .:/compose:ro # Mount compose project directory
+      - .:/project:ro # Mount compose project directory as /project
     environment:
       - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
+      - HOST_PROJECT_PATH=${PWD}
+      - HOST_USER_HOME=${HOME}
     ports:
       - 8080:8080
     profiles: [web, dev]

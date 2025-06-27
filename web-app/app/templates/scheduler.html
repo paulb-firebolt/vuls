@@ -764,8 +764,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             showNotification(`Task failed: ${currentRun.error_message || 'Unknown error'}`, 'error');
                         }
 
-                        // Refresh the tasks list
+                        // Refresh the tasks list and recent activity
                         loadTasks();
+                        loadRecentActivity();
+                        loadRunningJobs();
                     }
                 }
             } catch (error) {
@@ -1020,17 +1022,109 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Auto-refresh tasks, activity, and running jobs every 30 seconds
-    setInterval(() => {
+    // WebSocket connection for real-time updates
+    let ws = null;
+    let wsReconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+
+    function connectWebSocket() {
+        try {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/api/ws`;
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = function(event) {
+                console.log('WebSocket connected');
+                wsReconnectAttempts = 0;
+
+                // Send a ping to keep connection alive
+                setInterval(() => {
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send('ping');
+                    }
+                }, 30000);
+            };
+
+            ws.onmessage = function(event) {
+                try {
+                    // Handle ping/pong responses
+                    if (event.data === 'pong' || event.data.startsWith('Echo:')) {
+                        return; // Ignore ping/pong and echo responses
+                    }
+
+                    const message = JSON.parse(event.data);
+
+                    if (message.type === 'task_update') {
+                        handleTaskUpdate(message.data);
+                    }
+                } catch (error) {
+                    console.error('Error parsing WebSocket message:', error);
+                }
+            };
+
+            ws.onclose = function(event) {
+                console.log('WebSocket disconnected');
+
+                // Attempt to reconnect
+                if (wsReconnectAttempts < maxReconnectAttempts) {
+                    wsReconnectAttempts++;
+                    console.log(`Attempting to reconnect WebSocket (${wsReconnectAttempts}/${maxReconnectAttempts})`);
+                    setTimeout(connectWebSocket, 2000 * wsReconnectAttempts);
+                } else {
+                    console.log('Max reconnection attempts reached. Falling back to polling.');
+                    // Fall back to polling if WebSocket fails
+                    startPolling();
+                }
+            };
+
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
+
+        } catch (error) {
+            console.error('Error creating WebSocket connection:', error);
+            // Fall back to polling
+            startPolling();
+        }
+    }
+
+    function handleTaskUpdate(data) {
+        console.log('Received task update:', data);
+
+        // Show notification for task completion
+        if (data.status === 'success') {
+            showNotification(`Task completed successfully: ${data.task_name || 'Unknown task'}`, 'success');
+        } else if (data.status === 'failed') {
+            showNotification(`Task failed: ${data.task_name || 'Unknown task'}`, 'error');
+        }
+
+        // Refresh the UI components
         loadTasks();
         loadRecentActivity();
         loadRunningJobs();
-    }, 30000);
+    }
 
-    // Auto-refresh running jobs more frequently (every 10 seconds)
+    function startPolling() {
+        // Fallback polling if WebSocket fails
+        setInterval(() => {
+            loadTasks();
+            loadRecentActivity();
+            loadRunningJobs();
+        }, 30000);
+
+        setInterval(() => {
+            loadRunningJobs();
+        }, 10000);
+    }
+
+    // Initialize WebSocket connection
+    connectWebSocket();
+
+    // Still keep some polling as backup for running jobs (less frequent)
     setInterval(() => {
         loadRunningJobs();
-    }, 10000);
+    }, 60000); // Every minute as backup
 });
 </script>
 {% endblock %}

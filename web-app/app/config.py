@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     # Docker
     docker_socket: str = "unix:///var/run/docker.sock"
 
+    # Executor service
+    executor_url: str = "http://vuls-executor:8080"
+    executor_api_key: str = "change-me-in-production"
+
     class Config:
         env_file = ".env"
 

@@ -38,29 +38,25 @@ def get_docker_client():
 
 # Configuration
 API_KEY = os.getenv("EXECUTOR_API_KEY", "change-me-in-production")
-COMPOSE_PROJECT_DIR = "/compose"
+COMPOSE_PROJECT_DIR = "/project"
+HOST_PROJECT_PATH = os.getenv("HOST_PROJECT_PATH", "/project")
+HOST_USER_HOME = os.getenv("HOST_USER_HOME", "/home/user")
 
 # Job tracking
 active_jobs: Dict[str, Dict[str, Any]] = {}
 
 
 class ScanRequest(BaseModel):
-    target: str
+    server_name: str
     scan_type: str = "fast"
     ssh_key: Optional[str] = None
 
-    @validator('target')
-    def validate_target(cls, v):
-        # Basic IP validation - extend as needed
-        import ipaddress
-        try:
-            ipaddress.ip_address(v)
-            return v
-        except ValueError:
-            # Could be hostname - basic validation
-            if not v.replace('.', '').replace('-', '').isalnum():
-                raise ValueError('Invalid target format')
-            return v
+    @validator('server_name')
+    def validate_server_name(cls, v):
+        # Basic server name validation - allow alphanumeric, underscore, and hyphen
+        if not v.replace('_', 'a').replace('-', 'a').isalnum():
+            raise ValueError('Invalid server name format')
+        return v
 
     @validator('scan_type')
     def validate_scan_type(cls, v):
@@ -114,7 +110,7 @@ async def start_scan(request: ScanRequest, api_key: str = Depends(verify_api_key
     """Start a vulnerability scan"""
     job_id = str(uuid.uuid4())
 
-    logger.info(f"Starting scan job {job_id} for target {request.target}")
+    logger.info(f"Starting scan job {job_id} for server {request.server_name}")
 
     # Track job
     active_jobs[job_id] = {
@@ -130,7 +126,7 @@ async def start_scan(request: ScanRequest, api_key: str = Depends(verify_api_key
     return JobResponse(
         job_id=job_id,
         status="starting",
-        message=f"Scan started for target {request.target}"
+        message=f"Scan started for server {request.server_name}"
     )
 
 
@@ -193,56 +189,83 @@ async def execute_scan(job_id: str, request: ScanRequest):
     try:
         active_jobs[job_id]["status"] = "running"
 
-        # Build scan command
+        # Generate unique container name for this scan
+        container_name = f"vuls-scan-{job_id[:8]}-{request.server_name}"
+
+        # Build direct docker run command with absolute host paths
         cmd = [
             "docker", "run", "--rm",
-            "-v", f"{COMPOSE_PROJECT_DIR}/config:/vuls/config:ro",
-            "-v", f"{COMPOSE_PROJECT_DIR}/results:/vuls/results:rw",
-            "-v", f"{COMPOSE_PROJECT_DIR}/db:/vuls/db:ro",
-            "-v", f"{COMPOSE_PROJECT_DIR}/logs:/vuls/logs:rw"
+            # Unique container name to avoid conflicts
+            "--name", container_name,
+            # Volume mounts using host paths
+            "-v", f"{HOST_PROJECT_PATH}/config/config.toml:/vuls/config.toml:rw",
+            "-v", f"{HOST_PROJECT_PATH}/logs:/vuls/logs:rw",
+            "-v", f"{HOST_PROJECT_PATH}/results:/vuls/results:rw",
+            "-v", f"{HOST_PROJECT_PATH}/db:/vuls/db:rw",
+            "-v", f"{HOST_PROJECT_PATH}/.ssh:/root/.ssh:rw",
+            "-v", "/var/run/docker.sock:/var/run/docker.sock",
+            # Credential mounts (conditional)
+            "-v", f"{HOST_USER_HOME}/.config/gcloud:/root/.config/gcloud:rw",
+            "-v", f"{HOST_USER_HOME}/.aws:/root/.aws:ro",
+            # Environment variables
+            "-e", "VULS_CONFIG_PATH=/vuls/config.toml",
+            "-e", "AWS_PROFILE=default",
+            "-e", "AWS_REGION=eu-west-2",
+            "-e", "AWS_CONFIG_FILE=/root/.aws/config",
+            "-e", "AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials",
+            "-e", "GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json",
+            "-e", "CLOUDSDK_CONFIG=/root/.config/gcloud",
+            # Network connectivity
+            "--network", "vuls_default",
+            # Use the vuls image
+            "vuls-vuls:latest",
+            # Command
+            "scan", "-config=/vuls/config.toml"
         ]
 
-        # Add SSH key if provided
-        if request.ssh_key:
-            cmd.extend(["-v", f"{COMPOSE_PROJECT_DIR}/.ssh:/root/.ssh:ro"])
+        # Add scan type flags (note: fast scan is controlled by config, not flags)
+        if request.scan_type == "config-only":
+            # For config test, we would use configtest command instead of scan
+            # But for now, just do a regular scan
+            pass
 
-        # Add scan image and command
-        cmd.extend([
-            "vuls/vuls:latest",
-            "scan",
-            "-config=/vuls/config/config.toml",
-            f"-target={request.target}"
-        ])
-
-        # Add scan type flags
-        if request.scan_type == "fast":
-            cmd.append("-fast-scan")
-        elif request.scan_type == "config-only":
-            cmd.append("-config-test")
+        # Add server name last
+        cmd.append(request.server_name)
 
         logger.info(f"Executing scan command: {' '.join(cmd)}")
 
-        # Execute scan
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=3600  # 1 hour timeout
+        # Use async subprocess to avoid blocking
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
         )
+
+        try:
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(),
+                timeout=3600  # 1 hour timeout
+            )
+            returncode = process.returncode
+        except asyncio.TimeoutError:
+            process.kill()
+            await process.wait()
+            stdout, stderr = b"", b"Timeout after 1 hour"
+            returncode = -1
 
         # Update job status
         active_jobs[job_id].update({
-            "status": "completed" if result.returncode == 0 else "failed",
+            "status": "completed" if returncode == 0 else "failed",
             "completed_at": datetime.utcnow(),
             "result": {
-                "returncode": result.returncode,
-                "stdout": result.stdout,
-                "stderr": result.stderr
+                "returncode": returncode,
+                "stdout": stdout.decode() if stdout else "",
+                "stderr": stderr.decode() if stderr else ""
             }
         })
 
-        if result.returncode != 0:
-            active_jobs[job_id]["error"] = f"Scan failed with code {result.returncode}: {result.stderr}"
+        if returncode != 0:
+            active_jobs[job_id]["error"] = f"Scan failed with code {returncode}: {stderr.decode() if stderr else 'Unknown error'}"
 
         logger.info(f"Scan job {job_id} completed with status: {active_jobs[job_id]['status']}")
 

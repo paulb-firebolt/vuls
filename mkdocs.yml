@@ -114,6 +114,7 @@ nav:
       - Architecture: development/architecture.md
       - Web Application: development/web-app-dev.md
       - API Reference: development/api-reference.md
+      - Task Scheduler Fix: development/task-scheduler-fix.md
       - Upgrades: development/upgrades.md
       - Contributing: development/contributing.md
   - Reference:
