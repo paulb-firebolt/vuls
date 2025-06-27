@@ -3,6 +3,7 @@
 import os
 import re
 import shutil
+import httpx
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -18,13 +19,41 @@ from ..tasks.host_sync_tasks import sync_hosts_from_config_task
 
 router = APIRouter()
 
+# Docker Executor configuration
+EXECUTOR_URL = os.getenv("EXECUTOR_URL", "http://vuls-executor:8080")
+EXECUTOR_API_KEY = os.getenv("EXECUTOR_API_KEY", "change-me-in-production")
+
 # SSH config paths
-SSH_CONFIG_PATH = Path("/root/.ssh/config")
+SSH_CONFIG_PATH = Path("/app/.ssh/config")
 SSH_BACKUP_DIR = Path("/tmp/ssh_backups")
 CONFIG_DIR = Path("/vuls")
 
 # Ensure backup directory exists
 SSH_BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+
+
+async def call_executor(method: str, endpoint: str, json_data: dict = None) -> dict:
+    """Call docker executor API"""
+    url = f"{EXECUTOR_URL}{endpoint}"
+    headers = {"X-API-Key": EXECUTOR_API_KEY}
+
+    async with httpx.AsyncClient() as client:
+        if method.upper() == "GET":
+            response = await client.get(url, headers=headers)
+        elif method.upper() == "POST":
+            response = await client.post(url, headers=headers, json=json_data)
+        elif method.upper() == "DELETE":
+            response = await client.delete(url, headers=headers)
+        else:
+            raise ValueError(f"Unsupported HTTP method: {method}")
+
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=f"Executor API error: {response.text}"
+            )
+
+        return response.json()
 
 
 class SSHConfigContent(BaseModel):
@@ -232,18 +261,17 @@ async def get_ssh_config(
 ):
     """Get current SSH config content"""
     try:
-        if SSH_CONFIG_PATH.exists():
-            with open(SSH_CONFIG_PATH, 'r') as f:
-                content = f.read()
-        else:
-            content = "# SSH Config for Vuls\n# Add your host configurations here\n"
+        # Get SSH config from executor
+        executor_response = await call_executor("GET", "/ssh/config")
+        content = executor_response.get("content", "")
 
         validation = validate_ssh_config(content)
 
         return {
             "content": content,
             "validation": validation.dict(),
-            "path": str(SSH_CONFIG_PATH)
+            "path": executor_response.get("path", ""),
+            "exists": executor_response.get("exists", False)
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to read SSH config: {str(e)}")
@@ -272,19 +300,19 @@ async def update_ssh_config(
             )
 
         # Create backup of current config
-        if SSH_CONFIG_PATH.exists():
-            with open(SSH_CONFIG_PATH, 'r') as f:
-                current_content = f.read()
-            backup_path = create_backup(current_content)
-        else:
+        try:
+            current_config = await call_executor("GET", "/ssh/config")
+            if current_config.get("exists", False):
+                backup_path = create_backup(current_config.get("content", ""))
+            else:
+                backup_path = None
+        except Exception:
             backup_path = None
 
-        # Write new config
-        with open(SSH_CONFIG_PATH, 'w') as f:
-            f.write(config_data.content)
-
-        # Set proper permissions
-        os.chmod(SSH_CONFIG_PATH, 0o644)
+        # Write new config via executor
+        executor_response = await call_executor("POST", "/ssh/config", {
+            "content": config_data.content
+        })
 
         # Update Vuls config.toml
         update_vuls_config(validation.hosts)
@@ -302,7 +330,8 @@ async def update_ssh_config(
             "backup_path": backup_path,
             "validation": validation.dict(),
             "hosts_updated": len(validation.hosts),
-            "host_sync_triggered": True
+            "host_sync_triggered": True,
+            "executor_response": executor_response
         }
 
     except HTTPException:
@@ -464,37 +493,9 @@ async def list_ssh_keys(
 ):
     """List SSH keys in the .ssh directory"""
     try:
-        ssh_dir = Path("/root/.ssh")
-        keys = []
-
-        if ssh_dir.exists():
-            for key_file in ssh_dir.iterdir():
-                if key_file.is_file() and key_file.name not in ['config', 'known_hosts', 'known_hosts.old']:
-                    stat = key_file.stat()
-
-                    # Determine key type
-                    key_type = "unknown"
-                    if key_file.name.endswith('.pub'):
-                        key_type = "public"
-                    elif not '.' in key_file.name or key_file.name.endswith(('_rsa', '_ed25519', '_ecdsa')):
-                        key_type = "private"
-
-                    # Get file permissions
-                    permissions = oct(stat.st_mode)[-3:]
-
-                    keys.append({
-                        "filename": key_file.name,
-                        "key_type": key_type,
-                        "size": stat.st_size,
-                        "permissions": permissions,
-                        "modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
-                        "path": str(key_file)
-                    })
-
-        # Sort by filename
-        keys.sort(key=lambda x: x['filename'])
-
-        return {"keys": keys}
+        # Get SSH keys from executor
+        executor_response = await call_executor("GET", "/ssh/keys")
+        return executor_response
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to list SSH keys: {str(e)}")
 
@@ -508,52 +509,13 @@ async def upload_ssh_key(
 ):
     """Upload/save SSH key content"""
     try:
-        ssh_dir = Path("/root/.ssh")
-        key_path = ssh_dir / key_data.filename
-
-        # Validate filename
-        if not key_data.filename or '/' in key_data.filename or key_data.filename.startswith('.'):
-            raise HTTPException(status_code=400, detail="Invalid filename")
-
-        # Check if file already exists
-        if key_path.exists():
-            raise HTTPException(status_code=400, detail=f"Key file '{key_data.filename}' already exists")
-
-        # Validate key content
-        content = key_data.content.strip()
-        if not content:
-            raise HTTPException(status_code=400, detail="Key content cannot be empty")
-
-        # Basic validation for key format
-        if key_data.key_type == "public":
-            if not (content.startswith(('ssh-rsa', 'ssh-ed25519', 'ssh-ecdsa', 'ecdsa-sha2-')) or 'ssh-' in content):
-                raise HTTPException(status_code=400, detail="Invalid public key format")
-        elif key_data.key_type == "private":
-            if not (content.startswith('-----BEGIN') or 'PRIVATE KEY' in content):
-                raise HTTPException(status_code=400, detail="Invalid private key format")
-
-        # Write key file
-        with open(key_path, 'w') as f:
-            f.write(content)
-            if not content.endswith('\n'):
-                f.write('\n')
-
-        # Set appropriate permissions
-        if key_data.key_type == "private":
-            os.chmod(key_path, 0o600)  # Private keys: read/write for owner only
-        else:
-            os.chmod(key_path, 0o644)  # Public keys: read for all, write for owner
-
-        return {
-            "success": True,
-            "message": f"SSH key '{key_data.filename}' uploaded successfully",
+        # Upload SSH key via executor
+        executor_response = await call_executor("POST", f"/ssh/keys/{key_data.filename}", {
             "filename": key_data.filename,
-            "key_type": key_data.key_type,
-            "permissions": "600" if key_data.key_type == "private" else "644"
-        }
-
-    except HTTPException:
-        raise
+            "content": key_data.content,
+            "key_type": key_data.key_type
+        })
+        return executor_response
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to upload SSH key: {str(e)}")
 
@@ -567,30 +529,9 @@ async def delete_ssh_key(
 ):
     """Delete SSH key file"""
     try:
-        ssh_dir = Path("/root/.ssh")
-        key_path = ssh_dir / filename
-
-        # Validate filename
-        if not filename or '/' in filename or filename.startswith('.'):
-            raise HTTPException(status_code=400, detail="Invalid filename")
-
-        # Prevent deletion of critical files
-        if filename in ['config', 'known_hosts', 'known_hosts.old']:
-            raise HTTPException(status_code=400, detail="Cannot delete system SSH files")
-
-        if not key_path.exists():
-            raise HTTPException(status_code=404, detail="SSH key file not found")
-
-        # Delete the file
-        key_path.unlink()
-
-        return {
-            "success": True,
-            "message": f"SSH key '{filename}' deleted successfully"
-        }
-
-    except HTTPException:
-        raise
+        # Delete SSH key via executor
+        executor_response = await call_executor("DELETE", f"/ssh/keys/{filename}")
+        return executor_response
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete SSH key: {str(e)}")
 
@@ -604,30 +545,31 @@ async def get_ssh_key_content(
 ):
     """Get SSH key content (for public keys only)"""
     try:
-        ssh_dir = Path("/root/.ssh")
-        key_path = ssh_dir / filename
-
-        # Validate filename
-        if not filename or '/' in filename or filename.startswith('.'):
-            raise HTTPException(status_code=400, detail="Invalid filename")
-
-        if not key_path.exists():
-            raise HTTPException(status_code=404, detail="SSH key file not found")
-
         # Only allow viewing public keys for security
         if not filename.endswith('.pub'):
             raise HTTPException(status_code=403, detail="Can only view public key content")
 
-        with open(key_path, 'r') as f:
-            content = f.read()
-
+        # Get SSH key content from executor
+        executor_response = await call_executor("GET", f"/ssh/keys/{filename}")
         return {
             "filename": filename,
-            "content": content,
+            "content": executor_response.get("content", ""),
             "key_type": "public"
         }
-
-    except HTTPException:
-        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to read SSH key: {str(e)}")
+
+
+@router.post("/ssh/permissions/reset")
+async def reset_ssh_permissions(
+    request: Request,
+    current_user: User = Depends(get_current_active_user_from_cookie),
+    db: Session = Depends(get_db)
+):
+    """Reset all SSH file permissions to proper values"""
+    try:
+        # Reset SSH permissions via executor
+        executor_response = await call_executor("POST", "/ssh/permissions/reset")
+        return executor_response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to reset SSH permissions: {str(e)}")

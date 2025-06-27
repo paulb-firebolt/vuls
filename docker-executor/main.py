@@ -7,9 +7,12 @@ import os
 import logging
 import subprocess
 import asyncio
+import shutil
 from typing import Dict, Any, Optional
 from datetime import datetime
 import uuid
+import stat
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Depends, Header
 from pydantic import BaseModel, validator
@@ -74,6 +77,41 @@ class DatabaseUpdateRequest(BaseModel):
                   'gost_ubuntu', 'gost_debian', 'gost_redhat', 'all']
         if v not in allowed:
             raise ValueError(f'Invalid database type. Allowed: {allowed}')
+        return v
+
+
+class SSHConfigRequest(BaseModel):
+    content: str
+
+    @validator('content')
+    def validate_content(cls, v):
+        if not v.strip():
+            raise ValueError('SSH config content cannot be empty')
+        return v
+
+
+class SSHKeyRequest(BaseModel):
+    filename: str
+    content: str
+    key_type: str
+
+    @validator('filename')
+    def validate_filename(cls, v):
+        # Sanitize filename to prevent path traversal
+        if not v or '/' in v or v.startswith('.') or '..' in v:
+            raise ValueError('Invalid filename')
+        return v
+
+    @validator('key_type')
+    def validate_key_type(cls, v):
+        if v not in ['private', 'public']:
+            raise ValueError('Key type must be private or public')
+        return v
+
+    @validator('content')
+    def validate_content(cls, v):
+        if not v.strip():
+            raise ValueError('Key content cannot be empty')
         return v
 
 
@@ -182,6 +220,358 @@ async def get_job_logs(job_id: str, api_key: str = Depends(verify_api_key)):
 
     job = active_jobs[job_id]
     return {"job_id": job_id, "logs": job.get("logs", [])}
+
+
+# SSH Management Endpoints
+
+@app.get("/ssh/config")
+async def get_ssh_config(api_key: str = Depends(verify_api_key)):
+    """Get SSH config content"""
+    try:
+        ssh_config_path = Path(COMPOSE_PROJECT_DIR) / ".ssh" / "config"
+
+        if ssh_config_path.exists():
+            with open(ssh_config_path, 'r') as f:
+                content = f.read()
+        else:
+            content = "# SSH Config for Vuls\n# Add your host configurations here\n"
+
+        return {
+            "content": content,
+            "path": str(ssh_config_path),
+            "exists": ssh_config_path.exists()
+        }
+    except Exception as e:
+        logger.error(f"Error reading SSH config: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to read SSH config: {str(e)}")
+
+
+@app.post("/ssh/config")
+async def write_ssh_config(request: SSHConfigRequest, api_key: str = Depends(verify_api_key)):
+    """Write SSH config with proper permissions and validation"""
+    try:
+        ssh_dir = Path(COMPOSE_PROJECT_DIR) / ".ssh"
+        ssh_config_path = ssh_dir / "config"
+        temp_config_path = ssh_dir / "config.tmp"
+
+        # Ensure .ssh directory exists
+        ssh_dir.mkdir(mode=0o700, exist_ok=True)
+
+        # Write config to temporary file first for validation
+        with open(temp_config_path, 'w') as f:
+            f.write(request.content)
+
+        # Set proper permissions on temp file
+        os.chown(temp_config_path, 0, 0)  # root:root
+        os.chmod(temp_config_path, 0o600)  # 600 permissions
+
+        # Validate SSH config syntax using ssh -G
+        validation_results = await validate_ssh_config_syntax(temp_config_path)
+
+        if not validation_results["valid"]:
+            # Remove temp file on validation failure
+            temp_config_path.unlink()
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "message": "SSH config validation failed",
+                    "validation_errors": validation_results["errors"],
+                    "validation_warnings": validation_results.get("warnings", [])
+                }
+            )
+
+        # If validation passes, move temp file to final location
+        if ssh_config_path.exists():
+            # Create backup of existing config
+            backup_path = ssh_dir / f"config.backup.{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            shutil.copy2(ssh_config_path, backup_path)
+            logger.info(f"Created backup at {backup_path}")
+
+        # Move validated config to final location
+        shutil.move(str(temp_config_path), str(ssh_config_path))
+
+        # Ensure final permissions are correct
+        os.chown(ssh_config_path, 0, 0)  # root:root
+        os.chmod(ssh_config_path, 0o600)  # 600 permissions
+
+        logger.info(f"SSH config written and validated successfully to {ssh_config_path}")
+
+        return {
+            "success": True,
+            "message": "SSH config written and validated successfully",
+            "path": str(ssh_config_path),
+            "permissions": "600",
+            "owner": "root:root",
+            "validation": validation_results
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        # Clean up temp file if it exists
+        if 'temp_config_path' in locals() and temp_config_path.exists():
+            temp_config_path.unlink()
+        logger.error(f"Error writing SSH config: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to write SSH config: {str(e)}")
+
+
+async def validate_ssh_config_syntax(config_path: Path) -> dict:
+    """Validate SSH config syntax using ssh -G command"""
+    validation_result = {
+        "valid": True,
+        "errors": [],
+        "warnings": [],
+        "tested_hosts": []
+    }
+
+    try:
+        # First, do a basic syntax check by parsing the config
+        with open(config_path, 'r') as f:
+            content = f.read()
+
+        # Extract host patterns from the config for testing
+        host_patterns = []
+        for line in content.split('\n'):
+            line = line.strip()
+            if line.lower().startswith('host ') and not line.lower().startswith('hostname'):
+                # Extract host pattern
+                pattern = line[5:].strip()
+                # Skip wildcard patterns for validation (they can't be tested with -G)
+                if '*' not in pattern and '?' not in pattern and pattern not in ['*', '!*']:
+                    host_patterns.append(pattern)
+
+        # Test a few representative hosts (limit to avoid delays)
+        test_hosts = host_patterns[:3]  # Test max 3 hosts to avoid delays
+
+        for host in test_hosts:
+            try:
+                # Use ssh -G to validate config for this host
+                # This will parse the config and show what SSH would actually use
+                cmd = ["ssh", "-F", str(config_path), "-G", host]
+
+                process = await asyncio.create_subprocess_exec(
+                    *cmd,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE
+                )
+
+                try:
+                    stdout, stderr = await asyncio.wait_for(
+                        process.communicate(),
+                        timeout=5  # 5 second timeout per host
+                    )
+                    returncode = process.returncode
+                except asyncio.TimeoutError:
+                    process.kill()
+                    await process.wait()
+                    validation_result["warnings"].append(f"Validation timeout for host '{host}'")
+                    continue
+
+                if returncode == 0:
+                    validation_result["tested_hosts"].append({
+                        "host": host,
+                        "status": "valid"
+                    })
+                    logger.info(f"SSH config validation passed for host: {host}")
+                else:
+                    error_msg = stderr.decode().strip() if stderr else "Unknown SSH config error"
+                    validation_result["errors"].append(f"Host '{host}': {error_msg}")
+                    validation_result["tested_hosts"].append({
+                        "host": host,
+                        "status": "error",
+                        "error": error_msg
+                    })
+                    logger.warning(f"SSH config validation failed for host {host}: {error_msg}")
+
+            except Exception as e:
+                validation_result["warnings"].append(f"Could not validate host '{host}': {str(e)}")
+                logger.warning(f"Exception during SSH validation for {host}: {str(e)}")
+
+        # If we have errors, mark as invalid
+        if validation_result["errors"]:
+            validation_result["valid"] = False
+
+        # Add summary info
+        validation_result["summary"] = {
+            "total_hosts_found": len(host_patterns),
+            "hosts_tested": len(test_hosts),
+            "validation_time": "< 5s per host"
+        }
+
+    except Exception as e:
+        validation_result["valid"] = False
+        validation_result["errors"].append(f"Config validation failed: {str(e)}")
+        logger.error(f"SSH config validation exception: {str(e)}")
+
+    return validation_result
+
+
+@app.get("/ssh/keys")
+async def list_ssh_keys(api_key: str = Depends(verify_api_key)):
+    """List SSH keys in .ssh directory"""
+    try:
+        ssh_dir = Path(COMPOSE_PROJECT_DIR) / ".ssh"
+        keys = []
+
+        if ssh_dir.exists():
+            for key_file in ssh_dir.iterdir():
+                if key_file.is_file() and key_file.name not in ['config', 'known_hosts', 'known_hosts.old']:
+                    stat_info = key_file.stat()
+
+                    # Determine key type
+                    key_type = "unknown"
+                    if key_file.name.endswith('.pub'):
+                        key_type = "public"
+                    elif not '.' in key_file.name or key_file.name.endswith(('_rsa', '_ed25519', '_ecdsa')):
+                        key_type = "private"
+
+                    keys.append({
+                        "filename": key_file.name,
+                        "key_type": key_type,
+                        "size": stat_info.st_size,
+                        "permissions": oct(stat_info.st_mode)[-3:],
+                        "modified": datetime.fromtimestamp(stat_info.st_mtime).isoformat(),
+                        "path": str(key_file)
+                    })
+
+        # Sort by filename
+        keys.sort(key=lambda x: x['filename'])
+
+        return {"keys": keys}
+    except Exception as e:
+        logger.error(f"Error listing SSH keys: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to list SSH keys: {str(e)}")
+
+
+@app.post("/ssh/keys/{filename}")
+async def write_ssh_key(filename: str, request: SSHKeyRequest, api_key: str = Depends(verify_api_key)):
+    """Write SSH key with proper permissions"""
+    try:
+        # Validate filename matches request
+        if filename != request.filename:
+            raise HTTPException(status_code=400, detail="Filename mismatch")
+
+        ssh_dir = Path(COMPOSE_PROJECT_DIR) / ".ssh"
+        key_path = ssh_dir / filename
+
+        # Ensure .ssh directory exists
+        ssh_dir.mkdir(mode=0o700, exist_ok=True)
+
+        # Basic key format validation
+        content = request.content.strip()
+        if request.key_type == "public":
+            if not (content.startswith(('ssh-rsa', 'ssh-ed25519', 'ssh-ecdsa', 'ecdsa-sha2-')) or 'ssh-' in content):
+                raise HTTPException(status_code=400, detail="Invalid public key format")
+        elif request.key_type == "private":
+            if not (content.startswith('-----BEGIN') or 'PRIVATE KEY' in content):
+                raise HTTPException(status_code=400, detail="Invalid private key format")
+
+        # Write key file
+        with open(key_path, 'w') as f:
+            f.write(content)
+            if not content.endswith('\n'):
+                f.write('\n')
+
+        # Set proper permissions and ownership
+        os.chown(key_path, 0, 0)  # root:root
+        if request.key_type == "private":
+            os.chmod(key_path, 0o600)  # Private keys: 600
+            permissions = "600"
+        else:
+            os.chmod(key_path, 0o644)  # Public keys: 644
+            permissions = "644"
+
+        logger.info(f"SSH key '{filename}' written successfully with {permissions} permissions")
+
+        return {
+            "success": True,
+            "message": f"SSH key '{filename}' written successfully",
+            "filename": filename,
+            "key_type": request.key_type,
+            "permissions": permissions,
+            "owner": "root:root"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error writing SSH key '{filename}': {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to write SSH key: {str(e)}")
+
+
+@app.delete("/ssh/keys/{filename}")
+async def delete_ssh_key(filename: str, api_key: str = Depends(verify_api_key)):
+    """Delete SSH key file"""
+    try:
+        # Validate filename for security
+        if not filename or '/' in filename or filename.startswith('.') or '..' in filename:
+            raise HTTPException(status_code=400, detail="Invalid filename")
+
+        # Prevent deletion of critical files
+        if filename in ['config', 'known_hosts', 'known_hosts.old']:
+            raise HTTPException(status_code=400, detail="Cannot delete system SSH files")
+
+        ssh_dir = Path(COMPOSE_PROJECT_DIR) / ".ssh"
+        key_path = ssh_dir / filename
+
+        if not key_path.exists():
+            raise HTTPException(status_code=404, detail="SSH key file not found")
+
+        # Delete the file
+        key_path.unlink()
+
+        logger.info(f"SSH key '{filename}' deleted successfully")
+
+        return {
+            "success": True,
+            "message": f"SSH key '{filename}' deleted successfully"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting SSH key '{filename}': {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete SSH key: {str(e)}")
+
+
+@app.post("/ssh/permissions/reset")
+async def reset_ssh_permissions(api_key: str = Depends(verify_api_key)):
+    """Reset all SSH file permissions to proper values"""
+    try:
+        ssh_dir = Path(COMPOSE_PROJECT_DIR) / ".ssh"
+
+        if not ssh_dir.exists():
+            raise HTTPException(status_code=404, detail="SSH directory not found")
+
+        results = []
+
+        # Set directory permissions
+        os.chown(ssh_dir, 0, 0)  # root:root
+        os.chmod(ssh_dir, 0o700)  # 700 for directory
+        results.append({"path": str(ssh_dir), "type": "directory", "permissions": "700", "owner": "root:root"})
+
+        # Process all files in .ssh directory
+        for item in ssh_dir.iterdir():
+            if item.is_file():
+                os.chown(item, 0, 0)  # root:root
+
+                if item.name == 'config':
+                    os.chmod(item, 0o600)  # 600 for config
+                    results.append({"path": str(item), "type": "config", "permissions": "600", "owner": "root:root"})
+                elif item.name.endswith('.pub'):
+                    os.chmod(item, 0o644)  # 644 for public keys
+                    results.append({"path": str(item), "type": "public_key", "permissions": "644", "owner": "root:root"})
+                else:
+                    os.chmod(item, 0o600)  # 600 for private keys and other files
+                    results.append({"path": str(item), "type": "private_key", "permissions": "600", "owner": "root:root"})
+
+        logger.info(f"SSH permissions reset for {len(results)} items")
+
+        return {
+            "success": True,
+            "message": f"SSH permissions reset for {len(results)} items",
+            "results": results
+        }
+    except Exception as e:
+        logger.error(f"Error resetting SSH permissions: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to reset SSH permissions: {str(e)}")
 
 
 async def execute_scan(job_id: str, request: ScanRequest):

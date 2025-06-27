@@ -58,6 +58,16 @@ Documentation of the Docker executor implementation fix:
 - Testing and verification procedures
 - Troubleshooting guide for SSH connectivity issues
 
+### [Real-Time WebSocket System](websocket-realtime-system.md)
+
+Documentation of the real-time notification system:
+
+- WebSocket architecture and Redis pub/sub implementation
+- Real-time task completion notifications
+- Performance improvements over polling-based updates
+- Configuration and troubleshooting guide
+- Security considerations and future enhancements
+
 ## Technology Stack
 
 ### Backend Technologies

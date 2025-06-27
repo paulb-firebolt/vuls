@@ -12,8 +12,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock # If scanning containers
       - /home/paulb/.config/gcloud:/root/.config/gcloud:rw
       - /home/paulb/.aws:/root/.aws:ro
+      - /home/paulb/.cloudflared:/root/.cloudflared:rw
+      - ${SSH_AUTH_SOCK}:/ssh-agent # SSH agent socket
     environment:
       - VULS_CONFIG_PATH=/vuls/config.toml
+      - SSH_AUTH_SOCK=/ssh-agent
       # AWS environment variables
       - AWS_PROFILE=default
       - AWS_REGION=eu-west-2
@@ -142,8 +145,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /home/paulb/.config/gcloud:/root/.config/gcloud:ro
       - /home/paulb/.aws:/root/.aws:ro
+      - ${SSH_AUTH_SOCK}:/ssh-agent # SSH agent socket
     environment:
       - VULS_CONFIG_PATH=/vuls/config.toml
+      - SSH_AUTH_SOCK=/ssh-agent
       - AWS_PROFILE=default
       - AWS_REGION=eu-west-2
       - AWS_CONFIG_FILE=/root/.aws/config
@@ -219,7 +224,7 @@ services:
       - ./results:/app/results:rw
       - ./db:/app/db:ro
       - ./logs:/app/logs:rw
-      - ./.ssh:/root/.ssh:rw
+      - ./.ssh:/app/.ssh:rw
       # Mount source code for hot reload
       - ./web-app/app:/app/app:rw
       - ./web-app/static:/app/static:rw
@@ -294,7 +299,7 @@ services:
     container_name: vuls-executor
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - .:/project:ro # Mount compose project directory as /project
+      - .:/project:rw # Mount compose project directory as /project with write access
     environment:
       - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
       - HOST_PROJECT_PATH=${PWD}

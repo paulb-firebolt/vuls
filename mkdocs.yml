@@ -115,6 +115,7 @@ nav:
       - Web Application: development/web-app-dev.md
       - API Reference: development/api-reference.md
       - Task Scheduler Fix: development/task-scheduler-fix.md
+      - Real-Time WebSocket System: development/websocket-realtime-system.md
       - Upgrades: development/upgrades.md
       - Contributing: development/contributing.md
   - Reference:

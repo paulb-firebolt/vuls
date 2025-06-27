@@ -28,7 +28,3 @@ scanMode = ["fast"]
 [servers.thingsboard_cassandra_prod]
 host = "thingsboard-cassandra-prod"
 scanMode = ["fast"]
-
-[servers.glimpse_paulb_nuc_firebolt_network]
-host = "glimpse-paulb-nuc.firebolt.network"
-scanMode = ["offline"]
