@@ -26,6 +26,8 @@ services:
       #- GOOGLE_CLOUD_PROJECT=your-project-id
       - GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json
       - CLOUDSDK_CONFIG=/root/.config/gcloud
+      - CF_ACCESS_CLIENT_ID=${CF_ACCESS_CLIENT_ID}
+      - CF_ACCESS_CLIENT_SECRET=${CF_ACCESS_CLIENT_SECRET}
     command: [scan, -config=/vuls/config.toml]
 
   # NVD database fetcher

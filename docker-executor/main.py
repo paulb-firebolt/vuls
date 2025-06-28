@@ -44,6 +44,8 @@ API_KEY = os.getenv("EXECUTOR_API_KEY", "change-me-in-production")
 COMPOSE_PROJECT_DIR = "/project"
 HOST_PROJECT_PATH = os.getenv("HOST_PROJECT_PATH", "/project")
 HOST_USER_HOME = os.getenv("HOST_USER_HOME", "/home/user")
+CF_CLIENT_ACCESS_ID = os.getenv("CF_CLIENT_ACCESS_ID", "Cloudflare ID")
+CF_CLIENT_ACCESS_SECRET = os.getenv("CF_CLIENT_ACCESS_SECRET", "Cloudflare Secret")
 
 # Job tracking
 active_jobs: Dict[str, Dict[str, Any]] = {}
@@ -597,6 +599,7 @@ async def execute_scan(job_id: str, request: ScanRequest):
             # Credential mounts (conditional)
             "-v", f"{HOST_USER_HOME}/.config/gcloud:/root/.config/gcloud:rw",
             "-v", f"{HOST_USER_HOME}/.aws:/root/.aws:ro",
+            "-v", f"{HOST_USER_HOME}/.cloudflared:/root/.cloudflared:rw",
             # Environment variables
             "-e", "VULS_CONFIG_PATH=/vuls/config.toml",
             "-e", "AWS_PROFILE=default",
@@ -605,12 +608,14 @@ async def execute_scan(job_id: str, request: ScanRequest):
             "-e", "AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials",
             "-e", "GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json",
             "-e", "CLOUDSDK_CONFIG=/root/.config/gcloud",
+            "-e", f"CF_CLIENT_ACCESS_ID={CF_CLIENT_ACCESS_ID}",
+            "-e", f"CF_CLIENT_ACCESS_SECRET={CF_CLIENT_ACCESS_SECRET}",
             # Network connectivity
             "--network", "vuls_default",
             # Use the vuls image
             "vuls-vuls:latest",
-            # Command
-            "scan", "-config=/vuls/config.toml"
+            # Command with server name
+            "scan", "-config=/vuls/config.toml", request.server_name
         ]
 
         # Add scan type flags (note: fast scan is controlled by config, not flags)
@@ -618,9 +623,6 @@ async def execute_scan(job_id: str, request: ScanRequest):
             # For config test, we would use configtest command instead of scan
             # But for now, just do a regular scan
             pass
-
-        # Add server name last
-        cmd.append(request.server_name)
 
         logger.info(f"Executing scan command: {' '.join(cmd)}")
 

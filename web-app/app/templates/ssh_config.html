@@ -193,17 +193,7 @@ endblock %} {% block content %}
           ></textarea>
 
           <!-- Save Button -->
-          <div class="mt-4 flex justify-between">
-            <div class="flex space-x-2">
-              <button
-                @click="validateConfig()"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                :disabled="loading"
-              >
-                <span x-show="!loading">Validate</span>
-                <span x-show="loading">Validating...</span>
-              </button>
-            </div>
+          <div class="mt-4 flex justify-end">
             <button
               @click="saveConfig()"
               class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"

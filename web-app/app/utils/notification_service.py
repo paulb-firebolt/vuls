@@ -53,35 +53,147 @@ class NotificationSubscriber:
         )
         self.pubsub = self.redis_client.pubsub()
         self.running = False
+        self._loop = None
+        self._task = None
 
     async def start_listening(self):
         """Start listening for Redis notifications"""
         try:
-            self.pubsub.subscribe(NOTIFICATION_CHANNEL)
             self.running = True
+            self._loop = asyncio.get_event_loop()
+
+            # Start the listening task in background - don't await it
+            self._task = asyncio.create_task(self._listen_loop())
             logger.info("Started listening for task notifications")
 
-            # Run in a separate thread to avoid blocking
-            import threading
-            thread = threading.Thread(target=self._listen_loop, daemon=True)
-            thread.start()
+            # Return immediately without waiting for the task to start
+            return
 
         except Exception as e:
             logger.error(f"Error starting notification listener: {e}")
 
-    def _listen_loop(self):
-        """Listen for Redis messages in a separate thread"""
+    async def _listen_loop(self):
+        """Listen for Redis messages asynchronously"""
         try:
-            for message in self.pubsub.listen():
-                if message['type'] == 'message':
-                    try:
-                        notification = json.loads(message['data'])
-                        # Forward to WebSocket clients
-                        asyncio.run(self._forward_to_websockets(notification))
-                    except Exception as e:
-                        logger.error(f"Error processing notification: {e}")
+            # Add a small delay to ensure startup completes first
+            await asyncio.sleep(0.1)
+
+            # Try async Redis first, fall back to sync if needed
+            try:
+                import aioredis
+                logger.info("Using async Redis for notifications")
+                await self._listen_loop_async()
+            except ImportError:
+                logger.info("aioredis not available, using sync Redis with async wrapper")
+                await self._listen_loop_sync()
+            except Exception as e:
+                logger.warning(f"Async Redis failed: {e}, falling back to sync")
+                await self._listen_loop_sync()
+
         except Exception as e:
             logger.error(f"Error in notification listen loop: {e}")
+
+    async def _listen_loop_sync(self):
+        """Fallback sync listening with proper async handling"""
+        import threading
+        import queue
+
+        logger.info("Starting sync Redis listener with async wrapper")
+
+        # Create a queue to pass messages from sync thread to async handler
+        message_queue = queue.Queue()
+
+        def sync_listener():
+            """Sync listener that puts messages in queue"""
+            try:
+                logger.info("Sync Redis listener thread started, subscribing to Redis")
+                # Subscribe inside the thread to avoid blocking startup
+                self.pubsub.subscribe(NOTIFICATION_CHANNEL)
+                logger.info(f"Subscribed to Redis channel: {NOTIFICATION_CHANNEL}")
+
+                for message in self.pubsub.listen():
+                    if not self.running:
+                        logger.info("Sync Redis listener stopping")
+                        break
+                    if message['type'] == 'message':
+                        logger.info(f"Received Redis message: {message['data'][:100]}...")
+                        message_queue.put(message['data'])
+            except Exception as e:
+                logger.error(f"Error in sync listener: {e}")
+
+        # Start sync listener in thread
+        thread = threading.Thread(target=sync_listener, daemon=True)
+        thread.start()
+        logger.info("Sync Redis listener thread started")
+
+        # Process messages asynchronously without blocking
+        async def process_messages():
+            logger.info("Starting message processing loop")
+            while self.running:
+                try:
+                    # Use asyncio.to_thread to make queue.get non-blocking
+                    try:
+                        # Check for messages with a very short timeout to avoid blocking
+                        message_data = await asyncio.to_thread(message_queue.get, timeout=0.1)
+                        notification = json.loads(message_data)
+                        await self._forward_to_websockets(notification)
+                    except queue.Empty:
+                        # No message available, sleep briefly and continue
+                        await asyncio.sleep(0.1)
+                        continue
+                    except Exception as e:
+                        logger.error(f"Error processing queued message: {e}")
+                        await asyncio.sleep(0.1)
+                except Exception as e:
+                    logger.error(f"Error in async message processing: {e}")
+                    await asyncio.sleep(1)
+
+        # Start message processing in background and return immediately
+        asyncio.create_task(process_messages())
+        logger.info("Sync Redis message processing started in background")
+
+    async def _listen_loop_async(self):
+        """Async Redis listening using aioredis"""
+        import aioredis
+
+        logger.info("Starting async Redis listener")
+
+        try:
+            # Create async Redis client
+            redis = aioredis.from_url(settings.redis_url, decode_responses=True)
+
+            # Create pubsub
+            pubsub = redis.pubsub()
+            await pubsub.subscribe(NOTIFICATION_CHANNEL)
+            logger.info(f"Subscribed to Redis channel: {NOTIFICATION_CHANNEL}")
+
+            # Listen for messages
+            while self.running:
+                try:
+                    # Get message with timeout
+                    message = await asyncio.wait_for(pubsub.get_message(ignore_subscribe_messages=True), timeout=1.0)
+
+                    if message and message['type'] == 'message':
+                        logger.info(f"Received async Redis message: {message['data'][:100]}...")
+                        notification = json.loads(message['data'])
+                        await self._forward_to_websockets(notification)
+
+                except asyncio.TimeoutError:
+                    # Timeout is normal, continue listening
+                    continue
+                except Exception as e:
+                    logger.error(f"Error processing async message: {e}")
+                    await asyncio.sleep(1)
+
+        except Exception as e:
+            logger.error(f"Error in async Redis listener: {e}")
+            raise
+        finally:
+            try:
+                await pubsub.unsubscribe(NOTIFICATION_CHANNEL)
+                await redis.close()
+            except:
+                pass
 
     async def _forward_to_websockets(self, notification: Dict[str, Any]):
         """Forward notification to WebSocket clients"""
@@ -94,6 +206,8 @@ class NotificationSubscriber:
     def stop_listening(self):
         """Stop listening for notifications"""
         self.running = False
+        if self._task:
+            self._task.cancel()
         self.pubsub.unsubscribe(NOTIFICATION_CHANNEL)
         self.pubsub.close()
         logger.info("Stopped listening for task notifications")

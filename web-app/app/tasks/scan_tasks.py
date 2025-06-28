@@ -101,6 +101,36 @@ def run_vulnerability_scan(self, host_id: int, scan_type: str = "fast", task_run
                         result_data=result_data
                     )
 
+                    # Also send WebSocket notification directly
+                    try:
+                        from ..api.websocket import notify_task_completion
+                        import asyncio
+
+                        # Create a new event loop for this thread if needed
+                        try:
+                            loop = asyncio.get_event_loop()
+                        except RuntimeError:
+                            loop = asyncio.new_event_loop()
+                            asyncio.set_event_loop(loop)
+
+                        # Schedule the WebSocket notification
+                        if loop.is_running():
+                            asyncio.create_task(notify_task_completion(
+                                task_id=0,
+                                task_run_id=task_run_id,
+                                status="success",
+                                result_data=result_data
+                            ))
+                        else:
+                            loop.run_until_complete(notify_task_completion(
+                                task_id=0,
+                                task_run_id=task_run_id,
+                                status="success",
+                                result_data=result_data
+                            ))
+                    except Exception as e:
+                        logger.error(f"Error sending WebSocket notification: {e}")
+
                 logger.info(f"Scan completed successfully for host {host.name}")
 
                 return {
@@ -136,6 +166,36 @@ def run_vulnerability_scan(self, host_id: int, scan_type: str = "fast", task_run
                         task_name=f"Scan {host.name}",
                         result_data={"error": result.get("error")}
                     )
+
+                    # Also send WebSocket notification directly for failure
+                    try:
+                        from ..api.websocket import notify_task_completion
+                        import asyncio
+
+                        # Create a new event loop for this thread if needed
+                        try:
+                            loop = asyncio.get_event_loop()
+                        except RuntimeError:
+                            loop = asyncio.new_event_loop()
+                            asyncio.set_event_loop(loop)
+
+                        # Schedule the WebSocket notification
+                        if loop.is_running():
+                            asyncio.create_task(notify_task_completion(
+                                task_id=0,
+                                task_run_id=task_run_id,
+                                status="failed",
+                                result_data={"error": result.get("error")}
+                            ))
+                        else:
+                            loop.run_until_complete(notify_task_completion(
+                                task_id=0,
+                                task_run_id=task_run_id,
+                                status="failed",
+                                result_data={"error": result.get("error")}
+                            ))
+                    except Exception as e:
+                        logger.error(f"Error sending WebSocket notification for failure: {e}")
 
                 return {"status": "error", "error": result.get("error")}
 

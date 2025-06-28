@@ -1,5 +1,6 @@
 """Main FastAPI application"""
 
+import asyncio
 from fastapi import FastAPI, Request, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -118,14 +119,8 @@ notification_subscriber = None
 
 async def startup():
     """Initialize services on startup"""
-    global notification_subscriber
-    from .utils.notification_service import NotificationSubscriber
-    from .api.websocket import manager
-
-    # Start the Redis notification subscriber
-    notification_subscriber = NotificationSubscriber(manager)
-    await notification_subscriber.start_listening()
-    print("Redis notification subscriber started")
+    print("Application startup complete")
+    # Redis notification subscriber will be started lazily when first WebSocket connects
 
 async def shutdown():
     """Cleanup on shutdown"""
