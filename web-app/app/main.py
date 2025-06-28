@@ -238,7 +238,7 @@ app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
 app.include_router(ssh_config.router, prefix="/api/ssh", tags=["ssh-config"])
 app.include_router(scheduled_tasks.router, prefix="/api/scheduled-tasks", tags=["scheduled-tasks"])
 app.include_router(websocket.router, prefix="/api", tags=["websocket"])
-app.include_router(vulnerabilities.router, tags=["vulnerabilities"])
+app.include_router(vulnerabilities.router, prefix="/api", tags=["vulnerabilities"])
 
 
 # Global subscriber instance

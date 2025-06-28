@@ -9,7 +9,7 @@ celery_app = Celery(
     "vuls-scheduler",
     broker=settings.redis_url,
     backend=settings.redis_url,
-    include=["app.tasks.scan_tasks", "app.tasks.db_update_tasks", "app.tasks.scheduler_tasks", "app.tasks.task_utils"]
+    include=["app.tasks.scan_tasks", "app.tasks.db_update_tasks", "app.tasks.scheduler_tasks", "app.tasks.task_utils", "app.tasks.vulnerability_analysis_tasks"]
 )
 
 # Celery configuration

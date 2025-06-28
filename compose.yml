@@ -306,6 +306,8 @@ services:
       - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
       - HOST_PROJECT_PATH=${PWD}
       - HOST_USER_HOME=${HOME}
+      - CF_ACCESS_CLIENT_ID=${CF_ACCESS_CLIENT_ID}
+      - CF_ACCESS_CLIENT_SECRET=${CF_ACCESS_CLIENT_SECRET}
     ports:
       - 8080:8080
     profiles: [web, dev]

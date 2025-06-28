@@ -2,7 +2,7 @@
 
 import logging
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, func
@@ -14,7 +14,7 @@ from ..services.vulnerability_report_service import VulnerabilityReportService
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api", tags=["vulnerabilities"])
+router = APIRouter(tags=["vulnerabilities"])
 
 
 @router.get("/hosts/{host_id}/vulnerabilities")
@@ -283,6 +283,30 @@ async def get_vulnerability_report_html(scan_id: int, db: Session = Depends(get_
     except Exception as e:
         logger.error(f"Error generating vulnerability report for scan {scan_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate vulnerability report")
+
+
+@router.get("/scans/{scan_id}/enhanced-report", response_class=HTMLResponse)
+async def get_enhanced_vulnerability_report(scan_id: int, request: Request, db: Session = Depends(get_db)):
+    """Generate and return enhanced HTML vulnerability report for a scan with advanced features"""
+
+    scan = db.query(Scan).filter(Scan.id == scan_id).first()
+    if not scan:
+        raise HTTPException(status_code=404, detail="Scan not found")
+
+    vulnerabilities = db.query(Vulnerability).filter(
+        Vulnerability.scan_id == scan_id
+    ).order_by(desc(Vulnerability.cvss_score)).all()
+
+    try:
+        # Generate enhanced HTML report
+        report_service = VulnerabilityReportService()
+        html_content = report_service.generate_enhanced_scan_report(scan, vulnerabilities, request)
+
+        return HTMLResponse(content=html_content)
+
+    except Exception as e:
+        logger.error(f"Error generating enhanced vulnerability report for scan {scan_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate enhanced vulnerability report")
 
 
 @router.get("/hosts/{host_id}/vulnerability-summary")

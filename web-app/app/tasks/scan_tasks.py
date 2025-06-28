@@ -299,38 +299,63 @@ def run_vuls_scan(scan_id: int, server_name: str, scan_type: str) -> dict:
             job_result = sync_wait_for_job_completion(job_id, timeout=1800)  # 30 minutes
 
             if job_result["status"] == "completed":
-                # Look for JSON output file in results directory
-                json_files = [f for f in os.listdir(output_dir) if f.endswith('.json')]
-                if json_files:
-                    output_path = os.path.join(output_dir, json_files[0])
+                # Look for actual Vuls JSON files in job-specific directory structure
+                # Results are in: results/{job_id[:8]}/timestamp/host.json
+                job_results_dir = f"{settings.vuls_results_dir}/{job_id[:8]}"
+
+                actual_json_files = []
+                try:
+                    if os.path.exists(job_results_dir):
+                        # Find timestamped subdirectories
+                        for item in os.listdir(job_results_dir):
+                            timestamp_dir = os.path.join(job_results_dir, item)
+                            if os.path.isdir(timestamp_dir):
+                                # Look for JSON files in this timestamped directory
+                                try:
+                                    for file in os.listdir(timestamp_dir):
+                                        if file.endswith('.json'):
+                                            json_path = os.path.join(timestamp_dir, file)
+                                            actual_json_files.append(json_path)
+                                            logger.info(f"Found Vuls result file: {json_path}")
+                                except PermissionError as pe:
+                                    logger.warning(f"Permission denied accessing {timestamp_dir}: {pe}")
+                                    continue
+                except PermissionError as pe:
+                    logger.warning(f"Permission denied accessing {job_results_dir}: {pe}")
+
+                if actual_json_files:
+                    # Use the first JSON file found (for single host scans)
+                    # For multi-host scans, we might need to process all files
+                    primary_json_path = actual_json_files[0]
+
                     return {
                         "status": "success",
-                        "output_path": output_path,
+                        "output_path": primary_json_path,
+                        "all_json_files": actual_json_files,
                         "job_id": job_id,
                         "executor_result": job_result.get("result", {})
                     }
                 else:
-                    # If no JSON file found locally, check if executor has results
-                    executor_result = job_result.get("result", {})
-                    if executor_result.get("returncode") == 0:
-                        # Create a placeholder result file for now
-                        # In a production system, you'd want to retrieve the actual results
-                        placeholder_path = os.path.join(output_dir, f"scan_{scan_id}_results.json")
-                        with open(placeholder_path, 'w') as f:
-                            json.dump({"scan_id": scan_id, "status": "completed", "vulnerabilities": {}}, f)
+                    # Fallback: check the old scan-specific directory
+                    json_files = []
+                    if os.path.exists(output_dir):
+                        json_files = [f for f in os.listdir(output_dir) if f.endswith('.json')]
 
+                    if json_files:
+                        output_path = os.path.join(output_dir, json_files[0])
+                        logger.warning(f"Using fallback JSON file: {output_path}")
                         return {
                             "status": "success",
-                            "output_path": placeholder_path,
+                            "output_path": output_path,
                             "job_id": job_id,
-                            "executor_result": executor_result
+                            "executor_result": job_result.get("result", {})
                         }
                     else:
                         return {
                             "status": "error",
-                            "error": "No scan results found",
+                            "error": f"No Vuls JSON results found in {job_results_dir} or {output_dir}",
                             "job_id": job_id,
-                            "executor_result": executor_result
+                            "executor_result": job_result.get("result", {})
                         }
             else:
                 # Scan failed

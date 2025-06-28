@@ -44,8 +44,8 @@ API_KEY = os.getenv("EXECUTOR_API_KEY", "change-me-in-production")
 COMPOSE_PROJECT_DIR = "/project"
 HOST_PROJECT_PATH = os.getenv("HOST_PROJECT_PATH", "/project")
 HOST_USER_HOME = os.getenv("HOST_USER_HOME", "/home/user")
-CF_CLIENT_ACCESS_ID = os.getenv("CF_CLIENT_ACCESS_ID", "Cloudflare ID")
-CF_CLIENT_ACCESS_SECRET = os.getenv("CF_CLIENT_ACCESS_SECRET", "Cloudflare Secret")
+CF_ACCESS_CLIENT_ID = os.getenv("CF_ACCESS_CLIENT_ID", "Cloudflare ID")
+CF_ACCESS_CLIENT_SECRET = os.getenv("CF_ACCESS_CLIENT_SECRET", "Cloudflare Secret")
 
 # Job tracking
 active_jobs: Dict[str, Dict[str, Any]] = {}
@@ -576,6 +576,39 @@ async def reset_ssh_permissions(api_key: str = Depends(verify_api_key)):
         raise HTTPException(status_code=500, detail=f"Failed to reset SSH permissions: {str(e)}")
 
 
+async def fix_scan_result_permissions(job_id: str):
+    """Fix permissions on scan result files so worker container can read them"""
+    try:
+        results_dir = Path(COMPOSE_PROJECT_DIR) / "results" / job_id[:8]
+
+        if not results_dir.exists():
+            logger.warning(f"Results directory not found: {results_dir}")
+            return
+
+        # Recursively fix permissions on all files and directories
+        for root, dirs, files in os.walk(results_dir):
+            # Fix directory permissions
+            for dir_name in dirs:
+                dir_path = Path(root) / dir_name
+                os.chmod(dir_path, 0o755)  # rwxr-xr-x
+                logger.debug(f"Fixed directory permissions: {dir_path}")
+
+            # Fix file permissions
+            for file_name in files:
+                file_path = Path(root) / file_name
+                os.chmod(file_path, 0o644)  # rw-r--r--
+                logger.debug(f"Fixed file permissions: {file_path}")
+
+        # Also fix the parent directory permissions
+        os.chmod(results_dir, 0o755)
+
+        logger.info(f"Fixed permissions for scan results directory: {results_dir}")
+
+    except Exception as e:
+        logger.error(f"Error fixing scan result permissions: {e}")
+        raise
+
+
 async def execute_scan(job_id: str, request: ScanRequest):
     """Execute vulnerability scan"""
     try:
@@ -608,14 +641,14 @@ async def execute_scan(job_id: str, request: ScanRequest):
             "-e", "AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials",
             "-e", "GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json",
             "-e", "CLOUDSDK_CONFIG=/root/.config/gcloud",
-            "-e", f"CF_CLIENT_ACCESS_ID={CF_CLIENT_ACCESS_ID}",
-            "-e", f"CF_CLIENT_ACCESS_SECRET={CF_CLIENT_ACCESS_SECRET}",
+            "-e", f"CF_ACCESS_CLIENT_ID={CF_ACCESS_CLIENT_ID}",
+            "-e", f"CF_ACCESS_CLIENT_SECRET={CF_ACCESS_CLIENT_SECRET}",
             # Network connectivity
             "--network", "vuls_default",
             # Use the vuls image
             "vuls-vuls:latest",
             # Command with server name
-            "scan", "-config=/vuls/config.toml", request.server_name
+            "scan", "-config=/vuls/config.toml", f"-results-dir=/vuls/results/{job_id[:8]}", request.server_name
         ]
 
         # Add scan type flags (note: fast scan is controlled by config, not flags)
@@ -658,6 +691,14 @@ async def execute_scan(job_id: str, request: ScanRequest):
 
         if returncode != 0:
             active_jobs[job_id]["error"] = f"Scan failed with code {returncode}: {stderr.decode() if stderr else 'Unknown error'}"
+
+        # Fix permissions on scan results so worker container can read them
+        if returncode == 0:
+            try:
+                await fix_scan_result_permissions(job_id)
+                logger.info(f"Fixed permissions for scan results: {job_id}")
+            except Exception as perm_error:
+                logger.warning(f"Failed to fix permissions for scan {job_id}: {perm_error}")
 
         logger.info(f"Scan job {job_id} completed with status: {active_jobs[job_id]['status']}")
 
