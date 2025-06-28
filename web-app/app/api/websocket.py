@@ -76,19 +76,20 @@ async def ensure_notification_subscriber():
     global notification_subscriber
     if notification_subscriber is None:
         try:
-            from ..main import notification_subscriber as main_subscriber
-            if main_subscriber is None:
-                # Create and start the notification subscriber
-                notification_subscriber = NotificationSubscriber(manager)
-                await notification_subscriber.start_listening()
-                logger.info("Redis notification subscriber started on first WebSocket connection")
-                # Update the main module's reference
-                import sys
-                main_module = sys.modules.get('app.main')
-                if main_module:
-                    main_module.notification_subscriber = notification_subscriber
+            # Create and start the notification subscriber
+            notification_subscriber = NotificationSubscriber(manager)
+            await notification_subscriber.start_listening()
+            logger.info("Redis notification subscriber started on first WebSocket connection")
+
+            # Update the main module's reference
+            import sys
+            main_module = sys.modules.get('app.main')
+            if main_module:
+                main_module.notification_subscriber = notification_subscriber
+
         except Exception as e:
             logger.error(f"Failed to start notification subscriber: {e}")
+            raise e
 
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -106,7 +107,12 @@ async def websocket_endpoint(websocket: WebSocket):
 
     # Start notification subscriber on first connection
     if len(manager.active_connections) == 1:
-        await ensure_notification_subscriber()
+        try:
+            await ensure_notification_subscriber()
+            logger.info("Notification subscriber started successfully")
+        except Exception as e:
+            logger.error(f"Failed to start notification subscriber: {e}")
+            await websocket.send_text(f"Error: Failed to start notification subscriber: {e}")
 
     try:
         while True:

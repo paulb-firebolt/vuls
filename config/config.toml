@@ -11,24 +11,24 @@ type = "sqlite3"
 SQLite3Path = "/vuls/db/cve.sqlite3"
 
 [default]
-scanMode = [ "offline",]
+scanMode = ["offline"]
 
 [servers.icinga2]
 host = "icinga2"
-scanMode = [ "fast",]
+scanMode = ["fast"]
 
 [servers.anisette_v3]
 host = "anisette-v3"
-scanMode = [ "fast",]
+scanMode = ["fast"]
 
 [servers.retailaware_u16tbpe]
 host = "retailaware-u16tbpe"
-scanMode = [ "fast",]
+scanMode = ["fast"]
 
 [servers.thingsboard_cassandra_prod]
 host = "thingsboard-cassandra-prod"
-scanMode = [ "fast",]
+scanMode = ["fast"]
 
 [servers.glimpse_harrods_knightsbridge_firebolt_network]
 host = "glimpse-harrods-knightsbridge.firebolt.network"
-scanMode = [ "offline",]
+scanMode = ["offline"]

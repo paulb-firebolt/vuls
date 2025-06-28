@@ -34,10 +34,26 @@ def update_task_status(self, task_run_id: int, status: str, result_data: dict = 
             # Update the scheduled task status
             scheduled_task = task_run.scheduled_task
             scheduled_task.last_status = status
+            scheduled_task.last_run_at = task_run.completed_at
             if error_message:
                 scheduled_task.last_error = error_message
 
             db.commit()
+
+            # Send WebSocket notification for task completion
+            if status in ['success', 'failed']:
+                try:
+                    from ..utils.notification_service import publish_task_notification
+                    publish_task_notification(
+                        task_id=scheduled_task.id,
+                        task_run_id=task_run_id,
+                        status=status,
+                        task_name=scheduled_task.name,
+                        result_data=result_data
+                    )
+                    logger.info(f"Published WebSocket notification for task {scheduled_task.name} with status {status}")
+                except Exception as e:
+                    logger.error(f"Error sending WebSocket notification: {e}")
 
         db.close()
 

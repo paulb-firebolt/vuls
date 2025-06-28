@@ -35,11 +35,19 @@ def publish_task_notification(task_id: int, task_run_id: int, status: str, task_
         }
 
         # Publish to Redis
-        redis_client.publish(NOTIFICATION_CHANNEL, json.dumps(notification))
-        logger.info(f"Published task notification: {status} for task_run_id {task_run_id}")
+        message_json = json.dumps(notification)
+        result = redis_client.publish(NOTIFICATION_CHANNEL, message_json)
+        logger.info(f"Published task notification: {status} for task_run_id {task_run_id}, subscribers: {result}")
+        logger.debug(f"Notification content: {message_json}")
 
     except Exception as e:
         logger.error(f"Error publishing task notification: {e}")
+        # Try to test Redis connection
+        try:
+            redis_client.ping()
+            logger.error("Redis is reachable but publish failed")
+        except Exception as redis_e:
+            logger.error(f"Redis connection failed: {redis_e}")
 
 
 class NotificationSubscriber:
