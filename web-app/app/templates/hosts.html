@@ -1,0 +1,284 @@
+{% extends "base.html" %} {% block title %}Hosts - Vuls Web{% endblock %} {%
+block content %}
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Hosts</h1>
+      <p class="text-gray-600 dark:text-gray-300">
+        Manage and monitor your target systems
+      </p>
+    </div>
+    <div class="space-x-3">
+      <button
+        onclick="refreshHosts()"
+        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        Refresh
+      </button>
+      <a
+        href="/api/hosts"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        Add Host
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div
+              class="w-8 h-8 bg-indigo-500 rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-bold">H</span>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt
+                class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+              >
+                Total Hosts
+              </dt>
+              <dd
+                id="totalHosts"
+                class="text-lg font-medium text-gray-900 dark:text-white"
+              >
+                -
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div
+              class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-bold">A</span>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt
+                class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+              >
+                Active
+              </dt>
+              <dd
+                id="activeHosts"
+                class="text-lg font-medium text-gray-900 dark:text-white"
+              >
+                -
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div
+              class="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-bold">V</span>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt
+                class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+              >
+                With Vulnerabilities
+              </dt>
+              <dd
+                id="hostsWithVulns"
+                class="text-lg font-medium text-gray-900 dark:text-white"
+              >
+                -
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div
+              class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-bold">E</span>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt
+                class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+              >
+                Enhanced Analysis
+              </dt>
+              <dd
+                id="enhancedHosts"
+                class="text-lg font-medium text-gray-900 dark:text-white"
+              >
+                -
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hosts List -->
+  <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+          All Hosts
+        </h3>
+        <div class="flex space-x-3">
+          <select
+            id="statusFilter"
+            class="border border-gray-300 rounded-md px-3 py-2 text-sm"
+          >
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="hostsList" class="space-y-4">
+        <div class="text-center py-8">
+          <div class="text-gray-500">Loading hosts...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Load hosts data
+  async function loadHosts() {
+    try {
+      const response = await fetch("/api/vulnerability-statistics");
+      const stats = await response.json();
+
+      // Update stats
+      document.getElementById("totalHosts").textContent =
+        stats.overview.total_hosts;
+      document.getElementById("activeHosts").textContent =
+        stats.overview.total_hosts; // Assuming all are active for now
+      document.getElementById("hostsWithVulns").textContent =
+        stats.hosts_summary.filter((h) => h.total_vulnerabilities > 0).length;
+      document.getElementById("enhancedHosts").textContent =
+        stats.hosts_summary.filter((h) => h.enhanced_analysis_completed).length;
+
+      // Render hosts list
+      const hostsList = document.getElementById("hostsList");
+      if (stats.hosts_summary && stats.hosts_summary.length > 0) {
+        hostsList.innerHTML = stats.hosts_summary
+          .map(
+            (host) => `
+                <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:shadow-md transition-shadow">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
+                                <span class="text-indigo-600 dark:text-indigo-400 font-medium text-lg">${host.host_name[0].toUpperCase()}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-900 dark:text-white">${host.host_name}</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Last scan: ${new Date(host.scan_date).toLocaleDateString()}</p>
+                            <div class="flex items-center space-x-2 mt-1">
+                                ${
+                                  host.enhanced_analysis_completed
+                                    ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Enhanced</span>'
+                                    : '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Basic</span>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-right">
+                            <div class="text-lg font-medium text-gray-900 dark:text-white">${host.total_vulnerabilities || 0}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">vulnerabilities</div>
+                            ${host.critical_count ? `<div class="text-xs text-red-600 dark:text-red-400">${host.critical_count} critical</div>` : ""}
+                        </div>
+                        <div class="flex space-x-2">
+                            <a href="/hosts/${host.host_id}/vulnerabilities" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 hover:bg-indigo-200 dark:hover:bg-indigo-800">
+                                View Vulnerabilities
+                            </a>
+                            <button onclick="runScan(${host.host_id})" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                Run Scan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `,
+          )
+          .join("");
+      } else {
+        hostsList.innerHTML =
+          '<div class="text-center py-8 text-gray-500">No hosts found.</div>';
+      }
+    } catch (error) {
+      console.error("Error loading hosts:", error);
+      document.getElementById("hostsList").innerHTML =
+        '<div class="text-center py-8 text-red-500">Error loading hosts.</div>';
+    }
+  }
+
+  // Run scan for a host
+  async function runScan(hostId) {
+    try {
+      const response = await fetch(`/api/scans`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          host_id: hostId,
+          scan_type: "fast",
+        }),
+      });
+
+      if (response.ok) {
+        alert("Scan started successfully!");
+        // Refresh the hosts list after a short delay
+        setTimeout(loadHosts, 1000);
+      } else {
+        alert("Failed to start scan");
+      }
+    } catch (error) {
+      console.error("Error starting scan:", error);
+      alert("Error starting scan");
+    }
+  }
+
+  // Refresh hosts
+  function refreshHosts() {
+    loadHosts();
+  }
+
+  // Load data on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    loadHosts();
+  });
+</script>
+{% endblock %}

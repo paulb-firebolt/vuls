@@ -80,6 +80,10 @@ def run_vulnerability_scan(self, host_id: int, scan_type: str = "fast", task_run
 
                 db.commit()
 
+                # NEW: Trigger enhanced vulnerability analysis for all successful scans
+                from .vulnerability_analysis_tasks import enhanced_vulnerability_analysis
+                enhanced_vulnerability_analysis.delay(scan.id, result["output_path"])
+
                 # Update task run status if this was scheduled
                 if task_run_id:
                     result_data = {

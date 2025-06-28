@@ -52,8 +52,22 @@ class Host(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    scans = relationship("Scan", back_populates="host", cascade="all, delete-orphan")
+    scans = relationship("Scan", back_populates="host", cascade="all, delete-orphan", order_by="Scan.completed_at.desc()")
     scheduled_tasks = relationship("ScheduledTask", back_populates="host", cascade="all, delete-orphan")
+
+    @property
+    def latest_scan(self):
+        """Get the most recent completed scan"""
+        for scan in self.scans:
+            if scan.status == "completed":
+                return scan
+        return None
+
+    @property
+    def latest_vulnerabilities(self):
+        """Get vulnerabilities from the latest scan"""
+        latest = self.latest_scan
+        return latest.vulnerabilities if latest else []
 
     def __repr__(self):
         return f"<Host(name='{self.name}', hostname='{self.hostname}')>"

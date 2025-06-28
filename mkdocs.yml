@@ -113,6 +113,7 @@ nav:
       - development/index.md
       - Architecture: development/architecture.md
       - Web Application: development/web-app-dev.md
+      - Enhanced Vulnerability Analysis: development/enhanced-vulnerability-analysis.md
       - API Reference: development/api-reference.md
       - Task Scheduler Fix: development/task-scheduler-fix.md
       - Real-Time WebSocket System: development/websocket-realtime-system.md

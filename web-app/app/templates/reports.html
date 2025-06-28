@@ -1,0 +1,396 @@
+{% extends "base.html" %} {% block title %}Reports - Vuls Web{% endblock %} {%
+block content %}
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+        Vulnerability Reports
+      </h1>
+      <p class="text-gray-600 dark:text-gray-300">
+        Generate and view detailed vulnerability reports
+      </p>
+    </div>
+    <div class="space-x-3">
+      <button
+        onclick="refreshReports()"
+        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div
+              class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-bold">R</span>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt
+                class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+              >
+                Available Reports
+              </dt>
+              <dd
+                id="availableReports"
+                class="text-lg font-medium text-gray-900 dark:text-white"
+              >
+                -
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div
+              class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-bold">E</span>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt
+                class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+              >
+                Enhanced Reports
+              </dt>
+              <dd
+                id="enhancedReports"
+                class="text-lg font-medium text-gray-900 dark:text-white"
+              >
+                -
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div
+              class="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-bold">V</span>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt
+                class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+              >
+                Total Vulnerabilities
+              </dt>
+              <dd
+                id="totalVulns"
+                class="text-lg font-medium text-gray-900 dark:text-white"
+              >
+                -
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div
+              class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-bold">C</span>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt
+                class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+              >
+                Critical Issues
+              </dt>
+              <dd
+                id="criticalIssues"
+                class="text-lg font-medium text-gray-900 dark:text-white"
+              >
+                -
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Types -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Host Reports -->
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+          Host Reports
+        </h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Generate detailed vulnerability reports for individual hosts
+        </p>
+
+        <div id="hostReportsList" class="space-y-3">
+          <div class="text-center py-4">
+            <div class="text-gray-500">Loading hosts...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Reports -->
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+          Summary Reports
+        </h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Overview reports across all hosts and systems
+        </p>
+
+        <div class="space-y-3">
+          <div
+            class="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-600 rounded-lg"
+          >
+            <div>
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white">
+                Overall Security Status
+              </h4>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                Complete vulnerability overview
+              </p>
+            </div>
+            <button
+              onclick="generateOverallReport()"
+              class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 hover:bg-indigo-200 dark:hover:bg-indigo-800"
+            >
+              Generate
+            </button>
+          </div>
+
+          <div
+            class="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-600 rounded-lg"
+          >
+            <div>
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white">
+                Critical Vulnerabilities
+              </h4>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                High-priority security issues
+              </p>
+            </div>
+            <button
+              onclick="generateCriticalReport()"
+              class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-900 hover:bg-red-200 dark:hover:bg-red-800"
+            >
+              Generate
+            </button>
+          </div>
+
+          <div
+            class="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-600 rounded-lg"
+          >
+            <div>
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white">
+                Enhanced Analysis Summary
+              </h4>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                OVAL & GOST database findings
+              </p>
+            </div>
+            <button
+              onclick="generateEnhancedReport()"
+              class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-purple-700 dark:text-purple-400 bg-purple-100 dark:bg-purple-900 hover:bg-purple-200 dark:hover:bg-purple-800"
+            >
+              Generate
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Reports -->
+  <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+        Recent Reports
+      </h3>
+
+      <div id="recentReportsList" class="space-y-4">
+        <div class="text-center py-8">
+          <div class="text-gray-500">No recent reports available</div>
+          <p class="text-sm text-gray-400 mt-2">
+            Generate reports from the sections above
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let hostsData = [];
+
+  // Load reports data
+  async function loadReports() {
+    try {
+      const response = await fetch("/api/vulnerability-statistics");
+      const stats = await response.json();
+
+      // Update stats
+      document.getElementById("availableReports").textContent =
+        stats.hosts_summary.length;
+      document.getElementById("enhancedReports").textContent =
+        stats.hosts_summary.filter((h) => h.enhanced_analysis_completed).length;
+      document.getElementById("totalVulns").textContent =
+        stats.overview.total_vulnerabilities;
+      document.getElementById("criticalIssues").textContent =
+        stats.severity_breakdown.critical || 0;
+
+      // Store hosts data
+      hostsData = stats.hosts_summary;
+
+      // Render host reports list
+      renderHostReports(hostsData);
+    } catch (error) {
+      console.error("Error loading reports:", error);
+      document.getElementById("hostReportsList").innerHTML =
+        '<div class="text-center py-4 text-red-500">Error loading reports.</div>';
+    }
+  }
+
+  // Render host reports list
+  function renderHostReports(hosts) {
+    const hostReportsList = document.getElementById("hostReportsList");
+
+    if (hosts && hosts.length > 0) {
+      hostReportsList.innerHTML = hosts
+        .map(
+          (host) => `
+            <div class="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-600 rounded-lg">
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
+                            <span class="text-indigo-600 dark:text-indigo-400 font-medium text-sm">${host.host_name[0].toUpperCase()}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-900 dark:text-white">${host.host_name}</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            ${host.total_vulnerabilities || 0} vulnerabilities
+                            ${host.enhanced_analysis_completed ? "• Enhanced" : "• Basic"}
+                        </p>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <a href="/hosts/${host.host_id}/vulnerabilities" class="inline-flex items-center px-2 py-1 border border-transparent text-xs leading-4 font-medium rounded text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 hover:bg-indigo-200 dark:hover:bg-indigo-800">
+                        View
+                    </a>
+                    <button onclick="generateHostReport(${host.host_id}, '${host.host_name}')" class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs leading-4 font-medium rounded text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Report
+                    </button>
+                </div>
+            </div>
+        `,
+        )
+        .join("");
+    } else {
+      hostReportsList.innerHTML =
+        '<div class="text-center py-4 text-gray-500">No hosts available for reports.</div>';
+    }
+  }
+
+  // Generate host report
+  function generateHostReport(hostId, hostName) {
+    // Find the latest scan for this host
+    const host = hostsData.find((h) => h.host_id === hostId);
+    if (host) {
+      // For now, we'll use a placeholder scan ID based on host ID
+      // In a real implementation, you'd get the actual scan ID
+      const reportUrl = `/api/scans/${hostId}-latest/vulnerability-report`;
+      window.open(reportUrl, "_blank");
+    } else {
+      alert("No scan data available for this host");
+    }
+  }
+
+  // Generate overall report
+  function generateOverallReport() {
+    // Create a summary report with all hosts data
+    const reportData = {
+      title: "Overall Security Status Report",
+      type: "summary",
+      generated_at: new Date().toISOString(),
+      hosts_summary: hostsData,
+    };
+
+    // For now, show an alert. In a real implementation, you'd generate a proper report
+    alert(
+      "Overall report generation would create a comprehensive security overview across all hosts.",
+    );
+  }
+
+  // Generate critical report
+  function generateCriticalReport() {
+    const criticalHosts = hostsData.filter((h) => h.critical_count > 0);
+
+    if (criticalHosts.length === 0) {
+      alert("No critical vulnerabilities found across all hosts.");
+      return;
+    }
+
+    alert(
+      `Critical vulnerabilities report would include ${criticalHosts.length} hosts with critical issues.`,
+    );
+  }
+
+  // Generate enhanced report
+  function generateEnhancedReport() {
+    const enhancedHosts = hostsData.filter(
+      (h) => h.enhanced_analysis_completed,
+    );
+
+    if (enhancedHosts.length === 0) {
+      alert("No hosts have completed enhanced analysis yet.");
+      return;
+    }
+
+    alert(
+      `Enhanced analysis report would include detailed OVAL & GOST findings for ${enhancedHosts.length} hosts.`,
+    );
+  }
+
+  // Refresh reports
+  function refreshReports() {
+    loadReports();
+  }
+
+  // Load data on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    loadReports();
+  });
+</script>
+{% endblock %}

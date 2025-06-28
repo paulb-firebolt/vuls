@@ -1,0 +1,369 @@
+{% extends "base.html" %} {% block title %}{{ host.name }} - Vulnerabilities{%
+endblock %} {% block content %}
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6"
+  >
+    <div class="flex justify-between items-start">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          {{ host.name }} - Vulnerability Status
+        </h1>
+        <p class="text-gray-600 dark:text-gray-300">{{ host.hostname }}</p>
+        {% if latest_scan %}
+        <p class="text-sm text-gray-500 mt-2">
+          Last scan: {{ latest_scan.completed_at.strftime('%Y-%m-%d %H:%M') }}
+          {% if latest_scan.enhanced_analysis_completed %}
+          <span
+            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 ml-2"
+          >
+            Enhanced Analysis Complete
+          </span>
+          {% else %}
+          <span
+            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 ml-2"
+          >
+            Basic Analysis Only
+          </span>
+          {% endif %}
+        </p>
+        {% endif %}
+      </div>
+      <div class="text-right">
+        {% if latest_scan %}
+        <div class="text-2xl font-bold text-gray-900 dark:text-white">
+          {{ latest_scan.total_vulnerabilities or 0 }}
+        </div>
+        <div class="text-sm text-gray-600 dark:text-gray-400">
+          Total Vulnerabilities
+        </div>
+        {% else %}
+        <div class="text-lg text-gray-500 dark:text-gray-400">
+          No scans available
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if latest_scan %}
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
+    >
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div
+            class="w-8 h-8 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center"
+          >
+            <div class="w-4 h-4 bg-red-600 rounded"></div>
+          </div>
+        </div>
+        <div class="ml-4">
+          <div class="text-2xl font-bold text-gray-900 dark:text-white">
+            {{ latest_scan.critical_count or 0 }}
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-400">Critical</div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
+    >
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div
+            class="w-8 h-8 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center"
+          >
+            <div class="w-4 h-4 bg-orange-600 rounded"></div>
+          </div>
+        </div>
+        <div class="ml-4">
+          <div class="text-2xl font-bold text-gray-900 dark:text-white">
+            {{ latest_scan.high_count or 0 }}
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-400">High</div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
+    >
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div
+            class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center"
+          >
+            <div class="w-4 h-4 bg-yellow-600 rounded"></div>
+          </div>
+        </div>
+        <div class="ml-4">
+          <div class="text-2xl font-bold text-gray-900 dark:text-white">
+            {{ latest_scan.medium_count or 0 }}
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-400">Medium</div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
+    >
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div
+            class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center"
+          >
+            <div class="w-4 h-4 bg-blue-600 rounded"></div>
+          </div>
+        </div>
+        <div class="ml-4">
+          <div class="text-2xl font-bold text-gray-900 dark:text-white">
+            {{ latest_scan.low_count or 0 }}
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-400">Low</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6"
+  >
+    <div class="flex justify-between items-center">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+        Actions
+      </h3>
+      <div class="space-x-3">
+        <a
+          href="/api/scans/{{ latest_scan.id }}/vulnerability-report"
+          target="_blank"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          View Detailed Report
+        </a>
+        <button
+          onclick="loadVulnerabilities()"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Refresh Data
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vulnerability List -->
+  <div
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
+  >
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+        Latest Vulnerabilities
+      </h3>
+      <div class="flex space-x-3">
+        <select
+          id="severityFilter"
+          class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+        >
+          <option value="">All Severities</option>
+          <option value="CRITICAL">Critical</option>
+          <option value="HIGH">High</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="LOW">Low</option>
+        </select>
+        <select
+          id="sourceFilter"
+          class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+        >
+          <option value="">All Sources</option>
+          <option value="OVAL">OVAL</option>
+          <option value="GOST">GOST</option>
+          <option value="BASIC">Basic</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="vulnerabilityList" class="space-y-4">
+      <div class="text-center py-8">
+        <div class="text-gray-500 dark:text-gray-400">
+          Loading vulnerabilities...
+        </div>
+      </div>
+    </div>
+
+    <div id="loadingIndicator" class="hidden text-center py-4">
+      <div class="text-gray-500 dark:text-gray-400">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Historical Scans -->
+  <div
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mt-6"
+  >
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      Previous Scans
+    </h3>
+    <div id="historicalScans" class="space-y-2">
+      <div class="text-center py-4">
+        <div class="text-gray-500 dark:text-gray-400">
+          Loading scan history...
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <!-- No scans available -->
+  <div class="bg-white rounded-lg shadow-sm border p-6 text-center">
+    <div class="text-gray-500 mb-4">
+      No vulnerability scans available for this host.
+    </div>
+    <button
+      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+    >
+      Run Scan
+    </button>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  const hostId = {{ host.id|tojson }};
+
+  // Load vulnerabilities
+  async function loadVulnerabilities() {
+      const severityFilter = document.getElementById('severityFilter').value;
+      const sourceFilter = document.getElementById('sourceFilter').value;
+
+      const params = new URLSearchParams();
+      if (severityFilter) params.append('severity', severityFilter);
+      if (sourceFilter) params.append('source', sourceFilter);
+
+      try {
+          const response = await fetch(`/api/hosts/${hostId}/vulnerabilities?${params}`);
+          const data = await response.json();
+
+          const container = document.getElementById('vulnerabilityList');
+
+          if (data.vulnerabilities && data.vulnerabilities.length > 0) {
+              container.innerHTML = data.vulnerabilities.map(vuln => `
+                  <div class="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div class="flex justify-between items-start mb-2">
+                          <div class="flex items-center space-x-3">
+                              <h4 class="text-lg font-medium text-gray-900 dark:text-white">${vuln.cve_id}</h4>
+                              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSeverityClass(vuln.severity)}">
+                                  ${vuln.severity || 'Unknown'}
+                              </span>
+                              ${vuln.source ? `<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">${vuln.source}</span>` : ''}
+                          </div>
+                          <div class="text-right">
+                              ${vuln.cvss_score ? `
+                                  <div class="text-lg font-bold ${getCvssColor(vuln.cvss_score)}">${vuln.cvss_score}</div>
+                                  <div class="text-xs text-gray-500 dark:text-gray-400">CVSS Score</div>
+                              ` : ''}
+                          </div>
+                      </div>
+
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                          <div>
+                              <div class="text-sm text-gray-600 dark:text-gray-400">Package</div>
+                              <div class="font-medium text-gray-900 dark:text-white">${vuln.affected_package}</div>
+                          </div>
+                          <div>
+                              <div class="text-sm text-gray-600 dark:text-gray-400">Installed Version</div>
+                              <div class="font-medium text-gray-900 dark:text-white">${vuln.installed_version || 'Unknown'}</div>
+                          </div>
+                          ${vuln.fixed_version ? `
+                          <div>
+                              <div class="text-sm text-gray-600 dark:text-gray-400">Fixed Version</div>
+                              <div class="font-medium text-green-600 dark:text-green-400">${vuln.fixed_version}</div>
+                          </div>
+                          ` : ''}
+                          ${vuln.published_date ? `
+                          <div>
+                              <div class="text-sm text-gray-600 dark:text-gray-400">Published</div>
+                              <div class="font-medium text-gray-900 dark:text-white">${new Date(vuln.published_date).toLocaleDateString()}</div>
+                          </div>
+                          ` : ''}
+                      </div>
+
+                      ${vuln.summary ? `
+                      <div class="mb-2">
+                          <div class="text-sm text-gray-600 dark:text-gray-400">Summary</div>
+                          <div class="text-sm text-gray-700 dark:text-gray-300">${vuln.summary}</div>
+                      </div>
+                      ` : ''}
+                  </div>
+              `).join('');
+          } else {
+              container.innerHTML = '<div class="text-center py-8 text-gray-500 dark:text-gray-400">No vulnerabilities found with current filters.</div>';
+          }
+      } catch (error) {
+          console.error('Error loading vulnerabilities:', error);
+          document.getElementById('vulnerabilityList').innerHTML = '<div class="text-center py-8 text-red-500">Error loading vulnerabilities.</div>';
+      }
+  }
+
+  // Load historical scans
+  async function loadHistoricalScans() {
+      try {
+          const response = await fetch(`/api/hosts/${hostId}/scans`);
+          const data = await response.json();
+
+          const container = document.getElementById('historicalScans');
+
+          if (data.scans && data.scans.length > 0) {
+              container.innerHTML = data.scans.map(scan => `
+                  <div class="flex justify-between items-center py-3 px-4 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <div>
+                          <span class="font-medium text-gray-900 dark:text-white">${new Date(scan.completed_at).toLocaleDateString()}</span>
+                          <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">${scan.scan_type}</span>
+                          ${scan.enhanced_analysis_completed ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 ml-2">Enhanced</span>' : ''}
+                      </div>
+                      <div class="text-sm text-gray-600 dark:text-gray-300">
+                          ${scan.total_vulnerabilities || 0} vulnerabilities
+                      </div>
+                  </div>
+              `).join('');
+          } else {
+              container.innerHTML = '<div class="text-center py-4 text-gray-500 dark:text-gray-400">No previous scans found.</div>';
+          }
+      } catch (error) {
+          console.error('Error loading historical scans:', error);
+          document.getElementById('historicalScans').innerHTML = '<div class="text-center py-4 text-red-500">Error loading scan history.</div>';
+      }
+  }
+
+  // Helper functions
+  function getSeverityClass(severity) {
+      const classes = {
+          'CRITICAL': 'bg-red-100 text-red-800 border-red-200',
+          'HIGH': 'bg-orange-100 text-orange-800 border-orange-200',
+          'MEDIUM': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+          'LOW': 'bg-blue-100 text-blue-800 border-blue-200'
+      };
+      return classes[severity] || 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+
+  function getCvssColor(score) {
+      if (score >= 9.0) return 'text-red-600';
+      if (score >= 7.0) return 'text-orange-600';
+      if (score >= 4.0) return 'text-yellow-600';
+      return 'text-blue-600';
+  }
+
+  // Event listeners
+  document.getElementById('severityFilter').addEventListener('change', loadVulnerabilities);
+  document.getElementById('sourceFilter').addEventListener('change', loadVulnerabilities);
+
+  // Load data on page load
+  document.addEventListener('DOMContentLoaded', function() {
+      loadVulnerabilities();
+      loadHistoricalScans();
+  });
+</script>
+{% endblock %}

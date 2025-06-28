@@ -1,0 +1,384 @@
+{% extends "base.html" %} {% block title %}Scans - Vuls Web{% endblock %} {%
+block content %}
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Scans</h1>
+      <p class="text-gray-600 dark:text-gray-300">
+        View and manage vulnerability scans
+      </p>
+    </div>
+    <div class="space-x-3">
+      <button
+        onclick="refreshScans()"
+        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div
+              class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-bold">S</span>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt
+                class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+              >
+                Total Scans
+              </dt>
+              <dd
+                id="totalScans"
+                class="text-lg font-medium text-gray-900 dark:text-white"
+              >
+                -
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div
+              class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-bold">C</span>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt
+                class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+              >
+                Completed
+              </dt>
+              <dd
+                id="completedScans"
+                class="text-lg font-medium text-gray-900 dark:text-white"
+              >
+                -
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div
+              class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-bold">E</span>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt
+                class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+              >
+                Enhanced Analysis
+              </dt>
+              <dd
+                id="enhancedScans"
+                class="text-lg font-medium text-gray-900 dark:text-white"
+              >
+                -
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div
+              class="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-bold">V</span>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt
+                class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+              >
+                Total Vulnerabilities
+              </dt>
+              <dd
+                id="totalVulns"
+                class="text-lg font-medium text-gray-900 dark:text-white"
+              >
+                -
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white dark:bg-gray-800 shadow rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+      <div class="flex flex-wrap gap-4">
+        <select
+          id="statusFilter"
+          class="border border-gray-300 rounded-md px-3 py-2 text-sm"
+        >
+          <option value="">All Status</option>
+          <option value="completed">Completed</option>
+          <option value="running">Running</option>
+          <option value="failed">Failed</option>
+          <option value="pending">Pending</option>
+        </select>
+        <select
+          id="typeFilter"
+          class="border border-gray-300 rounded-md px-3 py-2 text-sm"
+        >
+          <option value="">All Types</option>
+          <option value="fast">Fast</option>
+          <option value="full">Full</option>
+          <option value="custom">Custom</option>
+        </select>
+        <select
+          id="analysisFilter"
+          class="border border-gray-300 rounded-md px-3 py-2 text-sm"
+        >
+          <option value="">All Analysis</option>
+          <option value="enhanced">Enhanced</option>
+          <option value="basic">Basic</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scans List -->
+  <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+        Recent Scans
+      </h3>
+
+      <div id="scansList" class="space-y-4">
+        <div class="text-center py-8">
+          <div class="text-gray-500">Loading scans...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let allScans = [];
+
+  // Load scans data
+  async function loadScans() {
+    try {
+      // Load vulnerability statistics for overview
+      const statsResponse = await fetch("/api/vulnerability-statistics");
+      const stats = await statsResponse.json();
+
+      // Update stats
+      document.getElementById("totalScans").textContent =
+        stats.overview.total_scans;
+      document.getElementById("totalVulns").textContent =
+        stats.overview.total_vulnerabilities;
+
+      // Calculate completed and enhanced scans from hosts summary
+      const completedCount = stats.hosts_summary.length;
+      const enhancedCount = stats.hosts_summary.filter(
+        (h) => h.enhanced_analysis_completed,
+      ).length;
+
+      document.getElementById("completedScans").textContent = completedCount;
+      document.getElementById("enhancedScans").textContent = enhancedCount;
+
+      // Transform hosts summary to scans format for display
+      allScans = stats.hosts_summary.map((host) => ({
+        id: `${host.host_id}-latest`,
+        host_id: host.host_id,
+        host_name: host.host_name,
+        scan_type: "fast", // Default assumption
+        status: "completed",
+        completed_at: host.scan_date,
+        total_vulnerabilities: host.total_vulnerabilities,
+        critical_count: host.critical_count,
+        high_count: host.high_count,
+        enhanced_analysis_completed: host.enhanced_analysis_completed,
+      }));
+
+      renderScans(allScans);
+    } catch (error) {
+      console.error("Error loading scans:", error);
+      document.getElementById("scansList").innerHTML =
+        '<div class="text-center py-8 text-red-500">Error loading scans.</div>';
+    }
+  }
+
+  // Render scans list
+  function renderScans(scans) {
+    const scansList = document.getElementById("scansList");
+
+    if (scans && scans.length > 0) {
+      scansList.innerHTML = scans
+        .map(
+          (scan) => `
+            <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:shadow-md transition-shadow">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 ${getStatusColor(scan.status)} rounded-lg flex items-center justify-center">
+                            <span class="text-white font-medium text-lg">${scan.host_name[0].toUpperCase()}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-900 dark:text-white">${scan.host_name}</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            ${scan.scan_type.charAt(0).toUpperCase() + scan.scan_type.slice(1)} scan •
+                            ${new Date(scan.completed_at).toLocaleDateString()} ${new Date(scan.completed_at).toLocaleTimeString()}
+                        </p>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(scan.status)}">
+                                ${scan.status.charAt(0).toUpperCase() + scan.status.slice(1)}
+                            </span>
+                            ${
+                              scan.enhanced_analysis_completed
+                                ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Enhanced</span>'
+                                : '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Basic</span>'
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <div class="text-lg font-medium text-gray-900 dark:text-white">${scan.total_vulnerabilities || 0}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">vulnerabilities</div>
+                        ${scan.critical_count ? `<div class="text-xs text-red-600 dark:text-red-400">${scan.critical_count} critical</div>` : ""}
+                        ${scan.high_count ? `<div class="text-xs text-orange-600 dark:text-orange-400">${scan.high_count} high</div>` : ""}
+                    </div>
+                    <div class="flex space-x-2">
+                        <a href="/hosts/${scan.host_id}/vulnerabilities" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 hover:bg-indigo-200 dark:hover:bg-indigo-800">
+                            View Details
+                        </a>
+                        ${
+                          scan.status === "completed"
+                            ? `
+                            <a href="/api/scans/${scan.id}/vulnerability-report" target="_blank" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                Report
+                            </a>
+                        `
+                            : ""
+                        }
+                    </div>
+                </div>
+            </div>
+        `,
+        )
+        .join("");
+    } else {
+      scansList.innerHTML =
+        '<div class="text-center py-8 text-gray-500">No scans found.</div>';
+    }
+  }
+
+  // Helper functions
+  function getStatusColor(status) {
+    const colors = {
+      completed: "bg-green-500",
+      running: "bg-blue-500",
+      failed: "bg-red-500",
+      pending: "bg-yellow-500",
+    };
+    return colors[status] || "bg-gray-500";
+  }
+
+  function getStatusBadgeColor(status) {
+    const colors = {
+      completed:
+        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      running: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+      failed: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+      pending:
+        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+    };
+    return (
+      colors[status] ||
+      "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+    );
+  }
+
+  // Filter scans
+  function filterScans() {
+    const statusFilter = document.getElementById("statusFilter").value;
+    const typeFilter = document.getElementById("typeFilter").value;
+    const analysisFilter = document.getElementById("analysisFilter").value;
+
+    let filteredScans = allScans;
+
+    if (statusFilter) {
+      filteredScans = filteredScans.filter(
+        (scan) => scan.status === statusFilter,
+      );
+    }
+
+    if (typeFilter) {
+      filteredScans = filteredScans.filter(
+        (scan) => scan.scan_type === typeFilter,
+      );
+    }
+
+    if (analysisFilter) {
+      if (analysisFilter === "enhanced") {
+        filteredScans = filteredScans.filter(
+          (scan) => scan.enhanced_analysis_completed,
+        );
+      } else if (analysisFilter === "basic") {
+        filteredScans = filteredScans.filter(
+          (scan) => !scan.enhanced_analysis_completed,
+        );
+      }
+    }
+
+    renderScans(filteredScans);
+  }
+
+  // Refresh scans
+  function refreshScans() {
+    loadScans();
+  }
+
+  // Event listeners
+  document
+    .getElementById("statusFilter")
+    .addEventListener("change", filterScans);
+  document.getElementById("typeFilter").addEventListener("change", filterScans);
+  document
+    .getElementById("analysisFilter")
+    .addEventListener("change", filterScans);
+
+  // Load data on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    loadScans();
+  });
+</script>
+{% endblock %}

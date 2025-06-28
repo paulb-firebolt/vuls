@@ -1,123 +1,276 @@
-{% extends "base.html" %}
-
-{% block title %}Dashboard - Vuls Web{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Dashboard - Vuls Web{% endblock %} {%
+block content %}
 <div class="px-4 py-6 sm:px-0">
-    <div class="border-4 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-8">
-        <div class="text-center">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Welcome to Vuls Web</h1>
-            <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">Centralized Vulnerability Management System</p>
+  <div
+    class="border-4 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-8"
+  >
+    <div class="text-center">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+        Welcome to Vuls Web
+      </h1>
+      <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">
+        Centralized Vulnerability Management System
+      </p>
 
-            <!-- Quick Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-                    <div class="p-5">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <div class="w-8 h-8 bg-indigo-500 rounded-md flex items-center justify-center">
-                                    <span class="text-white font-bold">H</span>
-                                </div>
-                            </div>
-                            <div class="ml-5 w-0 flex-1">
-                                <dl>
-                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Hosts</dt>
-                                    <dd class="text-lg font-medium text-gray-900 dark:text-white">0</dd>
-                                </dl>
-                            </div>
-                        </div>
-                    </div>
+      <!-- Quick Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div
+          class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg"
+        >
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div
+                  class="w-8 h-8 bg-indigo-500 rounded-md flex items-center justify-center"
+                >
+                  <span class="text-white font-bold">H</span>
                 </div>
-
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-                    <div class="p-5">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                                    <span class="text-white font-bold">S</span>
-                                </div>
-                            </div>
-                            <div class="ml-5 w-0 flex-1">
-                                <dl>
-                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Recent Scans</dt>
-                                    <dd class="text-lg font-medium text-gray-900 dark:text-white">0</dd>
-                                </dl>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-                    <div class="p-5">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <div class="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center">
-                                    <span class="text-white font-bold">V</span>
-                                </div>
-                            </div>
-                            <div class="ml-5 w-0 flex-1">
-                                <dl>
-                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Vulnerabilities</dt>
-                                    <dd class="text-lg font-medium text-gray-900 dark:text-white">0</dd>
-                                </dl>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
-                    <div class="p-5">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
-                                    <span class="text-white font-bold">C</span>
-                                </div>
-                            </div>
-                            <div class="ml-5 w-0 flex-1">
-                                <dl>
-                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Critical Issues</dt>
-                                    <dd class="text-lg font-medium text-gray-900 dark:text-white">0</dd>
-                                </dl>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+                  >
+                    Total Hosts
+                  </dt>
+                  <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                    {{ total_hosts }}
+                  </dd>
+                </dl>
+              </div>
             </div>
-
-            <!-- Quick Actions -->
-            <div class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
-                <a href="/api/hosts" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Manage Hosts
-                </a>
-                <a href="/api/scans" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    View Scans
-                </a>
-                <a href="/api/reports" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    View Reports
-                </a>
-            </div>
-
-            <!-- System Status -->
-            <div class="mt-8 bg-white dark:bg-gray-800 shadow rounded-lg">
-                <div class="px-4 py-5 sm:p-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">System Status</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="text-center">
-                            <div class="text-sm text-gray-500 dark:text-gray-400">Database</div>
-                            <div class="text-green-600 dark:text-green-400 font-medium">Connected</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-sm text-gray-500 dark:text-gray-400">Vuls Scanner</div>
-                            <div class="text-green-600 dark:text-green-400 font-medium">Ready</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-sm text-gray-500 dark:text-gray-400">Last DB Update</div>
-                            <div class="text-gray-600 dark:text-gray-300 font-medium">Never</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+
+        <div
+          class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg"
+        >
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div
+                  class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center"
+                >
+                  <span class="text-white font-bold">S</span>
+                </div>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+                  >
+                    Total Scans
+                  </dt>
+                  <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                    {{ recent_scans }}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg"
+        >
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div
+                  class="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center"
+                >
+                  <span class="text-white font-bold">V</span>
+                </div>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+                  >
+                    Vulnerabilities
+                  </dt>
+                  <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                    {{ total_vulnerabilities }}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg"
+        >
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div
+                  class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center"
+                >
+                  <span class="text-white font-bold">C</span>
+                </div>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate"
+                  >
+                    Critical Issues
+                  </dt>
+                  <dd class="text-lg font-medium text-gray-900 dark:text-white">
+                    {{ total_critical }}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div
+        class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center"
+      >
+        <a
+          href="/hosts"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Manage Hosts
+        </a>
+        <a
+          href="/scans"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          View Scans
+        </a>
+        <a
+          href="/reports"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          View Reports
+        </a>
+      </div>
+
+      <!-- Recent Hosts with Vulnerabilities -->
+      {% if hosts_with_scans %}
+      <div class="mt-8 bg-white dark:bg-gray-800 shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3
+            class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4"
+          >
+            Recent Host Scans
+          </h3>
+          <div class="space-y-4">
+            {% for host in hosts_with_scans %}
+            <div
+              class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg"
+            >
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                  <div
+                    class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center"
+                  >
+                    <span
+                      class="text-indigo-600 dark:text-indigo-400 font-medium"
+                      >{{ host.name[0]|upper }}</span
+                    >
+                  </div>
+                </div>
+                <div>
+                  <h4 class="text-sm font-medium text-gray-900 dark:text-white">
+                    {{ host.name }}
+                  </h4>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ host.hostname }}
+                  </p>
+                  {% if host.last_scan_at %}
+                  <p class="text-xs text-gray-400 dark:text-gray-500">
+                    Last scan: {{ host.last_scan_at.strftime('%Y-%m-%d %H:%M')
+                    }}
+                  </p>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="flex items-center space-x-4">
+                {% if host.latest_scan %}
+                <div class="text-right">
+                  <div
+                    class="text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    {{ host.latest_scan.total_vulnerabilities or 0 }}
+                    vulnerabilities
+                  </div>
+                  {% if host.latest_scan.critical_count %}
+                  <div class="text-xs text-red-600 dark:text-red-400">
+                    {{ host.latest_scan.critical_count }} critical
+                  </div>
+                  {% endif %} {% if host.latest_scan.enhanced_analysis_completed
+                  %}
+                  <span
+                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  >
+                    Enhanced
+                  </span>
+                  {% else %}
+                  <span
+                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                  >
+                    Basic
+                  </span>
+                  {% endif %}
+                </div>
+                {% endif %}
+                <a
+                  href="/hosts/{{ host.id }}/vulnerabilities"
+                  class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 hover:bg-indigo-200 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  View Details
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- System Status -->
+      <div class="mt-8 bg-white dark:bg-gray-800 shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3
+            class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4"
+          >
+            System Status
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="text-center">
+              <div class="text-sm text-gray-500 dark:text-gray-400">
+                Database
+              </div>
+              <div class="text-green-600 dark:text-green-400 font-medium">
+                Connected
+              </div>
+            </div>
+            <div class="text-center">
+              <div class="text-sm text-gray-500 dark:text-gray-400">
+                Vuls Scanner
+              </div>
+              <div class="text-green-600 dark:text-green-400 font-medium">
+                Ready
+              </div>
+            </div>
+            <div class="text-center">
+              <div class="text-sm text-gray-500 dark:text-gray-400">
+                Enhanced Analysis
+              </div>
+              <div class="text-green-600 dark:text-green-400 font-medium">
+                Active
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

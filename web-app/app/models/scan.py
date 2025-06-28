@@ -37,6 +37,11 @@ class Scan(Base):
     error_message = Column(Text)
     docker_container_id = Column(String)
 
+    # Enhanced analysis tracking
+    enhanced_analysis_completed = Column(Boolean, default=False)
+    enhanced_analysis_started_at = Column(DateTime(timezone=True))
+    enhanced_analysis_completed_at = Column(DateTime(timezone=True))
+
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -44,6 +49,7 @@ class Scan(Base):
     # Relationships
     host = relationship("Host", back_populates="scans")
     vulnerabilities = relationship("Vulnerability", back_populates="scan", cascade="all, delete-orphan")
+    vulnerability_analysis = relationship("VulnerabilityAnalysis", back_populates="scan", uselist=False)
 
     def __repr__(self):
         return f"<Scan(id={self.id}, host_id={self.host_id}, status='{self.status}')>"

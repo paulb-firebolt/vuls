@@ -34,6 +34,9 @@ templates = Jinja2Templates(directory="app/templates")
 async def dashboard(request: Request, db: Session = Depends(get_db)):
     """Main dashboard - redirect to login if not authenticated"""
     from .auth import get_current_user_from_cookie
+    from .models.host import Host
+    from .models.scan import Scan
+    from sqlalchemy import func, desc
 
     # Check if user is authenticated
     user = get_current_user_from_cookie(request, db)
@@ -42,10 +45,42 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         from fastapi.responses import RedirectResponse
         return RedirectResponse(url="/login", status_code=302)
 
+    # Get dashboard statistics
+    total_hosts = db.query(Host).filter(Host.is_active == True).count()
+    recent_scans = db.query(Scan).filter(Scan.status == "completed").count()
+
+    # Get latest vulnerability counts across all active hosts
+    latest_scans_subquery = db.query(
+        Scan.host_id,
+        func.max(Scan.completed_at).label('latest_completed_at')
+    ).filter(
+        Scan.status == "completed"
+    ).group_by(Scan.host_id).subquery()
+
+    latest_scans = db.query(Scan).join(
+        latest_scans_subquery,
+        (Scan.host_id == latest_scans_subquery.c.host_id) &
+        (Scan.completed_at == latest_scans_subquery.c.latest_completed_at)
+    ).all()
+
+    total_vulnerabilities = sum(scan.total_vulnerabilities or 0 for scan in latest_scans)
+    total_critical = sum(scan.critical_count or 0 for scan in latest_scans)
+
+    # Get recent hosts with their latest scans
+    hosts_with_scans = db.query(Host).filter(Host.is_active == True).order_by(desc(Host.last_scan_at)).limit(5).all()
+
     # User is authenticated, show dashboard
     return templates.TemplateResponse(
         "dashboard.html",
-        {"request": request, "user": user}
+        {
+            "request": request,
+            "user": user,
+            "total_hosts": total_hosts,
+            "recent_scans": recent_scans,
+            "total_vulnerabilities": total_vulnerabilities,
+            "total_critical": total_critical,
+            "hosts_with_scans": hosts_with_scans
+        }
     )
 
 
@@ -96,6 +131,97 @@ async def scheduler_page(request: Request, db: Session = Depends(get_db)):
     )
 
 
+@app.get("/hosts", response_class=HTMLResponse)
+async def hosts_page(request: Request, db: Session = Depends(get_db)):
+    """Hosts listing page"""
+    from .auth import get_current_user_from_cookie
+
+    # Check if user is authenticated
+    user = get_current_user_from_cookie(request, db)
+    if not user:
+        # Redirect to login page if not authenticated
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url="/login", status_code=302)
+
+    # User is authenticated, show hosts page
+    return templates.TemplateResponse(
+        "hosts.html",
+        {"request": request, "user": user}
+    )
+
+
+@app.get("/scans", response_class=HTMLResponse)
+async def scans_page(request: Request, db: Session = Depends(get_db)):
+    """Scans listing page"""
+    from .auth import get_current_user_from_cookie
+
+    # Check if user is authenticated
+    user = get_current_user_from_cookie(request, db)
+    if not user:
+        # Redirect to login page if not authenticated
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url="/login", status_code=302)
+
+    # User is authenticated, show scans page
+    return templates.TemplateResponse(
+        "scans.html",
+        {"request": request, "user": user}
+    )
+
+
+@app.get("/reports", response_class=HTMLResponse)
+async def reports_page(request: Request, db: Session = Depends(get_db)):
+    """Reports page"""
+    from .auth import get_current_user_from_cookie
+
+    # Check if user is authenticated
+    user = get_current_user_from_cookie(request, db)
+    if not user:
+        # Redirect to login page if not authenticated
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url="/login", status_code=302)
+
+    # User is authenticated, show reports page
+    return templates.TemplateResponse(
+        "reports.html",
+        {"request": request, "user": user}
+    )
+
+
+@app.get("/hosts/{host_id}/vulnerabilities", response_class=HTMLResponse)
+async def host_vulnerabilities_page(request: Request, host_id: int, db: Session = Depends(get_db)):
+    """Host vulnerabilities page"""
+    from .auth import get_current_user_from_cookie
+    from .models.host import Host
+
+    # Check if user is authenticated
+    user = get_current_user_from_cookie(request, db)
+    if not user:
+        # Redirect to login page if not authenticated
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url="/login", status_code=302)
+
+    # Get the host
+    host = db.query(Host).filter(Host.id == host_id).first()
+    if not host:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Host not found")
+
+    # Get latest scan
+    latest_scan = host.latest_scan
+
+    # User is authenticated, show vulnerabilities page
+    return templates.TemplateResponse(
+        "host_vulnerabilities.html",
+        {
+            "request": request,
+            "user": user,
+            "host": host,
+            "latest_scan": latest_scan
+        }
+    )
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -103,7 +229,7 @@ async def health_check():
 
 
 # Include API routes
-from .api import auth, hosts, scans, reports, ssh_config, scheduled_tasks, websocket
+from .api import auth, hosts, scans, reports, ssh_config, scheduled_tasks, websocket, vulnerabilities
 
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(hosts.router, prefix="/api/hosts", tags=["hosts"])
@@ -112,6 +238,7 @@ app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
 app.include_router(ssh_config.router, prefix="/api/ssh", tags=["ssh-config"])
 app.include_router(scheduled_tasks.router, prefix="/api/scheduled-tasks", tags=["scheduled-tasks"])
 app.include_router(websocket.router, prefix="/api", tags=["websocket"])
+app.include_router(vulnerabilities.router, tags=["vulnerabilities"])
 
 
 # Global subscriber instance
