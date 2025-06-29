@@ -192,7 +192,10 @@ services:
 
   # Main web application
   vuls-web:
-    build: ./web-app
+    build:
+      context: ./web-app
+      args:
+        BUILD_TYPE: production
     container_name: vuls-web
     ports:
       - 8000:8000
@@ -216,7 +219,8 @@ services:
   vuls-web-dev:
     build:
       context: ./web-app
-      dockerfile: Dockerfile.dev
+      args:
+        BUILD_TYPE: development
     container_name: vuls-web-dev
     ports:
       - 8000:8000
@@ -231,20 +235,27 @@ services:
       - ./web-app/app:/app/app:rw
       - ./web-app/static:/app/static:rw
       - ./web-app/pyproject.toml:/app/pyproject.toml:ro
+      # Mount alembic files for migrations
+      - ./web-app/alembic.ini:/app/alembic.ini:ro
+      - ./web-app/alembic:/app/alembic:rw
     environment:
       - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
       - REDIS_URL=redis://vuls-redis:6379
       - JWT_SECRET_KEY=your-secret-key-change-in-production
-      - EXECUTOR_URL=http://vuls-executor:8080
+      - EXECUTOR_URL=http://vuls-executor-dev:8080
       - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
     depends_on:
       - vuls-db
       - vuls-redis
+      - vuls-executor-dev
     profiles: [dev]
 
   # Celery worker for background tasks
   vuls-worker:
-    build: ./web-app
+    build:
+      context: ./web-app
+      args:
+        BUILD_TYPE: production
     container_name: vuls-worker
     command: [uv, run, celery, -A, app.tasks, worker, --loglevel=info]
     volumes:
@@ -268,11 +279,49 @@ services:
       - vuls-db
       - vuls-redis
       - vuls-executor
-    profiles: [web, dev]
+    profiles: [web]
+
+  # Development Celery worker with hot reload
+  vuls-worker-dev:
+    build:
+      context: ./web-app
+      args:
+        BUILD_TYPE: development
+    container_name: vuls-worker-dev
+    command:
+      [uv, run, celery, -A, app.tasks, worker, --loglevel=info, --pool=solo]
+    volumes:
+      - ./config:/app/config:rw
+      - ./results:/app/results:rw
+      - ./db:/app/db:ro
+      - ./logs:/app/logs:rw
+      - ./.ssh:/root/.ssh:rw
+      # Mount source code for hot reload
+      - ./web-app/app:/app/app:rw
+      - ./web-app/pyproject.toml:/app/pyproject.toml:ro
+    environment:
+      - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
+      - REDIS_URL=redis://vuls-redis:6379
+      - EXECUTOR_URL=http://vuls-executor-dev:8080
+      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
+    healthcheck:
+      test: [CMD-SHELL, uv run celery -A app.tasks inspect ping]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      - vuls-db
+      - vuls-redis
+      - vuls-executor-dev
+    profiles: [dev]
 
   # Celery beat for scheduled tasks
   vuls-scheduler:
-    build: ./web-app
+    build:
+      context: ./web-app
+      args:
+        BUILD_TYPE: production
     container_name: vuls-scheduler
     command: [uv, run, celery, -A, app.tasks, beat, --loglevel=info]
     volumes:
@@ -293,11 +342,45 @@ services:
     depends_on:
       - vuls-db
       - vuls-redis
-    profiles: [web, dev]
+    profiles: [web]
+
+  # Development Celery beat with hot reload
+  vuls-scheduler-dev:
+    build:
+      context: ./web-app
+      args:
+        BUILD_TYPE: development
+    container_name: vuls-scheduler-dev
+    command: [uv, run, celery, -A, app.tasks, beat, --loglevel=info]
+    volumes:
+      - ./config:/app/config:rw
+      # Mount source code for hot reload
+      - ./web-app/app:/app/app:rw
+      - ./web-app/pyproject.toml:/app/pyproject.toml:ro
+    environment:
+      - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
+      - REDIS_URL=redis://vuls-redis:6379
+    healthcheck:
+      test:
+        [
+          CMD-SHELL,
+          set -o pipefail && ps aux | grep 'celery.*beat' | grep -v grep || exit 1,
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      - vuls-db
+      - vuls-redis
+    profiles: [dev]
 
   # Docker executor sidecar for secure Docker operations
   vuls-executor:
-    build: ./docker-executor
+    build:
+      context: ./docker-executor
+      args:
+        BUILD_TYPE: production
     container_name: vuls-executor
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -310,7 +393,37 @@ services:
       - CF_ACCESS_CLIENT_SECRET=${CF_ACCESS_CLIENT_SECRET}
     ports:
       - 8080:8080
-    profiles: [web, dev]
+    profiles: [web]
+
+  # Development Docker executor with hot reload
+  vuls-executor-dev:
+    build:
+      context: ./docker-executor
+      args:
+        BUILD_TYPE: development
+    container_name: vuls-executor-dev
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/project:rw # Mount compose project directory as /project with write access
+      # Mount source code for hot reload
+      - ./docker-executor:/app:rw
+    environment:
+      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
+      - HOST_PROJECT_PATH=${PWD}
+      - HOST_USER_HOME=${HOME}
+      - CF_ACCESS_CLIENT_ID=${CF_ACCESS_CLIENT_ID}
+      - CF_ACCESS_CLIENT_SECRET=${CF_ACCESS_CLIENT_SECRET}
+    ports:
+      - 8080:8080
+    profiles: [dev]
+
+  # Build target for SSH client
+  ssh-client:
+    build:
+      context: build/ssh-client
+      dockerfile: Dockerfile
+    image: ssh-client:latest
+    profiles: [build] # Only used for building
 
 volumes:
   vuls_db_data:

@@ -15,7 +15,7 @@ import stat
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Depends, Header
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 import docker
 import uvicorn
 
@@ -56,14 +56,16 @@ class ScanRequest(BaseModel):
     scan_type: str = "fast"
     ssh_key: Optional[str] = None
 
-    @validator('server_name')
+    @field_validator('server_name')
+    @classmethod
     def validate_server_name(cls, v):
         # Basic server name validation - allow alphanumeric, underscore, and hyphen
         if not v.replace('_', 'a').replace('-', 'a').isalnum():
             raise ValueError('Invalid server name format')
         return v
 
-    @validator('scan_type')
+    @field_validator('scan_type')
+    @classmethod
     def validate_scan_type(cls, v):
         if v not in ['fast', 'full', 'config-only']:
             raise ValueError('Invalid scan type')
@@ -73,7 +75,8 @@ class ScanRequest(BaseModel):
 class DatabaseUpdateRequest(BaseModel):
     database: str
 
-    @validator('database')
+    @field_validator('database')
+    @classmethod
     def validate_database(cls, v):
         allowed = ['nvd', 'ubuntu', 'debian', 'redhat', 'amazon', 'alpine',
                   'gost_ubuntu', 'gost_debian', 'gost_redhat', 'all']
@@ -85,7 +88,8 @@ class DatabaseUpdateRequest(BaseModel):
 class SSHConfigRequest(BaseModel):
     content: str
 
-    @validator('content')
+    @field_validator('content')
+    @classmethod
     def validate_content(cls, v):
         if not v.strip():
             raise ValueError('SSH config content cannot be empty')
@@ -97,23 +101,43 @@ class SSHKeyRequest(BaseModel):
     content: str
     key_type: str
 
-    @validator('filename')
+    @field_validator('filename')
+    @classmethod
     def validate_filename(cls, v):
         # Sanitize filename to prevent path traversal
         if not v or '/' in v or v.startswith('.') or '..' in v:
             raise ValueError('Invalid filename')
         return v
 
-    @validator('key_type')
+    @field_validator('key_type')
+    @classmethod
     def validate_key_type(cls, v):
         if v not in ['private', 'public']:
             raise ValueError('Key type must be private or public')
         return v
 
-    @validator('content')
+    @field_validator('content')
+    @classmethod
     def validate_content(cls, v):
         if not v.strip():
             raise ValueError('Key content cannot be empty')
+        return v
+
+
+class LynisScanRequest(BaseModel):
+    host: Dict[str, Any]
+    scan_id: int
+    lynis_script: str
+    report_path: str = "/var/log/lynis-report.dat"
+    local_report_path: str
+
+    @field_validator('host')
+    @classmethod
+    def validate_host(cls, v):
+        required_fields = ['hostname', 'port', 'username']
+        for field in required_fields:
+            if field not in v:
+                raise ValueError(f'Missing required host field: {field}')
         return v
 
 
@@ -192,6 +216,31 @@ async def update_database(request: DatabaseUpdateRequest, api_key: str = Depends
         job_id=job_id,
         status="starting",
         message=f"Database update started for {request.database}"
+    )
+
+
+@app.post("/lynis/scan", response_model=JobResponse)
+async def start_lynis_scan(request: LynisScanRequest, api_key: str = Depends(verify_api_key)):
+    """Start a Lynis security audit"""
+    job_id = str(uuid.uuid4())
+
+    logger.info(f"Starting Lynis scan job {job_id} for host {request.host['hostname']}")
+
+    # Track job
+    active_jobs[job_id] = {
+        "status": "starting",
+        "started_at": datetime.utcnow(),
+        "type": "lynis_scan",
+        "request": request.dict()
+    }
+
+    # Start scan asynchronously
+    asyncio.create_task(execute_lynis_scan(job_id, request))
+
+    return JobResponse(
+        job_id=job_id,
+        status="starting",
+        message=f"Lynis scan started for host {request.host['hostname']}"
     )
 
 
@@ -799,6 +848,209 @@ async def execute_database_update(job_id: str, request: DatabaseUpdateRequest):
             "completed_at": datetime.utcnow(),
             "error": str(e)
         })
+
+
+async def execute_lynis_scan(job_id: str, request: LynisScanRequest):
+    """Execute Lynis security audit on remote host"""
+    try:
+        active_jobs[job_id]["status"] = "running"
+        host = request.host
+
+        logger.info(f"Starting Lynis scan for host {host['hostname']}")
+
+        # Create temporary script file
+        script_path = Path(COMPOSE_PROJECT_DIR) / "logs" / f"lynis-script-{job_id[:8]}.sh"
+        with open(script_path, 'w') as f:
+            f.write(request.lynis_script)
+        os.chmod(script_path, 0o755)
+
+        # Build SSH connection command
+        ssh_cmd = _build_ssh_command_for_lynis(host)
+
+        # Generate unique container name
+        container_name = f"ssh-client-{job_id[:8]}"
+
+        # Build docker run command for SSH client
+        cmd = [
+            "docker", "run", "--rm",
+            "--name", container_name,
+            # Mount SSH directory and script
+            "-v", f"{HOST_PROJECT_PATH}/.ssh:/root/.ssh:ro",
+            "-v", f"{HOST_PROJECT_PATH}/logs:/tmp/scripts:rw",
+            # Mount credentials for cloud proxies
+            "-v", f"{HOST_USER_HOME}/.config/gcloud:/root/.config/gcloud:ro",
+            "-v", f"{HOST_USER_HOME}/.aws:/root/.aws:ro",
+            "-v", f"{HOST_USER_HOME}/.cloudflared:/root/.cloudflared:ro",
+            # Environment variables
+            "-e", f"CF_ACCESS_CLIENT_ID={CF_ACCESS_CLIENT_ID}",
+            "-e", f"CF_ACCESS_CLIENT_SECRET={CF_ACCESS_CLIENT_SECRET}",
+            # Network connectivity
+            "--network", "vuls_default",
+            # Use SSH client image
+            "ssh-client:latest",
+            # Execute the scan
+            "/bin/bash", "-c", f"""
+set -e
+
+# Function to log messages
+log() {{
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >&2
+}}
+
+log "Starting Lynis scan execution"
+
+# Build SSH command
+SSH_CMD="{ssh_cmd}"
+
+log "Uploading and executing Lynis script on remote host"
+
+# Upload script to remote host
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null /tmp/scripts/lynis-script-{job_id[:8]}.sh {host['username']}@{host['hostname']}:/tmp/lynis-install.sh
+
+# Execute script on remote host
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {host['username']}@{host['hostname']} 'chmod +x /tmp/lynis-install.sh && /tmp/lynis-install.sh'
+
+log "Downloading Lynis report"
+
+# Download report file
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {host['username']}@{host['hostname']}:{request.report_path} /tmp/scripts/lynis-report-{request.scan_id}.dat
+
+log "Lynis scan completed successfully"
+"""
+        ]
+
+        logger.info(f"Executing Lynis scan command for host {host['hostname']}")
+
+        # Use async subprocess to avoid blocking
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+
+        try:
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(),
+                timeout=3600  # 1 hour timeout
+            )
+            returncode = process.returncode
+        except asyncio.TimeoutError:
+            process.kill()
+            await process.wait()
+            stdout, stderr = b"", b"Timeout after 1 hour"
+            returncode = -1
+
+        # Clean up script file
+        try:
+            script_path.unlink()
+        except:
+            pass
+
+        # Update job status
+        if returncode == 0:
+            # Copy report to final location
+            report_source = Path(COMPOSE_PROJECT_DIR) / "logs" / f"lynis-report-{request.scan_id}.dat"
+            if report_source.exists():
+                # Ensure the target directory exists
+                target_path = Path(request.local_report_path)
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(report_source, target_path)
+                report_source.unlink()  # Clean up temp file
+
+                active_jobs[job_id].update({
+                    "status": "completed",
+                    "completed_at": datetime.utcnow(),
+                    "result": {
+                        "returncode": returncode,
+                        "stdout": stdout.decode() if stdout else "",
+                        "stderr": stderr.decode() if stderr else "",
+                        "report_path": request.local_report_path
+                    }
+                })
+            else:
+                active_jobs[job_id].update({
+                    "status": "failed",
+                    "completed_at": datetime.utcnow(),
+                    "error": "Lynis report file not found after scan",
+                    "result": {
+                        "returncode": returncode,
+                        "stdout": stdout.decode() if stdout else "",
+                        "stderr": stderr.decode() if stderr else ""
+                    }
+                })
+        else:
+            active_jobs[job_id].update({
+                "status": "failed",
+                "completed_at": datetime.utcnow(),
+                "error": f"Lynis scan failed with code {returncode}: {stderr.decode() if stderr else 'Unknown error'}",
+                "result": {
+                    "returncode": returncode,
+                    "stdout": stdout.decode() if stdout else "",
+                    "stderr": stderr.decode() if stderr else ""
+                }
+            })
+
+        logger.info(f"Lynis scan job {job_id} completed with status: {active_jobs[job_id]['status']}")
+
+    except Exception as e:
+        logger.error(f"Error in Lynis scan job {job_id}: {str(e)}")
+        active_jobs[job_id].update({
+            "status": "failed",
+            "completed_at": datetime.utcnow(),
+            "error": str(e)
+        })
+
+
+def _build_ssh_command_for_lynis(host: Dict[str, Any]) -> str:
+    """Build SSH command for Lynis scan"""
+    cmd_parts = []
+
+    # Handle cloud proxies
+    if host.get('use_aws_proxy') and host.get('aws_instance_id'):
+        # AWS Session Manager
+        cmd_parts = [
+            "aws", "ssm", "start-session",
+            "--target", host['aws_instance_id'],
+            "--region", host.get('aws_region', 'us-east-1')
+        ]
+        return " ".join(cmd_parts)
+
+    elif host.get('use_gcp_proxy') and host.get('gcp_instance_name'):
+        # GCP IAP tunnel
+        cmd_parts = [
+            "gcloud", "compute", "ssh",
+            host['gcp_instance_name'],
+            "--zone", host.get('gcp_zone', 'us-central1-a'),
+            "--project", host.get('gcp_project', 'default')
+        ]
+        return " ".join(cmd_parts)
+
+    else:
+        # Standard SSH
+        cmd_parts = ["ssh"]
+
+        # Add SSH options
+        cmd_parts.extend([
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-o", "ConnectTimeout=30"
+        ])
+
+        # Add key if specified
+        if host.get('ssh_key_path'):
+            cmd_parts.extend(["-i", host['ssh_key_path']])
+
+        # Add port if not default
+        if host.get('port', 22) != 22:
+            cmd_parts.extend(["-p", str(host['port'])])
+
+        # Add user and host
+        if host.get('username'):
+            cmd_parts.append(f"{host['username']}@{host['hostname']}")
+        else:
+            cmd_parts.append(host['hostname'])
+
+        return " ".join(cmd_parts)
 
 
 if __name__ == "__main__":

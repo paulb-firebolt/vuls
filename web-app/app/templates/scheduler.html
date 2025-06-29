@@ -1,5 +1,65 @@
-{% extends "base.html" %} {% block title %}Task Scheduler - {{ super() }}{%
-endblock %} {% block content %}
+{% extends "base_admin.html" %} {% block title %}Task Scheduler - Security Admin
+Panel{% endblock %} {% block breadcrumbs %}
+<nav class="flex" aria-label="Breadcrumb">
+  <ol class="flex items-center space-x-4">
+    <li>
+      <div>
+        <a
+          href="/"
+          class="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
+        >
+          <svg
+            class="flex-shrink-0 h-5 w-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+            ></path>
+          </svg>
+          <span class="sr-only">Home</span>
+        </a>
+      </div>
+    </li>
+    <li>
+      <div class="flex items-center">
+        <svg
+          class="flex-shrink-0 h-5 w-5 text-gray-400"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <span class="ml-4 text-sm font-medium text-gray-500 dark:text-gray-400"
+          >System</span
+        >
+      </div>
+    </li>
+    <li>
+      <div class="flex items-center">
+        <svg
+          class="flex-shrink-0 h-5 w-5 text-gray-400"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <span class="ml-4 text-sm font-medium text-gray-500 dark:text-gray-400"
+          >Scheduler</span
+        >
+      </div>
+    </li>
+  </ol>
+</nav>
+{% endblock %} {% block content %}
 <div class="container mx-auto px-4 py-8">
   <div class="flex justify-between items-center mb-8">
     <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
@@ -238,7 +298,8 @@ endblock %} {% block content %}
             class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md px-3 py-2"
           >
             <option value="">All Task Types</option>
-            <option value="scan">Scan Tasks</option>
+            <option value="scan">Vulnerability Scans</option>
+            <option value="lynis_scan">Lynis Security Audits</option>
             <option value="db_update">Database Updates</option>
           </select>
           <select
@@ -402,6 +463,7 @@ endblock %} {% block content %}
           >
             <option value="">Select task type</option>
             <option value="scan">Vulnerability Scan</option>
+            <option value="lynis_scan">Lynis Security Audit</option>
             <option value="db_update">Database Update</option>
           </select>
         </div>
@@ -435,6 +497,47 @@ endblock %} {% block content %}
             <option value="fast">Fast Scan</option>
             <option value="full">Full Scan</option>
           </select>
+        </div>
+
+        <div id="lynisOptionsSelection" class="hidden">
+          <label
+            for="lynisQuickScan"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >Lynis Scan Options</label
+          >
+          <div class="mt-2 space-y-3">
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                id="lynisQuickScan"
+                name="lynis_quick_scan"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded"
+              />
+              <label
+                for="lynisQuickScan"
+                class="ml-2 block text-sm text-gray-900 dark:text-white"
+                >Quick Scan (faster, fewer tests)</label
+              >
+            </div>
+            <div>
+              <label
+                for="lynisTests"
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >Specific Test Categories (optional)</label
+              >
+              <input
+                type="text"
+                id="lynisTests"
+                name="lynis_tests"
+                placeholder="e.g., AUTH,BOOT,FILE (leave empty for all tests)"
+                class="mt-1 block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Common categories: AUTH (authentication), BOOT (boot/startup),
+                FILE (file permissions), NETW (networking), PROC (processes)
+              </p>
+            </div>
+          </div>
         </div>
 
         <div id="dbTypeSelection" class="hidden">
@@ -679,9 +782,11 @@ endblock %} {% block content %}
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       task.task_type === "scan"
                         ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                        : "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                        : task.task_type === "lynis_scan"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                          : "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
                     }">
-                        ${task.task_type === "scan" ? "Scan" : "DB Update"}
+                        ${task.task_type === "scan" ? "Vuln Scan" : task.task_type === "lynis_scan" ? "Lynis Audit" : "DB Update"}
                     </span>
                     ${task.host_name ? `<div class="text-xs text-gray-500 dark:text-gray-400 mt-1">${task.host_name}</div>` : ""}
                 </td>
@@ -811,6 +916,15 @@ endblock %} {% block content %}
         if (task.config.database_type) {
           document.getElementById("dbType").value = task.config.database_type;
         }
+        // Lynis configuration
+        if (task.config.quick_scan) {
+          document.getElementById("lynisQuickScan").checked =
+            task.config.quick_scan;
+        }
+        if (task.config.tests && Array.isArray(task.config.tests)) {
+          document.getElementById("lynisTests").value =
+            task.config.tests.join(", ");
+        }
       }
 
       handleTaskTypeChange();
@@ -820,16 +934,24 @@ endblock %} {% block content %}
       const taskType = document.getElementById("taskType").value;
       const hostSelection = document.getElementById("hostSelection");
       const scanTypeSelection = document.getElementById("scanTypeSelection");
+      const lynisOptionsSelection = document.getElementById(
+        "lynisOptionsSelection",
+      );
       const dbTypeSelection = document.getElementById("dbTypeSelection");
 
       // Hide all conditional fields
       hostSelection.classList.add("hidden");
       scanTypeSelection.classList.add("hidden");
+      lynisOptionsSelection.classList.add("hidden");
       dbTypeSelection.classList.add("hidden");
 
       if (taskType === "scan") {
         hostSelection.classList.remove("hidden");
         scanTypeSelection.classList.remove("hidden");
+        document.getElementById("hostId").required = true;
+      } else if (taskType === "lynis_scan") {
+        hostSelection.classList.remove("hidden");
+        lynisOptionsSelection.classList.remove("hidden");
         document.getElementById("hostId").required = true;
       } else if (taskType === "db_update") {
         dbTypeSelection.classList.remove("hidden");
@@ -853,6 +975,16 @@ endblock %} {% block content %}
       if (taskData.task_type === "scan") {
         taskData.host_id = parseInt(formData.get("host_id"));
         taskData.config.scan_type = formData.get("scan_type");
+      } else if (taskData.task_type === "lynis_scan") {
+        taskData.host_id = parseInt(formData.get("host_id"));
+        taskData.config.quick_scan = formData.has("lynis_quick_scan");
+        const lynisTests = formData.get("lynis_tests");
+        if (lynisTests && lynisTests.trim()) {
+          taskData.config.tests = lynisTests
+            .split(",")
+            .map((t) => t.trim())
+            .filter((t) => t);
+        }
       } else if (taskData.task_type === "db_update") {
         taskData.config.database_type = formData.get("database_type");
       }
@@ -880,11 +1012,11 @@ endblock %} {% block content %}
           window.location.href = "/login";
         } else {
           const error = await response.json();
-          alert(`Error: ${error.detail}`);
+          showNotification(`Error: ${error.detail}`, "error");
         }
       } catch (error) {
         console.error("Error saving task:", error);
-        alert("Error saving task");
+        showNotification("Error saving task", "error");
       }
     }
 

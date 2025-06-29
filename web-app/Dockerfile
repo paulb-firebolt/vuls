@@ -1,5 +1,8 @@
 FROM python:3.11-slim
 
+# Build argument to determine if this is a dev build
+ARG BUILD_TYPE=production
+
 # Set working directory
 WORKDIR /app
 
@@ -14,7 +17,16 @@ RUN apt-get update && apt-get install -y \
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 # Copy project files
+# For development, we only copy pyproject.toml first for better caching
+# since the source code will be mounted as a volume
 COPY pyproject.toml ./
+RUN if [ "$BUILD_TYPE" = "production" ]; then \
+    echo "Production build - copying source code"; \
+    else \
+    echo "Development build - source code will be mounted"; \
+    fi
+
+# Copy source code only for production builds
 COPY app/ ./app/
 COPY static/ ./static/
 
@@ -39,5 +51,9 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Run the application
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the application with conditional reload based on build type
+CMD if [ "$BUILD_TYPE" = "development" ]; then \
+    exec uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload; \
+    else \
+    exec uv run uvicorn app.main:app --host 0.0.0.0 --port 8000; \
+    fi

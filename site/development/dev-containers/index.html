@@ -1,0 +1,2011 @@
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <meta
+      name="description"
+      content="Comprehensive vulnerability scanning and management documentation"
+    />
+
+    <meta name="author" content="Vuls Team" />
+
+    <link
+      rel="canonical"
+      href="https://your-domain.com/docs/development/dev-containers/"
+    />
+
+    <link rel="prev" href="../" />
+
+    <link rel="next" href="../enhanced-vulnerability-analysis/" />
+
+    <link rel="icon" href="../../assets/images/favicon.png" />
+    <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14" />
+
+    <title>Development Containers - Vuls Vulnerability Management System</title>
+
+    <link
+      rel="stylesheet"
+      href="../../assets/stylesheets/main.342714a4.min.css"
+    />
+
+    <link
+      rel="stylesheet"
+      href="../../assets/stylesheets/palette.06af60db.min.css"
+    />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback"
+    />
+    <style>
+      :root {
+        --md-text-font: "Roboto";
+        --md-code-font: "Roboto Mono";
+      }
+    </style>
+
+    <script>
+      ((__md_scope = new URL("../..", location)),
+        (__md_hash = (e) =>
+          [...e].reduce((e, _) => (e << 5) - e + _.charCodeAt(0), 0)),
+        (__md_get = (e, _ = localStorage, t = __md_scope) =>
+          JSON.parse(_.getItem(t.pathname + "." + e))),
+        (__md_set = (e, _, t = localStorage, a = __md_scope) => {
+          try {
+            t.setItem(a.pathname + "." + e, JSON.stringify(_));
+          } catch (e) {}
+        }));
+    </script>
+  </head>
+
+  <body
+    dir="ltr"
+    data-md-color-scheme="default"
+    data-md-color-primary="red"
+    data-md-color-accent="red"
+  >
+    <input
+      class="md-toggle"
+      data-md-toggle="drawer"
+      type="checkbox"
+      id="__drawer"
+      autocomplete="off"
+    />
+    <input
+      class="md-toggle"
+      data-md-toggle="search"
+      type="checkbox"
+      id="__search"
+      autocomplete="off"
+    />
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      <a href="#development-containers" class="md-skip"> Skip to content </a>
+    </div>
+    <div data-md-component="announce"></div>
+
+    <div
+      data-md-color-scheme="default"
+      data-md-component="outdated"
+      hidden
+    ></div>
+
+    <header
+      class="md-header md-header--shadow md-header--lifted"
+      data-md-component="header"
+    >
+      <nav class="md-header__inner md-grid" aria-label="Header">
+        <a
+          href="../.."
+          title="Vuls Vulnerability Management System"
+          class="md-header__button md-logo"
+          aria-label="Vuls Vulnerability Management System"
+          data-md-component="logo"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"
+            />
+          </svg>
+        </a>
+        <label class="md-header__button md-icon" for="__drawer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z" />
+          </svg>
+        </label>
+        <div class="md-header__title" data-md-component="header-title">
+          <div class="md-header__ellipsis">
+            <div class="md-header__topic">
+              <span class="md-ellipsis">
+                Vuls Vulnerability Management System
+              </span>
+            </div>
+            <div class="md-header__topic" data-md-component="header-topic">
+              <span class="md-ellipsis"> Development Containers </span>
+            </div>
+          </div>
+        </div>
+
+        <form class="md-header__option" data-md-component="palette">
+          <input
+            class="md-option"
+            data-md-color-media=""
+            data-md-color-scheme="default"
+            data-md-color-primary="red"
+            data-md-color-accent="red"
+            aria-label="Switch to dark mode"
+            type="radio"
+            name="__palette"
+            id="__palette_0"
+          />
+
+          <label
+            class="md-header__button md-icon"
+            title="Switch to dark mode"
+            for="__palette_1"
+            hidden
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"
+              />
+            </svg>
+          </label>
+
+          <input
+            class="md-option"
+            data-md-color-media=""
+            data-md-color-scheme="slate"
+            data-md-color-primary="red"
+            data-md-color-accent="red"
+            aria-label="Switch to light mode"
+            type="radio"
+            name="__palette"
+            id="__palette_1"
+          />
+
+          <label
+            class="md-header__button md-icon"
+            title="Switch to light mode"
+            for="__palette_0"
+            hidden
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"
+              />
+            </svg>
+          </label>
+        </form>
+
+        <script>
+          var palette = __md_get("__palette");
+          if (palette && palette.color) {
+            if ("(prefers-color-scheme)" === palette.color.media) {
+              var media = matchMedia("(prefers-color-scheme: light)"),
+                input = document.querySelector(
+                  media.matches
+                    ? "[data-md-color-media='(prefers-color-scheme: light)']"
+                    : "[data-md-color-media='(prefers-color-scheme: dark)']",
+                );
+              ((palette.color.media = input.getAttribute(
+                "data-md-color-media",
+              )),
+                (palette.color.scheme = input.getAttribute(
+                  "data-md-color-scheme",
+                )),
+                (palette.color.primary = input.getAttribute(
+                  "data-md-color-primary",
+                )),
+                (palette.color.accent = input.getAttribute(
+                  "data-md-color-accent",
+                )));
+            }
+            for (var [key, value] of Object.entries(palette.color))
+              document.body.setAttribute("data-md-color-" + key, value);
+          }
+        </script>
+
+        <label class="md-header__button md-icon" for="__search">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"
+            />
+          </svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+          <label class="md-search__overlay" for="__search"></label>
+          <div class="md-search__inner" role="search">
+            <form class="md-search__form" name="search">
+              <input
+                type="text"
+                class="md-search__input"
+                name="query"
+                aria-label="Search"
+                placeholder="Search"
+                autocapitalize="off"
+                autocorrect="off"
+                autocomplete="off"
+                spellcheck="false"
+                data-md-component="search-query"
+                required
+              />
+              <label class="md-search__icon md-icon" for="__search">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path
+                    d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"
+                  />
+                </svg>
+
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path
+                    d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"
+                  />
+                </svg>
+              </label>
+              <nav class="md-search__options" aria-label="Search">
+                <a
+                  href="javascript:void(0)"
+                  class="md-search__icon md-icon"
+                  title="Share"
+                  aria-label="Share"
+                  data-clipboard
+                  data-clipboard-text=""
+                  data-md-component="search-share"
+                  tabindex="-1"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path
+                      d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"
+                    />
+                  </svg>
+                </a>
+
+                <button
+                  type="reset"
+                  class="md-search__icon md-icon"
+                  title="Clear"
+                  aria-label="Clear"
+                  tabindex="-1"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path
+                      d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                    />
+                  </svg>
+                </button>
+              </nav>
+
+              <div
+                class="md-search__suggest"
+                data-md-component="search-suggest"
+              ></div>
+            </form>
+            <div class="md-search__output">
+              <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+                <div class="md-search-result" data-md-component="search-result">
+                  <div class="md-search-result__meta">Initializing search</div>
+                  <ol class="md-search-result__list" role="presentation"></ol>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="md-header__source">
+          <a
+            href="https://github.com/your-org/vuls-vulnerability-scanner"
+            title="Go to repository"
+            class="md-source"
+            data-md-component="source"
+          >
+            <div class="md-source__icon md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512">
+                <!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.-->
+                <path
+                  d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"
+                />
+              </svg>
+            </div>
+            <div class="md-source__repository">vuls-vulnerability-scanner</div>
+          </a>
+        </div>
+      </nav>
+
+      <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+        <div class="md-grid">
+          <ul class="md-tabs__list">
+            <li class="md-tabs__item">
+              <a href="../.." class="md-tabs__link"> Home </a>
+            </li>
+
+            <li class="md-tabs__item">
+              <a href="../../getting-started/" class="md-tabs__link">
+                Getting Started
+              </a>
+            </li>
+
+            <li class="md-tabs__item">
+              <a href="../../user-guide/" class="md-tabs__link"> User Guide </a>
+            </li>
+
+            <li class="md-tabs__item md-tabs__item--active">
+              <a href="../" class="md-tabs__link"> Development </a>
+            </li>
+
+            <li class="md-tabs__item">
+              <a href="../../reference/index.md" class="md-tabs__link">
+                Reference
+              </a>
+            </li>
+
+            <li class="md-tabs__item">
+              <a href="../../deployment/" class="md-tabs__link"> Deployment </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <div class="md-container" data-md-component="container">
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          <div
+            class="md-sidebar md-sidebar--primary"
+            data-md-component="sidebar"
+            data-md-type="navigation"
+          >
+            <div class="md-sidebar__scrollwrap">
+              <div class="md-sidebar__inner">
+                <nav
+                  class="md-nav md-nav--primary md-nav--lifted md-nav--integrated"
+                  aria-label="Navigation"
+                  data-md-level="0"
+                >
+                  <label class="md-nav__title" for="__drawer">
+                    <a
+                      href="../.."
+                      title="Vuls Vulnerability Management System"
+                      class="md-nav__button md-logo"
+                      aria-label="Vuls Vulnerability Management System"
+                      data-md-component="logo"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"
+                        />
+                      </svg>
+                    </a>
+                    Vuls Vulnerability Management System
+                  </label>
+
+                  <div class="md-nav__source">
+                    <a
+                      href="https://github.com/your-org/vuls-vulnerability-scanner"
+                      title="Go to repository"
+                      class="md-source"
+                      data-md-component="source"
+                    >
+                      <div class="md-source__icon md-icon">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 496 512"
+                        >
+                          <!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.-->
+                          <path
+                            d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"
+                          />
+                        </svg>
+                      </div>
+                      <div class="md-source__repository">
+                        vuls-vulnerability-scanner
+                      </div>
+                    </a>
+                  </div>
+
+                  <ul class="md-nav__list" data-md-scrollfix>
+                    <li class="md-nav__item">
+                      <a href="../.." class="md-nav__link">
+                        <span class="md-ellipsis"> Home </span>
+                      </a>
+                    </li>
+
+                    <li class="md-nav__item md-nav__item--nested">
+                      <input
+                        class="md-nav__toggle md-toggle md-toggle--indeterminate"
+                        type="checkbox"
+                        id="__nav_2"
+                      />
+
+                      <div class="md-nav__link md-nav__container">
+                        <a href="../../getting-started/" class="md-nav__link">
+                          <span class="md-ellipsis"> Getting Started </span>
+                        </a>
+
+                        <label
+                          class="md-nav__link"
+                          for="__nav_2"
+                          id="__nav_2_label"
+                          tabindex="0"
+                        >
+                          <span class="md-nav__icon md-icon"></span>
+                        </label>
+                      </div>
+
+                      <nav
+                        class="md-nav"
+                        data-md-level="1"
+                        aria-labelledby="__nav_2_label"
+                        aria-expanded="false"
+                      >
+                        <label class="md-nav__title" for="__nav_2">
+                          <span class="md-nav__icon md-icon"></span>
+                          Getting Started
+                        </label>
+                        <ul class="md-nav__list" data-md-scrollfix>
+                          <li class="md-nav__item">
+                            <a
+                              href="../../getting-started/installation/"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis"> Installation </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../../getting-started/configuration.md"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis"> Configuration </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../../getting-started/first-scan.md"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis"> First Scan </span>
+                            </a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </li>
+
+                    <li class="md-nav__item md-nav__item--nested">
+                      <input
+                        class="md-nav__toggle md-toggle md-toggle--indeterminate"
+                        type="checkbox"
+                        id="__nav_3"
+                      />
+
+                      <div class="md-nav__link md-nav__container">
+                        <a href="../../user-guide/" class="md-nav__link">
+                          <span class="md-ellipsis"> User Guide </span>
+                        </a>
+
+                        <label
+                          class="md-nav__link"
+                          for="__nav_3"
+                          id="__nav_3_label"
+                          tabindex="0"
+                        >
+                          <span class="md-nav__icon md-icon"></span>
+                        </label>
+                      </div>
+
+                      <nav
+                        class="md-nav"
+                        data-md-level="1"
+                        aria-labelledby="__nav_3_label"
+                        aria-expanded="false"
+                      >
+                        <label class="md-nav__title" for="__nav_3">
+                          <span class="md-nav__icon md-icon"></span>
+                          User Guide
+                        </label>
+                        <ul class="md-nav__list" data-md-scrollfix>
+                          <li class="md-nav__item">
+                            <a
+                              href="../../user-guide/monthly-scanning/"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis">
+                                Monthly Scanning
+                              </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../../user-guide/scheduling/"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis"> Task Scheduling </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../../user-guide/vulnerability-analysis.md"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis">
+                                Vulnerability Analysis
+                              </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../../user-guide/web-interface.md"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis"> Web Interface </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../../user-guide/reporting/"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis">
+                                Report Generation
+                              </span>
+                            </a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </li>
+
+                    <li
+                      class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested"
+                    >
+                      <input
+                        class="md-nav__toggle md-toggle"
+                        type="checkbox"
+                        id="__nav_4"
+                        checked
+                      />
+
+                      <div class="md-nav__link md-nav__container">
+                        <a href="../" class="md-nav__link">
+                          <span class="md-ellipsis"> Development </span>
+                        </a>
+
+                        <label
+                          class="md-nav__link"
+                          for="__nav_4"
+                          id="__nav_4_label"
+                          tabindex=""
+                        >
+                          <span class="md-nav__icon md-icon"></span>
+                        </label>
+                      </div>
+
+                      <nav
+                        class="md-nav"
+                        data-md-level="1"
+                        aria-labelledby="__nav_4_label"
+                        aria-expanded="true"
+                      >
+                        <label class="md-nav__title" for="__nav_4">
+                          <span class="md-nav__icon md-icon"></span>
+                          Development
+                        </label>
+                        <ul class="md-nav__list" data-md-scrollfix>
+                          <li class="md-nav__item">
+                            <a href="../architecture.md" class="md-nav__link">
+                              <span class="md-ellipsis"> Architecture </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a href="../web-app-dev.md" class="md-nav__link">
+                              <span class="md-ellipsis"> Web Application </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item md-nav__item--active">
+                            <input
+                              class="md-nav__toggle md-toggle"
+                              type="checkbox"
+                              id="__toc"
+                            />
+
+                            <label
+                              class="md-nav__link md-nav__link--active"
+                              for="__toc"
+                            >
+                              <span class="md-ellipsis">
+                                Development Containers
+                              </span>
+
+                              <span class="md-nav__icon md-icon"></span>
+                            </label>
+
+                            <a
+                              href="./"
+                              class="md-nav__link md-nav__link--active"
+                            >
+                              <span class="md-ellipsis">
+                                Development Containers
+                              </span>
+                            </a>
+
+                            <nav
+                              class="md-nav md-nav--secondary"
+                              aria-label="Table of contents"
+                            >
+                              <label class="md-nav__title" for="__toc">
+                                <span class="md-nav__icon md-icon"></span>
+                                Table of contents
+                              </label>
+                              <ul
+                                class="md-nav__list"
+                                data-md-component="toc"
+                                data-md-scrollfix
+                              >
+                                <li class="md-nav__item">
+                                  <a href="#overview" class="md-nav__link">
+                                    <span class="md-ellipsis"> Overview </span>
+                                  </a>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a
+                                    href="#container-types"
+                                    class="md-nav__link"
+                                  >
+                                    <span class="md-ellipsis">
+                                      Container Types
+                                    </span>
+                                  </a>
+
+                                  <nav
+                                    class="md-nav"
+                                    aria-label="Container Types"
+                                  >
+                                    <ul class="md-nav__list">
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#production-containers-profile-web"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Production Containers (Profile: web)
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#development-containers-profile-dev"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Development Containers (Profile:
+                                            dev)
+                                          </span>
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </nav>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a
+                                    href="#key-differences"
+                                    class="md-nav__link"
+                                  >
+                                    <span class="md-ellipsis">
+                                      Key Differences
+                                    </span>
+                                  </a>
+
+                                  <nav
+                                    class="md-nav"
+                                    aria-label="Key Differences"
+                                  >
+                                    <ul class="md-nav__list">
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#development-features"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Development Features
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#volume-mounts"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Volume Mounts
+                                          </span>
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </nav>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a href="#usage" class="md-nav__link">
+                                    <span class="md-ellipsis"> Usage </span>
+                                  </a>
+
+                                  <nav class="md-nav" aria-label="Usage">
+                                    <ul class="md-nav__list">
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#start-development-environment"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Start Development Environment
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#start-production-environment"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Start Production Environment
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#switch-between-environments"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Switch Between Environments
+                                          </span>
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </nav>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a
+                                    href="#development-workflow"
+                                    class="md-nav__link"
+                                  >
+                                    <span class="md-ellipsis">
+                                      Development Workflow
+                                    </span>
+                                  </a>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a
+                                    href="#container-specific-notes"
+                                    class="md-nav__link"
+                                  >
+                                    <span class="md-ellipsis">
+                                      Container-Specific Notes
+                                    </span>
+                                  </a>
+
+                                  <nav
+                                    class="md-nav"
+                                    aria-label="Container-Specific Notes"
+                                  >
+                                    <ul class="md-nav__list">
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#web-application-vuls-web-dev"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Web Application (vuls-web-dev)
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#celery-worker-vuls-worker-dev"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Celery Worker (vuls-worker-dev)
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#celery-scheduler-vuls-scheduler-dev"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Celery Scheduler
+                                            (vuls-scheduler-dev)
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#docker-executor-vuls-executor-dev"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Docker Executor (vuls-executor-dev)
+                                          </span>
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </nav>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a
+                                    href="#best-practices"
+                                    class="md-nav__link"
+                                  >
+                                    <span class="md-ellipsis">
+                                      Best Practices
+                                    </span>
+                                  </a>
+
+                                  <nav
+                                    class="md-nav"
+                                    aria-label="Best Practices"
+                                  >
+                                    <ul class="md-nav__list">
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#when-to-use-development-containers"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            When to Use Development Containers
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#when-to-use-production-containers"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            When to Use Production Containers
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#development-tips"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Development Tips
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#profile-environment-variable"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Profile Environment Variable
+                                          </span>
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </nav>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a
+                                    href="#troubleshooting"
+                                    class="md-nav__link"
+                                  >
+                                    <span class="md-ellipsis">
+                                      Troubleshooting
+                                    </span>
+                                  </a>
+
+                                  <nav
+                                    class="md-nav"
+                                    aria-label="Troubleshooting"
+                                  >
+                                    <ul class="md-nav__list">
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#container-wont-start"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Container Won't Start
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#hot-reload-not-working"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Hot Reload Not Working
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#performance-issues"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Performance Issues
+                                          </span>
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </nav>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a href="#architecture" class="md-nav__link">
+                                    <span class="md-ellipsis">
+                                      Architecture
+                                    </span>
+                                  </a>
+
+                                  <nav class="md-nav" aria-label="Architecture">
+                                    <ul class="md-nav__list">
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#single-dockerfile-approach"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Single Dockerfile Approach
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#build-arguments-in-compose"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Build Arguments in Compose
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#benefits-of-this-approach"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Benefits of This Approach
+                                          </span>
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </nav>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a href="#configuration" class="md-nav__link">
+                                    <span class="md-ellipsis">
+                                      Configuration
+                                    </span>
+                                  </a>
+
+                                  <nav
+                                    class="md-nav"
+                                    aria-label="Configuration"
+                                  >
+                                    <ul class="md-nav__list">
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#environment-variables"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Environment Variables
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#networking"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Networking
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#data-persistence"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Data Persistence
+                                          </span>
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </nav>
+                                </li>
+                              </ul>
+                            </nav>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../enhanced-vulnerability-analysis/"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis">
+                                Enhanced Vulnerability Analysis
+                              </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../alembic-migration-setup/"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis">
+                                Alembic Migration Setup
+                              </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a href="../api-reference.md" class="md-nav__link">
+                              <span class="md-ellipsis"> API Reference </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../task-scheduler-fix/"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis">
+                                Task Scheduler Fix
+                              </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../websocket-realtime-system/"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis">
+                                Real-Time WebSocket System
+                              </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a href="../upgrades/" class="md-nav__link">
+                              <span class="md-ellipsis"> Upgrades </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a href="../contributing.md" class="md-nav__link">
+                              <span class="md-ellipsis"> Contributing </span>
+                            </a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </li>
+
+                    <li class="md-nav__item md-nav__item--nested">
+                      <input
+                        class="md-nav__toggle md-toggle md-toggle--indeterminate"
+                        type="checkbox"
+                        id="__nav_5"
+                      />
+
+                      <label
+                        class="md-nav__link"
+                        for="__nav_5"
+                        id="__nav_5_label"
+                        tabindex="0"
+                      >
+                        <span class="md-ellipsis"> Reference </span>
+
+                        <span class="md-nav__icon md-icon"></span>
+                      </label>
+
+                      <nav
+                        class="md-nav"
+                        data-md-level="1"
+                        aria-labelledby="__nav_5_label"
+                        aria-expanded="false"
+                      >
+                        <label class="md-nav__title" for="__nav_5">
+                          <span class="md-nav__icon md-icon"></span>
+                          Reference
+                        </label>
+                        <ul class="md-nav__list" data-md-scrollfix>
+                          <li class="md-nav__item">
+                            <a
+                              href="../../reference/index.md"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis"> None </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../../reference/database-schema.md"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis"> Database Schema </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../../reference/configuration-options.md"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis">
+                                Configuration Options
+                              </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../../reference/troubleshooting.md"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis"> Troubleshooting </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../../reference/version-history.md"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis"> Version History </span>
+                            </a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </li>
+
+                    <li class="md-nav__item md-nav__item--nested">
+                      <input
+                        class="md-nav__toggle md-toggle md-toggle--indeterminate"
+                        type="checkbox"
+                        id="__nav_6"
+                      />
+
+                      <div class="md-nav__link md-nav__container">
+                        <a href="../../deployment/" class="md-nav__link">
+                          <span class="md-ellipsis"> Deployment </span>
+                        </a>
+
+                        <label
+                          class="md-nav__link"
+                          for="__nav_6"
+                          id="__nav_6_label"
+                          tabindex="0"
+                        >
+                          <span class="md-nav__icon md-icon"></span>
+                        </label>
+                      </div>
+
+                      <nav
+                        class="md-nav"
+                        data-md-level="1"
+                        aria-labelledby="__nav_6_label"
+                        aria-expanded="false"
+                      >
+                        <label class="md-nav__title" for="__nav_6">
+                          <span class="md-nav__icon md-icon"></span>
+                          Deployment
+                        </label>
+                        <ul class="md-nav__list" data-md-scrollfix>
+                          <li class="md-nav__item">
+                            <a
+                              href="../../deployment/docker-setup.md"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis"> Docker Setup </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../../deployment/production.md"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis"> Production </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../../deployment/security.md"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis"> Security </span>
+                            </a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              <h1 id="development-containers">
+                Development Containers<a
+                  class="headerlink"
+                  href="#development-containers"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h1>
+              <p>
+                This document explains the development container setup that
+                provides hot reload functionality for faster development cycles.
+              </p>
+              <h2 id="overview">
+                Overview<a
+                  class="headerlink"
+                  href="#overview"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <p>
+                The project uses a single Dockerfile per service with build
+                arguments to create both production and development versions of
+                containers. Development containers are designed to reload
+                automatically when code changes are detected, eliminating the
+                need for manual rebuilds and restarts during development.
+              </p>
+              <h2 id="container-types">
+                Container Types<a
+                  class="headerlink"
+                  href="#container-types"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <h3 id="production-containers-profile-web">
+                Production Containers (Profile: <code>web</code>)<a
+                  class="headerlink"
+                  href="#production-containers-profile-web"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ul>
+                <li><code>vuls-web</code>: Main web application</li>
+                <li><code>vuls-worker</code>: Celery background task worker</li>
+                <li><code>vuls-scheduler</code>: Celery beat scheduler</li>
+                <li><code>vuls-executor</code>: Docker executor service</li>
+              </ul>
+              <h3 id="development-containers-profile-dev">
+                Development Containers (Profile: <code>dev</code>)<a
+                  class="headerlink"
+                  href="#development-containers-profile-dev"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ul>
+                <li>
+                  <code>vuls-web-dev</code>: Web application with hot reload
+                </li>
+                <li>
+                  <code>vuls-worker-dev</code>: Celery worker with hot reload
+                </li>
+                <li>
+                  <code>vuls-scheduler-dev</code>: Celery scheduler with hot
+                  reload
+                </li>
+                <li>
+                  <code>vuls-executor-dev</code>: Docker executor with hot
+                  reload
+                </li>
+              </ul>
+              <h2 id="key-differences">
+                Key Differences<a
+                  class="headerlink"
+                  href="#key-differences"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <h3 id="development-features">
+                Development Features<a
+                  class="headerlink"
+                  href="#development-features"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ol>
+                <li>
+                  <strong>Hot Reload</strong>: Code changes trigger automatic
+                  restarts
+                </li>
+                <li>
+                  <strong>Source Code Mounting</strong>: Local source code is
+                  mounted into containers
+                </li>
+                <li>
+                  <strong>Development Dependencies</strong>: Additional tools
+                  like watchdog for file monitoring
+                </li>
+                <li>
+                  <strong>Solo Pool</strong>: Celery worker uses solo pool for
+                  better debugging
+                </li>
+              </ol>
+              <h3 id="volume-mounts">
+                Volume Mounts<a
+                  class="headerlink"
+                  href="#volume-mounts"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <p>Development containers mount source code directories:</p>
+              <ul>
+                <li>
+                  <code>./web-app/app:/app/app:rw</code> - Python application
+                  code
+                </li>
+                <li>
+                  <code>./docker-executor:/app:rw</code> - Executor service code
+                </li>
+                <li>
+                  <code>./web-app/static:/app/static:rw</code> - Static files
+                </li>
+              </ul>
+              <h2 id="usage">
+                Usage<a class="headerlink" href="#usage" title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <h3 id="start-development-environment">
+                Start Development Environment<a
+                  class="headerlink"
+                  href="#start-development-environment"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <div class="language-bash highlight">
+                <pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Start all development containers</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>dev<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Start specific development services</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>dev<span class="w"> </span>up<span class="w"> </span>vuls-web-dev<span class="w"> </span>vuls-worker-dev<span class="w"> </span>-d
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Alternative: Set default profile for session</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nb">export</span><span class="w"> </span><span class="nv">COMPOSE_PROFILES</span><span class="o">=</span>dev
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w">  </span><span class="c1"># Will use dev profile by default</span>
+</span></code></pre>
+              </div>
+              <h3 id="start-production-environment">
+                Start Production Environment<a
+                  class="headerlink"
+                  href="#start-production-environment"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <div class="language-bash highlight">
+                <pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Start all production containers</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>web<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Alternative: Set default profile for session</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">COMPOSE_PROFILES</span><span class="o">=</span>web
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w">  </span><span class="c1"># Will use web profile by default</span>
+</span></code></pre>
+              </div>
+              <h3 id="switch-between-environments">
+                Switch Between Environments<a
+                  class="headerlink"
+                  href="#switch-between-environments"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <div class="language-bash highlight">
+                <pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Stop development environment</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>dev<span class="w"> </span>down
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Start production environment</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>web<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Or using environment variable</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nb">export</span><span class="w"> </span><span class="nv">COMPOSE_PROFILES</span><span class="o">=</span>web
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>docker<span class="w"> </span>compose<span class="w"> </span>down<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</span></code></pre>
+              </div>
+              <h2 id="development-workflow">
+                Development Workflow<a
+                  class="headerlink"
+                  href="#development-workflow"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <ol>
+                <li>
+                  <strong>Code Changes</strong>: Edit files in your local
+                  development environment
+                </li>
+                <li>
+                  <strong>Automatic Reload</strong>: Development containers
+                  detect changes and restart automatically
+                </li>
+                <li>
+                  <strong>No Rebuild Required</strong>: Changes are reflected
+                  immediately without rebuilding images
+                </li>
+                <li>
+                  <strong>Database Persistence</strong>: Database and Redis data
+                  persist across container restarts
+                </li>
+              </ol>
+              <h2 id="container-specific-notes">
+                Container-Specific Notes<a
+                  class="headerlink"
+                  href="#container-specific-notes"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <h3 id="web-application-vuls-web-dev">
+                Web Application (<code>vuls-web-dev</code>)<a
+                  class="headerlink"
+                  href="#web-application-vuls-web-dev"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ul>
+                <li>
+                  Uses single Dockerfile with
+                  <code>BUILD_TYPE=development</code> argument
+                </li>
+                <li>
+                  Enables <code>--reload</code> flag for uvicorn hot reload
+                </li>
+                <li>Mounts source code for hot reload</li>
+                <li>Includes alembic files for database migrations</li>
+              </ul>
+              <h3 id="celery-worker-vuls-worker-dev">
+                Celery Worker (<code>vuls-worker-dev</code>)<a
+                  class="headerlink"
+                  href="#celery-worker-vuls-worker-dev"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ul>
+                <li>Uses solo pool for better debugging</li>
+                <li>Connects to development executor service</li>
+                <li>Automatically reloads when task code changes</li>
+                <li>Built with <code>BUILD_TYPE=development</code> argument</li>
+              </ul>
+              <h3 id="celery-scheduler-vuls-scheduler-dev">
+                Celery Scheduler (<code>vuls-scheduler-dev</code>)<a
+                  class="headerlink"
+                  href="#celery-scheduler-vuls-scheduler-dev"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ul>
+                <li>Monitors scheduled task definitions</li>
+                <li>Reloads when scheduler configuration changes</li>
+                <li>Built with <code>BUILD_TYPE=development</code> argument</li>
+              </ul>
+              <h3 id="docker-executor-vuls-executor-dev">
+                Docker Executor (<code>vuls-executor-dev</code>)<a
+                  class="headerlink"
+                  href="#docker-executor-vuls-executor-dev"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ul>
+                <li>Uses watchdog for Python file monitoring</li>
+                <li>Automatically restarts on code changes</li>
+                <li>Maintains same Docker socket access as production</li>
+                <li>Built with <code>BUILD_TYPE=development</code> argument</li>
+              </ul>
+              <h2 id="best-practices">
+                Best Practices<a
+                  class="headerlink"
+                  href="#best-practices"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <h3 id="when-to-use-development-containers">
+                When to Use Development Containers<a
+                  class="headerlink"
+                  href="#when-to-use-development-containers"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ul>
+                <li>✅ Active development and debugging</li>
+                <li>✅ Testing new features</li>
+                <li>✅ Rapid iteration cycles</li>
+                <li>✅ Local development environment</li>
+              </ul>
+              <h3 id="when-to-use-production-containers">
+                When to Use Production Containers<a
+                  class="headerlink"
+                  href="#when-to-use-production-containers"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ul>
+                <li>✅ Performance testing</li>
+                <li>✅ Production-like testing</li>
+                <li>✅ Final integration testing</li>
+                <li>✅ Deployment preparation</li>
+              </ul>
+              <h3 id="development-tips">
+                Development Tips<a
+                  class="headerlink"
+                  href="#development-tips"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ol>
+                <li>
+                  <strong>Monitor Logs</strong>: Use
+                  <code>docker compose logs -f &lt;service&gt;</code> to watch
+                  for reload events
+                </li>
+                <li>
+                  <strong>Database Migrations</strong>: Run migrations in
+                  development containers for testing
+                </li>
+                <li>
+                  <strong>Port Conflicts</strong>: Ensure no conflicts between
+                  dev and prod containers on same ports
+                </li>
+                <li>
+                  <strong>Resource Usage</strong>: Development containers may
+                  use more resources due to file watching
+                </li>
+                <li>
+                  <strong>Profile Environment Variable</strong>: Set
+                  <code>export COMPOSE_PROFILES=dev</code> to avoid typing
+                  <code>--profile dev</code> repeatedly
+                </li>
+              </ol>
+              <h3 id="profile-environment-variable">
+                Profile Environment Variable<a
+                  class="headerlink"
+                  href="#profile-environment-variable"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <p>
+                For convenience during development, you can set the default
+                profile:
+              </p>
+              <div class="language-bash highlight">
+                <pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Set development as default profile for your session</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">COMPOSE_PROFILES</span><span class="o">=</span>dev
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Now you can use shorter commands</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>vuls-web-dev
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># To switch to production temporarily</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>web<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1"># Or change the default</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="nb">export</span><span class="w"> </span><span class="nv">COMPOSE_PROFILES</span><span class="o">=</span>web
+</span></code></pre>
+              </div>
+              <h2 id="troubleshooting">
+                Troubleshooting<a
+                  class="headerlink"
+                  href="#troubleshooting"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <h3 id="container-wont-start">
+                Container Won't Start<a
+                  class="headerlink"
+                  href="#container-wont-start"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <div class="language-bash highlight">
+                <pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Check container logs</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>vuls-web-dev
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Rebuild development image</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w"> </span>vuls-web-dev
+</span></code></pre>
+              </div>
+              <h3 id="hot-reload-not-working">
+                Hot Reload Not Working<a
+                  class="headerlink"
+                  href="#hot-reload-not-working"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ol>
+                <li>Verify source code is properly mounted</li>
+                <li>Check file permissions on mounted volumes</li>
+                <li>Ensure watchdog is running in container logs</li>
+              </ol>
+              <h3 id="performance-issues">
+                Performance Issues<a
+                  class="headerlink"
+                  href="#performance-issues"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ul>
+                <li>
+                  Development containers use more CPU due to file watching
+                </li>
+                <li>
+                  Consider excluding large directories from file monitoring
+                </li>
+                <li>Use production containers for performance testing</li>
+              </ul>
+              <h2 id="architecture">
+                Architecture<a
+                  class="headerlink"
+                  href="#architecture"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <h3 id="single-dockerfile-approach">
+                Single Dockerfile Approach<a
+                  class="headerlink"
+                  href="#single-dockerfile-approach"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <p>
+                The project uses a consolidated approach with a single
+                Dockerfile per service that supports both production and
+                development builds through build arguments:
+              </p>
+              <div class="language-dockerfile highlight">
+                <pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c"># Build argument to determine if this is a dev build</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">ARG</span><span class="w"> </span><span class="nv">BUILD_TYPE</span><span class="o">=</span>production
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c"># Install development dependencies only if BUILD_TYPE=development</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">RUN</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BUILD_TYPE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;development&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span>pip<span class="w"> </span>install<span class="w"> </span>--no-cache-dir<span class="w"> </span>watchdog<span class="p">;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="k">fi</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="c"># Run with conditional reload based on build type</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="k">CMD</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BUILD_TYPE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;development&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="nb">exec</span><span class="w"> </span>uvicorn<span class="w"> </span>app.main:app<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span><span class="w"> </span>--reload<span class="p">;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="nb">exec</span><span class="w"> </span>uvicorn<span class="w"> </span>app.main:app<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">    </span><span class="k">fi</span>
+</span></code></pre>
+              </div>
+              <h3 id="build-arguments-in-compose">
+                Build Arguments in Compose<a
+                  class="headerlink"
+                  href="#build-arguments-in-compose"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <p>
+                Services specify their build type through compose configuration:
+              </p>
+              <div class="language-yaml highlight">
+                <pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Production build</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nt">vuls-web</span><span class="p">:</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./web-app</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">args</span><span class="p">:</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">      </span><span class="nt">BUILD_TYPE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">production</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1"># Development build</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="nt">vuls-web-dev</span><span class="p">:</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./web-app</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="nt">args</span><span class="p">:</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">      </span><span class="nt">BUILD_TYPE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">development</span>
+</span></code></pre>
+              </div>
+              <h3 id="benefits-of-this-approach">
+                Benefits of This Approach<a
+                  class="headerlink"
+                  href="#benefits-of-this-approach"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ol>
+                <li>
+                  <strong>DRY Principle</strong>: Single source of truth for
+                  each service
+                </li>
+                <li>
+                  <strong>Easier Maintenance</strong>: Changes only need to be
+                  made in one place
+                </li>
+                <li>
+                  <strong>Consistency</strong>: Ensures dev and prod
+                  environments stay in sync
+                </li>
+                <li>
+                  <strong>Reduced Complexity</strong>: Fewer files to manage
+                </li>
+                <li>
+                  <strong>Better CI/CD</strong>: Single Dockerfile can build
+                  both variants
+                </li>
+              </ol>
+              <h2 id="configuration">
+                Configuration<a
+                  class="headerlink"
+                  href="#configuration"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <h3 id="environment-variables">
+                Environment Variables<a
+                  class="headerlink"
+                  href="#environment-variables"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <p>
+                Development containers inherit the same environment variables as
+                production containers, ensuring consistency between
+                environments.
+              </p>
+              <h3 id="networking">
+                Networking<a
+                  class="headerlink"
+                  href="#networking"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <p>
+                Development containers use the same network configuration as
+                production, allowing seamless switching between environments.
+              </p>
+              <h3 id="data-persistence">
+                Data Persistence<a
+                  class="headerlink"
+                  href="#data-persistence"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <p>
+                Database and Redis data volumes are shared between development
+                and production containers, maintaining data consistency.
+              </p>
+            </article>
+          </div>
+
+          <script>
+            var tabs = __md_get("__tabs");
+            if (Array.isArray(tabs))
+              e: for (var set of document.querySelectorAll(".tabbed-set")) {
+                var labels = set.querySelector(".tabbed-labels");
+                for (var tab of tabs)
+                  for (var label of labels.getElementsByTagName("label"))
+                    if (label.innerText.trim() === tab) {
+                      var input = document.getElementById(label.htmlFor);
+                      input.checked = !0;
+                      continue e;
+                    }
+              }
+          </script>
+
+          <script>
+            var target = document.getElementById(location.hash.slice(1));
+            target &&
+              target.name &&
+              (target.checked = target.name.startsWith("__tabbed_"));
+          </script>
+        </div>
+      </main>
+
+      <footer class="md-footer">
+        <nav class="md-footer__inner md-grid" aria-label="Footer">
+          <a
+            href="../"
+            class="md-footer__link md-footer__link--prev"
+            aria-label="Previous: Development"
+          >
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path
+                  d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"
+                />
+              </svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction"> Previous </span>
+              <div class="md-ellipsis">Development</div>
+            </div>
+          </a>
+
+          <a
+            href="../enhanced-vulnerability-analysis/"
+            class="md-footer__link md-footer__link--next"
+            aria-label="Next: Enhanced Vulnerability Analysis"
+          >
+            <div class="md-footer__title">
+              <span class="md-footer__direction"> Next </span>
+              <div class="md-ellipsis">Enhanced Vulnerability Analysis</div>
+            </div>
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path
+                  d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"
+                />
+              </svg>
+            </div>
+          </a>
+        </nav>
+
+        <div class="md-footer-meta md-typeset">
+          <div class="md-footer-meta__inner md-grid">
+            <div class="md-copyright">
+              <div class="md-copyright__highlight">
+                Copyright &copy; 2025 Vuls Team
+              </div>
+            </div>
+
+            <div class="md-social">
+              <a
+                href="https://github.com/your-org/vuls-vulnerability-scanner"
+                target="_blank"
+                rel="noopener"
+                title="github.com"
+                class="md-social__link"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512">
+                  <!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.-->
+                  <path
+                    d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"
+                  />
+                </svg>
+              </a>
+
+              <a
+                href="https://hub.docker.com/r/your-org/vuls"
+                target="_blank"
+                rel="noopener"
+                title="hub.docker.com"
+                class="md-social__link"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+                  <!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.-->
+                  <path
+                    d="M349.9 236.3h-66.1v-59.4h66.1zm0-204.3h-66.1v60.7h66.1zm78.2 144.8H362v59.4h66.1zm-156.3-72.1h-66.1v60.1h66.1zm78.1 0h-66.1v60.1h66.1zm276.8 100c-14.4-9.7-47.6-13.2-73.1-8.4-3.3-24-16.7-44.9-41.1-63.7l-14-9.3-9.3 14c-18.4 27.8-23.4 73.6-3.7 103.8-8.7 4.7-25.8 11.1-48.4 10.7H2.4c-8.7 50.8 5.8 116.8 44 162.1 37.1 43.9 92.7 66.2 165.4 66.2 157.4 0 273.9-72.5 328.4-204.2 21.4.4 67.6.1 91.3-45.2 1.5-2.5 6.6-13.2 8.5-17.1zm-511.1-27.9h-66v59.4h66.1v-59.4zm78.1 0h-66.1v59.4h66.1zm78.1 0h-66.1v59.4h66.1zm-78.1-72.1h-66.1v60.1h66.1z"
+                  />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+
+    <script id="__config" type="application/json">
+      {
+        "base": "../..",
+        "features": [
+          "navigation.tabs",
+          "navigation.tabs.sticky",
+          "navigation.sections",
+          "navigation.expand",
+          "navigation.path",
+          "navigation.indexes",
+          "toc.follow",
+          "toc.integrate",
+          "search.suggest",
+          "search.highlight",
+          "search.share",
+          "content.code.copy",
+          "content.code.select",
+          "content.tabs.link",
+          "content.tooltips",
+          "navigation.footer"
+        ],
+        "search": "../../assets/javascripts/workers/search.d50fe291.min.js",
+        "tags": null,
+        "translations": {
+          "clipboard.copied": "Copied to clipboard",
+          "clipboard.copy": "Copy to clipboard",
+          "search.result.more.one": "1 more on this page",
+          "search.result.more.other": "# more on this page",
+          "search.result.none": "No matching documents",
+          "search.result.one": "1 matching document",
+          "search.result.other": "# matching documents",
+          "search.result.placeholder": "Type to start searching",
+          "search.result.term.missing": "Missing",
+          "select.version": "Select version"
+        },
+        "version": { "provider": "mike" }
+      }
+    </script>
+
+    <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+  </body>
+</html>

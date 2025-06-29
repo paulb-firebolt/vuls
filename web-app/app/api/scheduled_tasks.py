@@ -19,7 +19,7 @@ router = APIRouter()
 # Pydantic models for request/response
 class ScheduledTaskCreate(BaseModel):
     name: str
-    task_type: str  # scan, db_update
+    task_type: str  # scan, lynis_scan, db_update
     description: Optional[str] = None
     cron_expression: str
     timezone: str = "UTC"
@@ -141,14 +141,14 @@ async def create_scheduled_task(
         )
 
     # Validate task type
-    if task_data.task_type not in ["scan", "db_update"]:
+    if task_data.task_type not in ["scan", "lynis_scan", "db_update"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Task type must be 'scan' or 'db_update'"
+            detail="Task type must be 'scan', 'lynis_scan', or 'db_update'"
         )
 
-    # For scan tasks, validate host exists
-    if task_data.task_type == "scan":
+    # For scan and lynis_scan tasks, validate host exists
+    if task_data.task_type in ["scan", "lynis_scan"]:
         if not task_data.host_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -393,6 +393,7 @@ async def trigger_task_manually(
     """Manually trigger a scheduled task"""
     from ..tasks.scan_tasks import run_vulnerability_scan
     from ..tasks.db_update_tasks import update_vulnerability_database
+    from ..tasks.lynis_tasks import run_lynis_scan
 
     task = db.query(ScheduledTask).filter(ScheduledTask.id == task_id).first()
 
@@ -419,6 +420,18 @@ async def trigger_task_manually(
             host_id=task.host_id,
             scan_type=task.config.get("scan_type", "fast"),
             task_run_id=task_run.id
+        )
+    elif task.task_type == "lynis_scan":
+        # Extract Lynis scan options from config
+        scan_options = {}
+        if task.config.get("quick_scan"):
+            scan_options["quick_scan"] = True
+        if task.config.get("tests"):
+            scan_options["tests"] = task.config["tests"]
+
+        celery_task = run_lynis_scan.delay(
+            host_id=task.host_id,
+            scan_options=scan_options
         )
     elif task.task_type == "db_update":
         celery_task = update_vulnerability_database.delay(

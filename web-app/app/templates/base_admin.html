@@ -15,9 +15,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      {% block title %}Security Admin Panel{% endblock %}
-    </title>
+    <title>{% block title %}Security Admin Panel{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -27,11 +25,13 @@
     <!-- Prevent FOUC (Flash of Unstyled Content) for dark mode -->
     <script>
       // Apply dark mode immediately to prevent flash
-      (function() {
-        const darkMode = localStorage.getItem('darkMode') === 'true' ||
-                        (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      (function () {
+        const darkMode =
+          localStorage.getItem("darkMode") === "true" ||
+          (!localStorage.getItem("darkMode") &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
         if (darkMode) {
-          document.documentElement.classList.add('dark');
+          document.documentElement.classList.add("dark");
         }
       })();
     </script>
@@ -136,14 +136,34 @@
         }"
       >
         <!-- Sidebar content -->
-        <div class="flex flex-col flex-1 min-h-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+        <div
+          class="flex flex-col flex-1 min-h-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700"
+        >
           <!-- Sidebar header -->
-          <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
-            <div class="flex items-center space-x-3" x-show="sidebarOpen" x-transition>
+          <div
+            class="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700"
+          >
+            <div
+              class="flex items-center space-x-3"
+              x-show="sidebarOpen"
+              x-transition
+            >
               <div class="flex-shrink-0">
-                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                <div
+                  class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center"
+                >
+                  <svg
+                    class="w-5 h-5 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                    ></path>
                   </svg>
                 </div>
               </div>
@@ -155,19 +175,51 @@
               @click="sidebarOpen = !sidebarOpen"
               class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-all duration-200 hidden lg:block"
             >
-              <svg x-show="sidebarOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+              <svg
+                x-show="sidebarOpen"
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                ></path>
               </svg>
-              <svg x-show="!sidebarOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+              <svg
+                x-show="!sidebarOpen"
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                ></path>
               </svg>
             </button>
             <button
               @click="mobileMenuOpen = false"
               class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-all duration-200 lg:hidden"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
               </svg>
             </button>
           </div>
@@ -182,15 +234,29 @@
       <!-- Main content -->
       <div class="flex flex-col flex-1 overflow-hidden">
         <!-- Top header -->
-        <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
-          <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+        <header
+          class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200"
+        >
+          <div
+            class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8"
+          >
             <!-- Mobile menu button -->
             <button
               @click="mobileMenuOpen = true"
               class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-all duration-200 lg:hidden"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                ></path>
               </svg>
             </button>
 
@@ -201,9 +267,18 @@
                 <ol class="flex items-center space-x-4">
                   <li>
                     <div>
-                      <a href="/" class="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400">
-                        <svg class="flex-shrink-0 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                      <a
+                        href="/"
+                        class="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
+                      >
+                        <svg
+                          class="flex-shrink-0 h-5 w-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+                          ></path>
                         </svg>
                         <span class="sr-only">Home</span>
                       </a>
@@ -257,12 +332,28 @@
                   @click="open = !open"
                   class="flex items-center space-x-3 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-all duration-200"
                 >
-                  <div class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center">
-                    <span class="text-sm font-medium text-white">{{ user.username[0].upper() }}</span>
+                  <div
+                    class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center"
+                  >
+                    <span class="text-sm font-medium text-white"
+                      >{{ user.username[0].upper() }}</span
+                    >
                   </div>
-                  <span class="hidden sm:block text-sm font-medium">{{ user.username }}</span>
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  <span class="hidden sm:block text-sm font-medium"
+                    >{{ user.username }}</span
+                  >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
                   </svg>
                 </button>
                 <div
@@ -280,11 +371,13 @@
                     <a
                       href="/profile"
                       class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >Profile</a>
+                      >Profile</a
+                    >
                     <a
                       href="/logout"
                       class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >Sign out</a>
+                      >Sign out</a
+                    >
                   </div>
                 </div>
               </div>
@@ -295,9 +388,7 @@
 
         <!-- Main content area -->
         <main class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
-          <div class="p-6">
-            {% block content %}{% endblock %}
-          </div>
+          <div class="p-6">{% block content %}{% endblock %}</div>
         </main>
       </div>
     </div>

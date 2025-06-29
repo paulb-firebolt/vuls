@@ -53,6 +53,7 @@ class Host(Base):
 
     # Relationships
     scans = relationship("Scan", back_populates="host", cascade="all, delete-orphan", order_by="Scan.completed_at.desc()")
+    lynis_scans = relationship("LynisScan", back_populates="host", cascade="all, delete-orphan", order_by="LynisScan.completed_at.desc()")
     scheduled_tasks = relationship("ScheduledTask", back_populates="host", cascade="all, delete-orphan")
 
     @property
@@ -64,10 +65,24 @@ class Host(Base):
         return None
 
     @property
+    def latest_lynis_scan(self):
+        """Get the most recent completed Lynis scan"""
+        for scan in self.lynis_scans:
+            if scan.status == "completed":
+                return scan
+        return None
+
+    @property
     def latest_vulnerabilities(self):
         """Get vulnerabilities from the latest scan"""
         latest = self.latest_scan
         return latest.vulnerabilities if latest else []
+
+    @property
+    def latest_lynis_findings(self):
+        """Get findings from the latest Lynis scan"""
+        latest = self.latest_lynis_scan
+        return latest.findings if latest else []
 
     def __repr__(self):
         return f"<Host(name='{self.name}', hostname='{self.hostname}')>"

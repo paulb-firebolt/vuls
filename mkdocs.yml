@@ -113,6 +113,7 @@ nav:
       - development/index.md
       - Architecture: development/architecture.md
       - Web Application: development/web-app-dev.md
+      - Development Containers: development/dev-containers.md
       - Enhanced Vulnerability Analysis: development/enhanced-vulnerability-analysis.md
       - Alembic Migration Setup: development/alembic-migration-setup.md
       - API Reference: development/api-reference.md
