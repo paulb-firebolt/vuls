@@ -71,7 +71,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
 
     # User is authenticated, show dashboard
     return templates.TemplateResponse(
-        "dashboard.html",
+        "dashboard_admin.html",
         {
             "request": request,
             "user": user,
