@@ -12,13 +12,9 @@
         <meta name="author" content="Vuls Team">
       
       
-        <link rel="canonical" href="https://your-domain.com/docs/development/upgrades/">
+        <link rel="canonical" href="https://your-domain.com/docs/development/websocket-troubleshooting/">
       
       
-        <link rel="prev" href="../websocket-realtime-system/">
-      
-      
-        <link rel="next" href="../../deployment/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -26,7 +22,7 @@
     
     
       
-        <title>Upgrades - Vuls Vulnerability Management System</title>
+        <title>WebSocket Troubleshooting Guide - Vuls Vulnerability Management System</title>
       
     
     
@@ -78,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#upgrade-notes" class="md-skip">
+        <a href="#websocket-troubleshooting-guide" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Upgrades
+              WebSocket Troubleshooting Guide
             
           </span>
         </div>
@@ -291,12 +287,10 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
+      <li class="md-tabs__item">
         <a href="../" class="md-tabs__link">
           
   
@@ -768,8 +762,6 @@
       
   
   
-    
-  
   
   
     
@@ -801,19 +793,18 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -830,13 +821,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Development
@@ -1010,32 +1001,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Upgrades
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../upgrades/" class="md-nav__link">
         
   
   
@@ -1046,77 +1015,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#psycopg2-to-psycopg3-migration-2025-06-27" class="md-nav__link">
-    <span class="md-ellipsis">
-      psycopg2 to psycopg3 Migration (2025-06-27)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="psycopg2 to psycopg3 Migration (2025-06-27)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#changes-made" class="md-nav__link">
-    <span class="md-ellipsis">
-      Changes Made
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#benefits-of-psycopg3" class="md-nav__link">
-    <span class="md-ellipsis">
-      Benefits of psycopg3
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#testing" class="md-nav__link">
-    <span class="md-ellipsis">
-      Testing
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#rollback-instructions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Rollback Instructions
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1492,51 +1390,116 @@
   
 
 
-<h1 id="upgrade-notes">Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Permanent link">&para;</a></h1>
-<h2 id="psycopg2-to-psycopg3-migration-2025-06-27">psycopg2 to psycopg3 Migration (2025-06-27)<a class="headerlink" href="#psycopg2-to-psycopg3-migration-2025-06-27" title="Permanent link">&para;</a></h2>
-<h3 id="changes-made">Changes Made<a class="headerlink" href="#changes-made" title="Permanent link">&para;</a></h3>
+<h1 id="websocket-troubleshooting-guide">WebSocket Troubleshooting Guide<a class="headerlink" href="#websocket-troubleshooting-guide" title="Permanent link">&para;</a></h1>
+<h2 id="issue-websocket-messages-not-received">Issue: WebSocket Messages Not Received<a class="headerlink" href="#issue-websocket-messages-not-received" title="Permanent link">&para;</a></h2>
+<p>If you're not seeing WebSocket messages when tasks complete, follow these troubleshooting steps:</p>
+<h3 id="1-check-redis-connection">1. Check Redis Connection<a class="headerlink" href="#1-check-redis-connection" title="Permanent link">&para;</a></h3>
+<p>First, verify that Redis is running and accessible:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-web-dev<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>app.tests.test_redis
+</span></code></pre></div>
+<p>Expected output:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>✅ Redis connection successful
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>✅ Notification published successfully
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>📡 Published to Redis, subscribers: 1
+</span></code></pre></div>
+<h3 id="2-test-websocket-connection">2. Test WebSocket Connection<a class="headerlink" href="#2-test-websocket-connection" title="Permanent link">&para;</a></h3>
+<p>Test the WebSocket connection:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-web-dev<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>app.tests.test_websocket_client
+</span></code></pre></div>
+<p>Expected output:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>✅ WebSocket connected successfully!
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>📤 Sent ping
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>📥 Received pong - connection working!
+</span></code></pre></div>
+<h3 id="3-test-end-to-end-notification">3. Test End-to-End Notification<a class="headerlink" href="#3-test-end-to-end-notification" title="Permanent link">&para;</a></h3>
+<p>Test the complete notification flow:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-web-dev<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>app.tests.test_end_to_end
+</span></code></pre></div>
+<p>Expected output:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>✅ WebSocket connected
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>📤 Publishing test notification...
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>🎯 Received task update!
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>✅ End-to-end notification test PASSED!
+</span></code></pre></div>
+<h3 id="4-check-application-logs">4. Check Application Logs<a class="headerlink" href="#4-check-application-logs" title="Permanent link">&para;</a></h3>
+<p>Look for these log messages in your application:</p>
+<p><strong>WebSocket Connection:</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>WebSocket connected for user anonymous. Total connections: 1
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Redis notification subscriber started on first WebSocket connection
+</span></code></pre></div>
+<p><strong>Task Completion:</strong></p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>Published task notification: success for task_run_id 123, subscribers: 1
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>Forwarded notification to WebSocket clients: success
+</span></code></pre></div>
+<h3 id="5-common-issues-and-solutions">5. Common Issues and Solutions<a class="headerlink" href="#5-common-issues-and-solutions" title="Permanent link">&para;</a></h3>
+<h4 id="redis-not-running">Redis Not Running<a class="headerlink" href="#redis-not-running" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms:</strong> <code>Redis connection failed</code> error
+<strong>Solution:</strong> Start Redis service or check Docker Compose configuration</p>
+<h4 id="no-subscribers">No Subscribers<a class="headerlink" href="#no-subscribers" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms:</strong> <code>subscribers: 0</code> in logs
+<strong>Solution:</strong> Ensure WebSocket connection is established before running tasks</p>
+<h4 id="websocket-not-starting-subscriber">WebSocket Not Starting Subscriber<a class="headerlink" href="#websocket-not-starting-subscriber" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms:</strong> No "Redis notification subscriber started" message
+<strong>Solution:</strong> Check for errors in WebSocket endpoint initialization</p>
+<h4 id="task-not-publishing-notifications">Task Not Publishing Notifications<a class="headerlink" href="#task-not-publishing-notifications" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms:</strong> No "Published task notification" messages
+<strong>Solution:</strong> Verify <code>update_task_status()</code> is being called in task completion</p>
+<h3 id="6-debug-mode">6. Debug Mode<a class="headerlink" href="#6-debug-mode" title="Permanent link">&para;</a></h3>
+<p>Enable debug logging by setting log level to DEBUG in your application configuration.</p>
+<h3 id="7-manual-redis-test">7. Manual Redis Test<a class="headerlink" href="#7-manual-redis-test" title="Permanent link">&para;</a></h3>
+<p>Test Redis pub/sub manually:</p>
+<p><strong>Terminal 1 (Subscribe):</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>redis-cli<span class="w"> </span>SUBSCRIBE<span class="w"> </span>task_notifications
+</span></code></pre></div>
+<p><strong>Terminal 2 (Publish):</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>redis-cli<span class="w"> </span>PUBLISH<span class="w"> </span>task_notifications<span class="w"> </span><span class="s1">&#39;{&quot;type&quot;:&quot;task_update&quot;,&quot;data&quot;:{&quot;status&quot;:&quot;test&quot;}}&#39;</span>
+</span></code></pre></div>
+<h3 id="8-docker-environment">8. Docker Environment<a class="headerlink" href="#8-docker-environment" title="Permanent link">&para;</a></h3>
+<p>If running in Docker, ensure:</p>
+<ul>
+<li>Redis container is running: <code>docker ps | grep redis</code></li>
+<li>Network connectivity between containers</li>
+<li>Environment variables are correctly set</li>
+</ul>
+<h3 id="9-celery-worker-logs">9. Celery Worker Logs<a class="headerlink" href="#9-celery-worker-logs" title="Permanent link">&para;</a></h3>
+<p>Check Celery worker logs for task execution:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>docker<span class="w"> </span>logs<span class="w"> </span>vuls-worker
+</span></code></pre></div>
+<p>Look for:</p>
+<ul>
+<li>Task execution messages</li>
+<li><code>update_task_status</code> calls</li>
+<li>Redis connection errors</li>
+</ul>
+<h3 id="10-browser-developer-tools">10. Browser Developer Tools<a class="headerlink" href="#10-browser-developer-tools" title="Permanent link">&para;</a></h3>
+<p>In the browser:</p>
 <ol>
-<li><strong>Dependencies Updated</strong></li>
-<li>Replaced <code>psycopg2-binary&gt;=2.9.10</code> with <code>psycopg[binary]&gt;=3.1.0</code> in <code>pyproject.toml</code></li>
-<li>
-<p>psycopg3 version 3.2.9 was installed</p>
-</li>
-<li>
-<p><strong>Database URL Updated</strong></p>
-</li>
-<li>Changed database URL dialect from <code>postgresql://</code> to <code>postgresql+psycopg://</code></li>
-<li>Updated in <code>web-app/app/config.py</code> (default configuration)</li>
-<li>
-<p>Updated in <code>compose.yml</code> (all service environment variables)</p>
-</li>
-<li>
-<p><strong>Compatibility</strong></p>
-</li>
-<li>No code changes required as SQLAlchemy handles the driver abstraction</li>
-<li>All existing models and database operations remain unchanged</li>
-<li>Docker configuration remains the same (libpq-dev still required)</li>
+<li>Open Developer Tools (F12)</li>
+<li>Go to Console tab</li>
+<li>Look for WebSocket connection messages</li>
+<li>Check for JavaScript errors</li>
 </ol>
-<h3 id="benefits-of-psycopg3">Benefits of psycopg3<a class="headerlink" href="#benefits-of-psycopg3" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Better performance and memory usage</li>
-<li>Improved async support</li>
-<li>Better type annotations</li>
-<li>More modern codebase</li>
-<li>Active development and support</li>
+<p>Expected console messages:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>WebSocket connected
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>Received task update: Task Name - success
+</span></code></pre></div>
+<h2 id="testing-checklist">Testing Checklist<a class="headerlink" href="#testing-checklist" title="Permanent link">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Redis is running and accessible</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> WebSocket connects successfully</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Manual notifications work</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Task completion triggers notifications</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Browser receives and displays updates</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> No errors in application logs</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> No errors in browser console</li>
 </ul>
-<h3 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h3>
-<ul>
-<li>All models import successfully</li>
-<li>Database engine creation works correctly</li>
-<li>SQLAlchemy integration verified</li>
-<li>No breaking changes to existing functionality</li>
-</ul>
-<h3 id="rollback-instructions">Rollback Instructions<a class="headerlink" href="#rollback-instructions" title="Permanent link">&para;</a></h3>
-<p>If rollback is needed:</p>
+<h2 id="still-having-issues">Still Having Issues?<a class="headerlink" href="#still-having-issues" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Change <code>psycopg[binary]&gt;=3.1.0</code> back to <code>psycopg2-binary&gt;=2.9.10</code> in <code>pyproject.toml</code></li>
-<li>Change all <code>postgresql+psycopg://</code> URLs back to <code>postgresql://</code></li>
-<li>Run <code>uv sync</code> to reinstall dependencies</li>
+<li>Check all service dependencies are running</li>
+<li>Verify environment variables are set correctly</li>
+<li>Ensure firewall/network settings allow connections</li>
+<li>Check for version compatibility issues</li>
+<li>Review application startup logs for initialization errors</li>
 </ol>
 
 
@@ -1564,44 +1527,6 @@
       
         <footer class="md-footer">
   
-    
-      
-      <nav class="md-footer__inner md-grid" aria-label="Footer" >
-        
-          
-          <a href="../websocket-realtime-system/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Real-Time WebSocket System">
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-            </div>
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              <div class="md-ellipsis">
-                Real-Time WebSocket System
-              </div>
-            </div>
-          </a>
-        
-        
-          
-          <a href="../../deployment/" class="md-footer__link md-footer__link--next" aria-label="Next: Deployment Guide">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                Deployment Guide
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
     
   
   <div class="md-footer-meta md-typeset">

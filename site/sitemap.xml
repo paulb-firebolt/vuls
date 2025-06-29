@@ -2,42 +2,78 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://your-domain.com/docs/</loc>
-         <lastmod>2025-06-27</lastmod>
+         <lastmod>2025-06-28</lastmod>
     </url>
     <url>
          <loc>https://your-domain.com/docs/deployment/</loc>
-         <lastmod>2025-06-27</lastmod>
+         <lastmod>2025-06-28</lastmod>
     </url>
     <url>
          <loc>https://your-domain.com/docs/development/</loc>
-         <lastmod>2025-06-27</lastmod>
+         <lastmod>2025-06-28</lastmod>
+    </url>
+    <url>
+         <loc>https://your-domain.com/docs/development/alembic-migration-setup/</loc>
+         <lastmod>2025-06-28</lastmod>
+    </url>
+    <url>
+         <loc>https://your-domain.com/docs/development/enhanced-vulnerability-analysis/</loc>
+         <lastmod>2025-06-28</lastmod>
+    </url>
+    <url>
+         <loc>https://your-domain.com/docs/development/enhanced-vulnerability-integration-complete/</loc>
+         <lastmod>2025-06-28</lastmod>
+    </url>
+    <url>
+         <loc>https://your-domain.com/docs/development/task-scheduler-fix/</loc>
+         <lastmod>2025-06-28</lastmod>
     </url>
     <url>
          <loc>https://your-domain.com/docs/development/upgrades/</loc>
-         <lastmod>2025-06-27</lastmod>
+         <lastmod>2025-06-28</lastmod>
+    </url>
+    <url>
+         <loc>https://your-domain.com/docs/development/vulnerability-version-analysis/</loc>
+         <lastmod>2025-06-28</lastmod>
+    </url>
+    <url>
+         <loc>https://your-domain.com/docs/development/websocket-implementation-complete/</loc>
+         <lastmod>2025-06-28</lastmod>
+    </url>
+    <url>
+         <loc>https://your-domain.com/docs/development/websocket-migration-summary/</loc>
+         <lastmod>2025-06-28</lastmod>
+    </url>
+    <url>
+         <loc>https://your-domain.com/docs/development/websocket-realtime-system/</loc>
+         <lastmod>2025-06-28</lastmod>
+    </url>
+    <url>
+         <loc>https://your-domain.com/docs/development/websocket-troubleshooting/</loc>
+         <lastmod>2025-06-28</lastmod>
     </url>
     <url>
          <loc>https://your-domain.com/docs/getting-started/</loc>
-         <lastmod>2025-06-27</lastmod>
+         <lastmod>2025-06-28</lastmod>
     </url>
     <url>
          <loc>https://your-domain.com/docs/getting-started/installation/</loc>
-         <lastmod>2025-06-27</lastmod>
+         <lastmod>2025-06-28</lastmod>
     </url>
     <url>
          <loc>https://your-domain.com/docs/user-guide/</loc>
-         <lastmod>2025-06-27</lastmod>
+         <lastmod>2025-06-28</lastmod>
     </url>
     <url>
          <loc>https://your-domain.com/docs/user-guide/monthly-scanning/</loc>
-         <lastmod>2025-06-27</lastmod>
+         <lastmod>2025-06-28</lastmod>
     </url>
     <url>
          <loc>https://your-domain.com/docs/user-guide/reporting/</loc>
-         <lastmod>2025-06-27</lastmod>
+         <lastmod>2025-06-28</lastmod>
     </url>
     <url>
          <loc>https://your-domain.com/docs/user-guide/scheduling/</loc>
-         <lastmod>2025-06-27</lastmod>
+         <lastmod>2025-06-28</lastmod>
     </url>
 </urlset>

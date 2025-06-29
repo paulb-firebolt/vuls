@@ -12,13 +12,13 @@
         <meta name="author" content="Vuls Team">
       
       
-        <link rel="canonical" href="https://your-domain.com/docs/development/upgrades/">
+        <link rel="canonical" href="https://your-domain.com/docs/development/alembic-migration-setup/">
       
       
-        <link rel="prev" href="../websocket-realtime-system/">
+        <link rel="prev" href="../enhanced-vulnerability-analysis/">
       
       
-        <link rel="next" href="../../deployment/">
+        <link rel="next" href="../task-scheduler-fix/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Upgrades - Vuls Vulnerability Management System</title>
+        <title>Alembic Migration Setup - Vuls Vulnerability Management System</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#upgrade-notes" class="md-skip">
+        <a href="#alembic-database-migration-setup" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Upgrades
+              Alembic Migration Setup
             
           </span>
         </div>
@@ -918,10 +918,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../alembic-migration-setup/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Alembic Migration Setup
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -932,6 +954,179 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-was-done" class="md-nav__link">
+    <span class="md-ellipsis">
+      What Was Done
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What Was Done">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initial-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initial Setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#baseline-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Baseline Migration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-new-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating New Migrations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#applying-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Applying Migrations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rolling-back-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rolling Back Migrations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checking-migration-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Checking Migration Status
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#always-review-generated-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Always Review Generated Migrations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test Migrations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#version-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version Control
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Status
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1010,32 +1205,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Upgrades
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../upgrades/" class="md-nav__link">
         
   
   
@@ -1046,77 +1219,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#psycopg2-to-psycopg3-migration-2025-06-27" class="md-nav__link">
-    <span class="md-ellipsis">
-      psycopg2 to psycopg3 Migration (2025-06-27)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="psycopg2 to psycopg3 Migration (2025-06-27)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#changes-made" class="md-nav__link">
-    <span class="md-ellipsis">
-      Changes Made
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#benefits-of-psycopg3" class="md-nav__link">
-    <span class="md-ellipsis">
-      Benefits of psycopg3
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#testing" class="md-nav__link">
-    <span class="md-ellipsis">
-      Testing
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#rollback-instructions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Rollback Instructions
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1492,52 +1594,87 @@
   
 
 
-<h1 id="upgrade-notes">Upgrade Notes<a class="headerlink" href="#upgrade-notes" title="Permanent link">&para;</a></h1>
-<h2 id="psycopg2-to-psycopg3-migration-2025-06-27">psycopg2 to psycopg3 Migration (2025-06-27)<a class="headerlink" href="#psycopg2-to-psycopg3-migration-2025-06-27" title="Permanent link">&para;</a></h2>
-<h3 id="changes-made">Changes Made<a class="headerlink" href="#changes-made" title="Permanent link">&para;</a></h3>
-<ol>
-<li><strong>Dependencies Updated</strong></li>
-<li>Replaced <code>psycopg2-binary&gt;=2.9.10</code> with <code>psycopg[binary]&gt;=3.1.0</code> in <code>pyproject.toml</code></li>
-<li>
-<p>psycopg3 version 3.2.9 was installed</p>
-</li>
-<li>
-<p><strong>Database URL Updated</strong></p>
-</li>
-<li>Changed database URL dialect from <code>postgresql://</code> to <code>postgresql+psycopg://</code></li>
-<li>Updated in <code>web-app/app/config.py</code> (default configuration)</li>
-<li>
-<p>Updated in <code>compose.yml</code> (all service environment variables)</p>
-</li>
-<li>
-<p><strong>Compatibility</strong></p>
-</li>
-<li>No code changes required as SQLAlchemy handles the driver abstraction</li>
-<li>All existing models and database operations remain unchanged</li>
-<li>Docker configuration remains the same (libpq-dev still required)</li>
-</ol>
-<h3 id="benefits-of-psycopg3">Benefits of psycopg3<a class="headerlink" href="#benefits-of-psycopg3" title="Permanent link">&para;</a></h3>
+<h1 id="alembic-database-migration-setup">Alembic Database Migration Setup<a class="headerlink" href="#alembic-database-migration-setup" title="Permanent link">&para;</a></h1>
+<p>This document explains how Alembic has been retrospectively added to the Vuls Web application to manage database migrations.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Alembic is a database migration tool for SQLAlchemy that allows you to manage database schema changes over time. It has been successfully added to this project even though the database already contained data.</p>
+<h2 id="what-was-done">What Was Done<a class="headerlink" href="#what-was-done" title="Permanent link">&para;</a></h2>
+<h3 id="initial-setup">Initial Setup<a class="headerlink" href="#initial-setup" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Better performance and memory usage</li>
-<li>Improved async support</li>
-<li>Better type annotations</li>
-<li>More modern codebase</li>
-<li>Active development and support</li>
+<li>Alembic was already configured in <code>alembic.ini</code> with the correct database connection</li>
+<li>The <code>alembic/</code> directory was initialized with migration scripts</li>
+<li>The <code>env.py</code> file was configured to import your SQLAlchemy models</li>
 </ul>
-<h3 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h3>
+<h3 id="baseline-migration">Baseline Migration<a class="headerlink" href="#baseline-migration" title="Permanent link">&para;</a></h3>
 <ul>
-<li>All models import successfully</li>
-<li>Database engine creation works correctly</li>
-<li>SQLAlchemy integration verified</li>
-<li>No breaking changes to existing functionality</li>
+<li>Created an initial migration (<code>20a5eb9f1fd1_initial_migration_baseline_from_.py</code>) that captures the current database state</li>
+<li>This migration contains only <code>pass</code> statements because your models and database schema were already in sync</li>
+<li>The database was "stamped" with this migration version using <code>alembic stamp head</code></li>
 </ul>
-<h3 id="rollback-instructions">Rollback Instructions<a class="headerlink" href="#rollback-instructions" title="Permanent link">&para;</a></h3>
-<p>If rollback is needed:</p>
-<ol>
-<li>Change <code>psycopg[binary]&gt;=3.1.0</code> back to <code>psycopg2-binary&gt;=2.9.10</code> in <code>pyproject.toml</code></li>
-<li>Change all <code>postgresql+psycopg://</code> URLs back to <code>postgresql://</code></li>
-<li>Run <code>uv sync</code> to reinstall dependencies</li>
-</ol>
+<h3 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Alembic now tracks the current database version in the <code>alembic_version</code> table</li>
+<li>Future migrations will be applied incrementally from this baseline</li>
+</ul>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
+<h3 id="creating-new-migrations">Creating New Migrations<a class="headerlink" href="#creating-new-migrations" title="Permanent link">&para;</a></h3>
+<p>When you modify your SQLAlchemy models, create a new migration:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>web-app
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/app<span class="w"> </span>-w<span class="w"> </span>/app<span class="w"> </span>--network<span class="w"> </span>vuls_default<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">DATABASE_URL</span><span class="o">=</span>postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="k">$(</span>docker<span class="w"> </span>build<span class="w"> </span>-q<span class="w"> </span>-f<span class="w"> </span>Dockerfile.dev<span class="w"> </span>.<span class="k">)</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;uv run alembic revision --autogenerate -m &#39;Description of your changes&#39;&quot;</span>
+</span></code></pre></div>
+<h3 id="applying-migrations">Applying Migrations<a class="headerlink" href="#applying-migrations" title="Permanent link">&para;</a></h3>
+<p>To apply pending migrations to the database:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Apply all pending migrations</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/app<span class="w"> </span>-w<span class="w"> </span>/app<span class="w"> </span>--network<span class="w"> </span>vuls_default<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">DATABASE_URL</span><span class="o">=</span>postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="k">$(</span>docker<span class="w"> </span>build<span class="w"> </span>-q<span class="w"> </span>-f<span class="w"> </span>Dockerfile.dev<span class="w"> </span>.<span class="k">)</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;uv run alembic upgrade head&quot;</span>
+</span></code></pre></div>
+<h3 id="rolling-back-migrations">Rolling Back Migrations<a class="headerlink" href="#rolling-back-migrations" title="Permanent link">&para;</a></h3>
+<p>To rollback to a previous migration:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Rollback to previous migration</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/app<span class="w"> </span>-w<span class="w"> </span>/app<span class="w"> </span>--network<span class="w"> </span>vuls_default<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">DATABASE_URL</span><span class="o">=</span>postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="k">$(</span>docker<span class="w"> </span>build<span class="w"> </span>-q<span class="w"> </span>-f<span class="w"> </span>Dockerfile.dev<span class="w"> </span>.<span class="k">)</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;uv run alembic downgrade -1&quot;</span>
+</span></code></pre></div>
+<h3 id="checking-migration-status">Checking Migration Status<a class="headerlink" href="#checking-migration-status" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Show current migration version</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/app<span class="w"> </span>-w<span class="w"> </span>/app<span class="w"> </span>--network<span class="w"> </span>vuls_default<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">DATABASE_URL</span><span class="o">=</span>postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="k">$(</span>docker<span class="w"> </span>build<span class="w"> </span>-q<span class="w"> </span>-f<span class="w"> </span>Dockerfile.dev<span class="w"> </span>.<span class="k">)</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;uv run alembic current&quot;</span>
+</span></code></pre></div>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="always-review-generated-migrations">Always Review Generated Migrations<a class="headerlink" href="#always-review-generated-migrations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Alembic's autogenerate feature is powerful but not perfect</li>
+<li>Always review the generated migration files before applying them</li>
+<li>Check for correct column types, foreign key constraints, and index creation/deletion</li>
+</ul>
+<h3 id="test-migrations">Test Migrations<a class="headerlink" href="#test-migrations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Test migrations on a copy of production data</li>
+<li>Ensure both upgrade and downgrade paths work</li>
+<li>Verify that data is preserved correctly</li>
+</ul>
+<h3 id="version-control">Version Control<a class="headerlink" href="#version-control" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Always commit migration files to version control</li>
+<li>Never edit applied migration files</li>
+<li>If you need to fix a migration, create a new one</li>
+</ul>
+<h2 id="current-status">Current Status<a class="headerlink" href="#current-status" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Baseline Migration</strong>: <code>20a5eb9f1fd1_initial_migration_baseline_from_</code></li>
+<li><strong>Database Version</strong>: Up to date with models</li>
+<li><strong>Alembic Version Table</strong>: <code>alembic_version</code> tracks current migration</li>
+<li><strong>All existing data</strong>: Preserved and unaffected</li>
+</ul>
+<p>The database is now fully managed by Alembic and ready for future schema changes.</p>
 
 
 
@@ -1569,7 +1706,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../websocket-realtime-system/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Real-Time WebSocket System">
+          <a href="../enhanced-vulnerability-analysis/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Enhanced Vulnerability Analysis">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1579,20 +1716,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Real-Time WebSocket System
+                Enhanced Vulnerability Analysis
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../deployment/" class="md-footer__link md-footer__link--next" aria-label="Next: Deployment Guide">
+          <a href="../task-scheduler-fix/" class="md-footer__link md-footer__link--next" aria-label="Next: Task Scheduler Fix">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Deployment Guide
+                Task Scheduler Fix
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -9,16 +9,19 @@ Alembic is a database migration tool for SQLAlchemy that allows you to manage da
 ## What Was Done
 
 ### Initial Setup
+
 - Alembic was already configured in `alembic.ini` with the correct database connection
 - The `alembic/` directory was initialized with migration scripts
 - The `env.py` file was configured to import your SQLAlchemy models
 
 ### Baseline Migration
+
 - Created an initial migration (`20a5eb9f1fd1_initial_migration_baseline_from_.py`) that captures the current database state
 - This migration contains only `pass` statements because your models and database schema were already in sync
 - The database was "stamped" with this migration version using `alembic stamp head`
 
 ### Verification
+
 - Alembic now tracks the current database version in the `alembic_version` table
 - Future migrations will be applied incrementally from this baseline
 
@@ -73,16 +76,19 @@ docker run --rm -v $(pwd):/app -w /app --network vuls_default \
 ## Best Practices
 
 ### Always Review Generated Migrations
+
 - Alembic's autogenerate feature is powerful but not perfect
 - Always review the generated migration files before applying them
 - Check for correct column types, foreign key constraints, and index creation/deletion
 
 ### Test Migrations
+
 - Test migrations on a copy of production data
 - Ensure both upgrade and downgrade paths work
 - Verify that data is preserved correctly
 
 ### Version Control
+
 - Always commit migration files to version control
 - Never edit applied migration files
 - If you need to fix a migration, create a new one
