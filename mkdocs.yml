@@ -87,7 +87,7 @@ markdown_extensions:
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
+          format: !!python/name:pymdownx.superfences.fence_code_format ""
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:
@@ -116,6 +116,7 @@ nav:
       - Development Containers: development/dev-containers.md
       - Enhanced Vulnerability Analysis: development/enhanced-vulnerability-analysis.md
       - Alembic Migration Setup: development/alembic-migration-setup.md
+      - Dragonfly Migration: development/dragonfly-migration.md
       - API Reference: development/api-reference.md
       - Task Scheduler Fix: development/task-scheduler-fix.md
       - Real-Time WebSocket System: development/websocket-realtime-system.md

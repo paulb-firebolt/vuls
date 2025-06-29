@@ -1,26 +1,25 @@
 """
 Debian Security Tracker integration for enhanced vulnerability analysis.
-Downloads and caches Debian security data locally for fast lookups.
+Downloads and caches Debian security data in PostgreSQL for fast lookups.
 """
 
-import sqlite3
 import json
 import logging
 import requests
 import gzip
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
-from pathlib import Path
-import os
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+from ..models.base import get_db
 
 logger = logging.getLogger(__name__)
 
 
 class DebianSecurityLookup:
-    """Debian Security Tracker data integration with local caching."""
+    """Debian Security Tracker data integration with PostgreSQL caching."""
 
-    def __init__(self, cache_db_path: str = "db/debian_security_cache.sqlite3"):
-        self.cache_db_path = cache_db_path
+    def __init__(self):
         self.json_url = "https://security-tracker.debian.org/tracker/data/json"
         self.session = requests.Session()
         self.session.headers.update({
@@ -28,64 +27,36 @@ class DebianSecurityLookup:
             'Accept-Encoding': 'gzip, deflate'
         })
 
-        self._init_cache_db()
-
-    def _init_cache_db(self):
-        """Initialize the Debian security cache database."""
-        try:
-            with sqlite3.connect(self.cache_db_path) as conn:
-                conn.executescript("""
-                    CREATE TABLE IF NOT EXISTS debian_security_data (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        cve_id TEXT NOT NULL,
-                        package_name TEXT NOT NULL,
-                        release_name TEXT NOT NULL, -- bookworm, bullseye, etc.
-                        status TEXT NOT NULL, -- fixed, not-affected, vulnerable, etc.
-                        fixed_version TEXT,
-                        urgency TEXT,
-                        description TEXT,
-                        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        UNIQUE(cve_id, package_name, release_name)
-                    );
-
-                    CREATE INDEX IF NOT EXISTS idx_debian_cve_package
-                    ON debian_security_data(cve_id, package_name);
-
-                    CREATE INDEX IF NOT EXISTS idx_debian_package_release
-                    ON debian_security_data(package_name, release_name);
-
-                    CREATE TABLE IF NOT EXISTS debian_data_meta (
-                        id INTEGER PRIMARY KEY,
-                        last_download TIMESTAMP,
-                        data_size INTEGER,
-                        cve_count INTEGER
-                    );
-                """)
-                logger.info("Debian security cache database initialized")
-        except Exception as e:
-            logger.error(f"Failed to initialize Debian cache database: {e}")
+        logger.info("Debian Security Lookup initialized with PostgreSQL backend")
 
     def should_update_data(self) -> bool:
         """Check if we should download fresh data from Debian Security Tracker."""
         try:
-            with sqlite3.connect(self.cache_db_path) as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT last_download FROM debian_data_meta ORDER BY id DESC LIMIT 1")
-                row = cursor.fetchone()
+            db = next(get_db())
+            result = db.execute(text("""
+                SELECT last_download FROM debian_data_meta
+                ORDER BY id DESC LIMIT 1
+            """))
+            row = result.fetchone()
 
-                if not row:
-                    return True  # No data yet
+            if not row:
+                return True  # No data yet
 
-                last_download = datetime.fromisoformat(row[0])
+            last_download = row[0]
+            if last_download:
                 # Update daily
-                return datetime.now() - last_download > timedelta(days=1)
+                return datetime.now(timezone.utc) - last_download > timedelta(days=1)
 
-        except Exception as e:
-            logger.error(f"Error checking update status: {e}")
             return True
 
+        except Exception as e:
+            logger.error(f"Error checking Debian update status: {e}")
+            return True
+        finally:
+            db.close()
+
     def download_and_cache_debian_data(self) -> bool:
-        """Download Debian Security Tracker data and cache it locally."""
+        """Download Debian Security Tracker data and cache it in PostgreSQL."""
         if not self.should_update_data():
             logger.info("Debian security data is up to date")
             return True
@@ -108,62 +79,80 @@ class DebianSecurityLookup:
 
             logger.info(f"Downloaded {len(data)} CVE entries from Debian Security Tracker")
 
-            # Clear old data and insert new
-            with sqlite3.connect(self.cache_db_path) as conn:
-                cursor = conn.cursor()
+            db = next(get_db())
 
-                # Clear existing data
-                cursor.execute("DELETE FROM debian_security_data")
-                cursor.execute("DELETE FROM debian_data_meta")
+            # Clear old data
+            db.execute(text("DELETE FROM debian_security_data"))
+            db.execute(text("DELETE FROM debian_data_meta"))
 
-                # Insert new data - data is organized by package, then CVE
-                cve_count = 0
-                record_count = 0
+            # Insert new data - data is organized by package, then CVE
+            cve_count = 0
+            record_count = 0
 
-                for package_name, package_data in data.items():
-                    if not isinstance(package_data, dict):
+            for package_name, package_data in data.items():
+                if not isinstance(package_data, dict):
+                    continue
+
+                # Each package contains CVE entries
+                for cve_id, cve_data in package_data.items():
+                    if not cve_id.startswith('CVE-'):
                         continue
 
-                    # Each package contains CVE entries
-                    for cve_id, cve_data in package_data.items():
-                        if not cve_id.startswith('CVE-'):
-                            continue
+                    cve_count += 1
 
-                        cve_count += 1
+                    # CVE data contains releases information
+                    if isinstance(cve_data, dict) and 'releases' in cve_data:
+                        releases = cve_data['releases']
+                        description = cve_data.get('description', '')
 
-                        # CVE data contains releases information
-                        if isinstance(cve_data, dict) and 'releases' in cve_data:
-                            releases = cve_data['releases']
-                            for release_name, release_info in releases.items():
-                                # release_info contains the package status directly
-                                if isinstance(release_info, dict):
-                                    cursor.execute("""
-                                        INSERT OR REPLACE INTO debian_security_data
-                                        (cve_id, package_name, release_name, status, fixed_version, urgency, description)
-                                        VALUES (?, ?, ?, ?, ?, ?, ?)
-                                    """, (
-                                        cve_id,
-                                        package_name,
-                                        release_name,
-                                        release_info.get('status', 'unknown'),
-                                        release_info.get('fixed_version', ''),
-                                        release_info.get('urgency', ''),
-                                        cve_data.get('description', '')
-                                    ))
-                                    record_count += 1
+                        for release_name, release_info in releases.items():
+                            # release_info contains the package status directly
+                            if isinstance(release_info, dict):
+                                db.execute(text("""
+                                    INSERT INTO debian_security_data
+                                    (cve_id, package_name, release_name, status, fixed_version, urgency, description)
+                                    VALUES (:cve_id, :package_name, :release_name, :status,
+                                            :fixed_version, :urgency, :description)
+                                    ON CONFLICT (cve_id, package_name, release_name)
+                                    DO UPDATE SET
+                                        status = EXCLUDED.status,
+                                        fixed_version = EXCLUDED.fixed_version,
+                                        urgency = EXCLUDED.urgency,
+                                        description = EXCLUDED.description,
+                                        last_updated = NOW()
+                                """), {
+                                    'cve_id': cve_id,
+                                    'package_name': package_name,
+                                    'release_name': release_name,
+                                    'status': release_info.get('status', 'unknown'),
+                                    'fixed_version': release_info.get('fixed_version', ''),
+                                    'urgency': release_info.get('urgency', ''),
+                                    'description': description
+                                })
+                                record_count += 1
 
-                # Update metadata
-                cursor.execute("""
-                    INSERT INTO debian_data_meta (last_download, data_size, cve_count)
-                    VALUES (?, ?, ?)
-                """, (datetime.now(), len(response.content), cve_count))
+            # Update metadata
+            db.execute(text("""
+                INSERT INTO debian_data_meta (last_download, data_size, cve_count)
+                VALUES (:last_download, :data_size, :cve_count)
+            """), {
+                'last_download': datetime.now(timezone.utc),
+                'data_size': len(response.content),
+                'cve_count': cve_count
+            })
 
-                logger.info(f"Cached {cve_count} CVEs with Debian security data")
-                return True
+            db.commit()
+            logger.info(f"Cached {cve_count} CVEs with Debian security data")
+            return True
 
         except Exception as e:
             logger.error(f"Error downloading/caching Debian data: {e}")
+            if 'db' in locals():
+                db.rollback()
             return False
+        finally:
+            if 'db' in locals():
+                db.close()
 
     def lookup_debian_security_info(self, cve_id: str, package_name: str,
                                   release: str = 'bookworm') -> Optional[Dict]:
@@ -179,69 +168,80 @@ class DebianSecurityLookup:
             Dict with security information or None if not found
         """
         try:
-            with sqlite3.connect(self.cache_db_path) as conn:
-                cursor = conn.cursor()
-                cursor.execute("""
-                    SELECT status, fixed_version, urgency, description, last_updated
-                    FROM debian_security_data
-                    WHERE cve_id = ? AND package_name = ? AND release_name = ?
-                """, (cve_id, package_name, release))
+            db = next(get_db())
+            result = db.execute(text("""
+                SELECT status, fixed_version, urgency, description, last_updated
+                FROM debian_security_data
+                WHERE cve_id = :cve_id AND package_name = :package_name AND release_name = :release_name
+            """), {
+                'cve_id': cve_id,
+                'package_name': package_name,
+                'release_name': release
+            })
 
-                row = cursor.fetchone()
-                if row:
-                    status, fixed_version, urgency, description, last_updated = row
-                    return {
-                        'found': True,
-                        'status': status,
-                        'fixed_version': fixed_version if fixed_version else None,
-                        'urgency': urgency,
-                        'description': description,
-                        'release': release,
-                        'last_updated': last_updated,
-                        'is_vulnerable': status not in ['not-affected', 'fixed', 'resolved'],
-                        'confidence_score': 0.95  # High confidence for official Debian data
-                    }
-
+            row = result.fetchone()
+            if row:
+                status, fixed_version, urgency, description, last_updated = row
                 return {
-                    'found': False,
-                    'reason': f'No Debian security data found for {cve_id} in package {package_name}',
-                    'confidence_score': 0.8
+                    'found': True,
+                    'status': status,
+                    'fixed_version': fixed_version if fixed_version else None,
+                    'urgency': urgency,
+                    'description': description,
+                    'release': release,
+                    'last_updated': last_updated,
+                    'is_vulnerable': status not in ['not-affected', 'fixed', 'resolved'],
+                    'confidence_score': 0.95  # High confidence for official Debian data
                 }
+
+            return {
+                'found': False,
+                'reason': f'No Debian security data found for {cve_id} in package {package_name}',
+                'confidence_score': 0.8
+            }
 
         except Exception as e:
             logger.error(f"Error looking up Debian security info: {e}")
             return None
+        finally:
+            if 'db' in locals():
+                db.close()
 
     def get_package_security_status(self, package_name: str,
                                   release: str = 'bookworm') -> List[Dict]:
         """Get all security issues for a specific package in a release."""
         try:
-            with sqlite3.connect(self.cache_db_path) as conn:
-                cursor = conn.cursor()
-                cursor.execute("""
-                    SELECT cve_id, status, fixed_version, urgency, description
-                    FROM debian_security_data
-                    WHERE package_name = ? AND release_name = ?
-                    ORDER BY cve_id DESC
-                """, (package_name, release))
+            db = next(get_db())
+            result = db.execute(text("""
+                SELECT cve_id, status, fixed_version, urgency, description
+                FROM debian_security_data
+                WHERE package_name = :package_name AND release_name = :release_name
+                ORDER BY cve_id DESC
+            """), {
+                'package_name': package_name,
+                'release_name': release
+            })
 
-                results = []
-                for row in cursor.fetchall():
-                    cve_id, status, fixed_version, urgency, description = row
-                    results.append({
-                        'cve_id': cve_id,
-                        'status': status,
-                        'fixed_version': fixed_version,
-                        'urgency': urgency,
-                        'description': description,
-                        'is_vulnerable': status not in ['not-affected', 'fixed']
-                    })
+            results = []
+            for row in result.fetchall():
+                cve_id, status, fixed_version, urgency, description = row
+                results.append({
+                    'cve_id': cve_id,
+                    'status': status,
+                    'fixed_version': fixed_version,
+                    'urgency': urgency,
+                    'description': description,
+                    'is_vulnerable': status not in ['not-affected', 'fixed']
+                })
 
-                return results
+            return results
 
         except Exception as e:
-            logger.error(f"Error getting package security status: {e}")
+            logger.error(f"Error getting Debian package security status: {e}")
             return []
+        finally:
+            if 'db' in locals():
+                db.close()
 
     def enhance_vulnerability_with_debian_data(self, vulnerability: Dict) -> Dict:
         """
@@ -300,42 +300,52 @@ class DebianSecurityLookup:
     def get_cache_stats(self) -> Dict:
         """Get statistics about the cached Debian data."""
         try:
-            with sqlite3.connect(self.cache_db_path) as conn:
-                cursor = conn.cursor()
+            db = next(get_db())
 
-                # Get metadata
-                cursor.execute("SELECT last_download, cve_count FROM debian_data_meta ORDER BY id DESC LIMIT 1")
-                meta_row = cursor.fetchone()
+            # Get metadata
+            result = db.execute(text("""
+                SELECT last_download, cve_count
+                FROM debian_data_meta
+                ORDER BY id DESC LIMIT 1
+            """))
+            meta_row = result.fetchone()
 
-                # Get record counts
-                cursor.execute("SELECT COUNT(*) FROM debian_security_data")
-                total_records = cursor.fetchone()[0]
+            # Get record counts
+            result = db.execute(text("SELECT COUNT(*) FROM debian_security_data"))
+            total_records = result.scalar()
 
-                cursor.execute("SELECT COUNT(DISTINCT cve_id) FROM debian_security_data")
-                unique_cves = cursor.fetchone()[0]
+            result = db.execute(text("SELECT COUNT(DISTINCT cve_id) FROM debian_security_data"))
+            unique_cves = result.scalar()
 
-                cursor.execute("SELECT COUNT(DISTINCT package_name) FROM debian_security_data")
-                unique_packages = cursor.fetchone()[0]
+            result = db.execute(text("SELECT COUNT(DISTINCT package_name) FROM debian_security_data"))
+            unique_packages = result.scalar()
 
-                return {
-                    'last_download': meta_row[0] if meta_row else None,
-                    'total_cves': meta_row[1] if meta_row else 0,
-                    'total_records': total_records,
-                    'unique_cves': unique_cves,
-                    'unique_packages': unique_packages,
-                    'cache_file': self.cache_db_path
-                }
+            return {
+                'last_download': meta_row[0] if meta_row else None,
+                'total_cves': meta_row[1] if meta_row else 0,
+                'total_records': total_records,
+                'unique_cves': unique_cves,
+                'unique_packages': unique_packages,
+                'backend': 'PostgreSQL'
+            }
 
         except Exception as e:
-            logger.error(f"Error getting cache stats: {e}")
+            logger.error(f"Error getting Debian cache stats: {e}")
             return {}
+        finally:
+            if 'db' in locals():
+                db.close()
 
     def force_update(self) -> bool:
         """Force an update of Debian security data."""
         try:
-            with sqlite3.connect(self.cache_db_path) as conn:
-                conn.execute("DELETE FROM debian_data_meta")
+            db = next(get_db())
+            db.execute(text("DELETE FROM debian_data_meta"))
+            db.commit()
             return self.download_and_cache_debian_data()
         except Exception as e:
-            logger.error(f"Error forcing update: {e}")
+            logger.error(f"Error forcing Debian update: {e}")
             return False
+        finally:
+            if 'db' in locals():
+                db.close()

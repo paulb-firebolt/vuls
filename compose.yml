@@ -18,8 +18,8 @@ services:
       - VULS_CONFIG_PATH=/vuls/config.toml
       - SSH_AUTH_SOCK=/ssh-agent
       # AWS environment variables
-      - AWS_PROFILE=default
-      - AWS_REGION=eu-west-2
+      - AWS_PROFILE=${AWS_PROFILE:-default}
+      - AWS_REGION=${AWS_REGION:-eu-west-2}
       - AWS_CONFIG_FILE=/root/.aws/config
       - AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials
       # GCP environment variables
@@ -151,8 +151,8 @@ services:
     environment:
       - VULS_CONFIG_PATH=/vuls/config.toml
       - SSH_AUTH_SOCK=/ssh-agent
-      - AWS_PROFILE=default
-      - AWS_REGION=eu-west-2
+      - AWS_PROFILE=${AWS_PROFILE:-default}
+      - AWS_REGION=${AWS_REGION:-eu-west-2}
       - AWS_CONFIG_FILE=/root/.aws/config
       - AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials
       - GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json
@@ -165,9 +165,9 @@ services:
     image: postgres:15
     container_name: vuls-db
     environment:
-      - POSTGRES_DB=vuls
-      - POSTGRES_USER=vuls
-      - POSTGRES_PASSWORD=SuperSecretKey
+      - POSTGRES_DB=${POSTGRES_DB:-vuls}
+      - POSTGRES_USER=${POSTGRES_USER:-vuls}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?}
     volumes:
       - vuls_db_data:/var/lib/postgresql/data
     healthcheck:
@@ -178,12 +178,19 @@ services:
       start_period: 10s
     profiles: [web, dev]
 
-  # Redis for task queue
+  # Dragonfly for task queue (Redis-compatible)
   vuls-redis:
-    image: redis:7-alpine
+    image: docker.dragonflydb.io/dragonflydb/dragonfly:v1.31.0
     container_name: vuls-redis
+    command:
+      - --logtostderr
+      - --alsologtostderr=false
+      - --requirepass=${REDIS_PASSWORD?}
+      - --rename_command=CONFIG=VULS_CONFIG_CMD_RENAMED
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD?}
     healthcheck:
-      test: [CMD, redis-cli, ping]
+      test: [CMD, redis-cli, -a, "${REDIS_PASSWORD?}", ping]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -205,11 +212,11 @@ services:
       - ./db:/app/db:ro
       - ./logs:/app/logs:rw
     environment:
-      - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
-      - REDIS_URL=redis://vuls-redis:6379
-      - JWT_SECRET_KEY=your-secret-key-change-in-production
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-vuls}:${POSTGRES_PASSWORD?}@vuls-db:5432/${POSTGRES_DB:-vuls}
+      - REDIS_URL=redis://:${REDIS_PASSWORD?}@vuls-redis:6379
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY?}
       - EXECUTOR_URL=http://vuls-executor:8080
-      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
+      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY?}
     depends_on:
       - vuls-db
       - vuls-redis
@@ -239,11 +246,11 @@ services:
       - ./web-app/alembic.ini:/app/alembic.ini:ro
       - ./web-app/alembic:/app/alembic:rw
     environment:
-      - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
-      - REDIS_URL=redis://vuls-redis:6379
-      - JWT_SECRET_KEY=your-secret-key-change-in-production
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-vuls}:${POSTGRES_PASSWORD?}@vuls-db:5432/${POSTGRES_DB:-vuls}
+      - REDIS_URL=redis://:${REDIS_PASSWORD?}@vuls-redis:6379
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY?}
       - EXECUTOR_URL=http://vuls-executor-dev:8080
-      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
+      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY?}
     depends_on:
       - vuls-db
       - vuls-redis
@@ -265,12 +272,12 @@ services:
       - ./logs:/app/logs:rw
       - ./.ssh:/root/.ssh:rw
     environment:
-      - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
-      - REDIS_URL=redis://vuls-redis:6379
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD?}@vuls-db:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://:${REDIS_PASSWORD?}@vuls-redis:6379
       - EXECUTOR_URL=http://vuls-executor:8080
-      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
+      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY?}
     healthcheck:
-      test: [CMD-SHELL, uv run celery -A app.tasks inspect ping]
+      test: [CMD-SHELL, uv, run, celery, -A, app.tasks, inspect ping]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -288,8 +295,7 @@ services:
       args:
         BUILD_TYPE: development
     container_name: vuls-worker-dev
-    command:
-      [supervisord, -c, /etc/supervisor/supervisord-celery.conf]
+    command: [supervisord, -c, /etc/supervisor/supervisord-celery.conf]
     volumes:
       - ./config:/app/config:rw
       - ./results:/app/results:rw
@@ -300,12 +306,12 @@ services:
       - ./web-app/app:/app/app:rw
       - ./web-app/pyproject.toml:/app/pyproject.toml:ro
     environment:
-      - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
-      - REDIS_URL=redis://vuls-redis:6379
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD?}@vuls-db:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://:${REDIS_PASSWORD?}@vuls-redis:6379
       - EXECUTOR_URL=http://vuls-executor-dev:8080
-      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
+      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY?}
     healthcheck:
-      test: [CMD-SHELL, uv run celery -A app.tasks inspect ping]
+      test: [CMD-SHELL, uv, run, celery, -A, app.tasks, inspect, ping]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -327,8 +333,8 @@ services:
     volumes:
       - ./config:/app/config:rw
     environment:
-      - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
-      - REDIS_URL=redis://vuls-redis:6379
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD?}@vuls-db:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://:${REDIS_PASSWORD?}@vuls-redis:6379
     healthcheck:
       test:
         [
@@ -358,8 +364,8 @@ services:
       - ./web-app/app:/app/app:rw
       - ./web-app/pyproject.toml:/app/pyproject.toml:ro
     environment:
-      - DATABASE_URL=postgresql+psycopg://vuls:SuperSecretKey@vuls-db:5432/vuls
-      - REDIS_URL=redis://vuls-redis:6379
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD?}@vuls-db:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://:${REDIS_PASSWORD?}@vuls-redis:6379
     healthcheck:
       test:
         [
@@ -386,7 +392,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - .:/project:rw # Mount compose project directory as /project with write access
     environment:
-      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
+      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY?}
       - HOST_PROJECT_PATH=${PWD}
       - HOST_USER_HOME=${HOME}
       - CF_ACCESS_CLIENT_ID=${CF_ACCESS_CLIENT_ID}
@@ -408,7 +414,7 @@ services:
       # Mount source code for hot reload
       - ./docker-executor:/app:rw
     environment:
-      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY:-change-me-in-production}
+      - EXECUTOR_API_KEY=${EXECUTOR_API_KEY?}
       - HOST_PROJECT_PATH=${PWD}
       - HOST_USER_HOME=${HOME}
       - CF_ACCESS_CLIENT_ID=${CF_ACCESS_CLIENT_ID}

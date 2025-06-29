@@ -83,7 +83,9 @@
     />
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
-      <a href="#development-containers" class="md-skip"> Skip to content </a>
+      <a href="#development-containers-setup" class="md-skip">
+        Skip to content
+      </a>
     </div>
     <div data-md-component="announce"></div>
 
@@ -662,38 +664,50 @@
 
                                 <li class="md-nav__item">
                                   <a
-                                    href="#container-types"
+                                    href="#container-architecture"
                                     class="md-nav__link"
                                   >
                                     <span class="md-ellipsis">
-                                      Container Types
+                                      Container Architecture
                                     </span>
                                   </a>
 
                                   <nav
                                     class="md-nav"
-                                    aria-label="Container Types"
+                                    aria-label="Container Architecture"
                                   >
                                     <ul class="md-nav__list">
                                       <li class="md-nav__item">
                                         <a
-                                          href="#production-containers-profile-web"
+                                          href="#web-application-container-vuls-web-dev"
                                           class="md-nav__link"
                                         >
                                           <span class="md-ellipsis">
-                                            Production Containers (Profile: web)
+                                            Web Application Container
+                                            (vuls-web-dev)
                                           </span>
                                         </a>
                                       </li>
 
                                       <li class="md-nav__item">
                                         <a
-                                          href="#development-containers-profile-dev"
+                                          href="#worker-container-vuls-worker-dev"
                                           class="md-nav__link"
                                         >
                                           <span class="md-ellipsis">
-                                            Development Containers (Profile:
-                                            dev)
+                                            Worker Container (vuls-worker-dev)
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#executor-container-vuls-executor-dev"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Executor Container
+                                            (vuls-executor-dev)
                                           </span>
                                         </a>
                                       </li>
@@ -703,82 +717,80 @@
 
                                 <li class="md-nav__item">
                                   <a
-                                    href="#key-differences"
+                                    href="#hot-reload-implementation"
                                     class="md-nav__link"
                                   >
                                     <span class="md-ellipsis">
-                                      Key Differences
+                                      Hot Reload Implementation
                                     </span>
                                   </a>
 
                                   <nav
                                     class="md-nav"
-                                    aria-label="Key Differences"
+                                    aria-label="Hot Reload Implementation"
                                   >
                                     <ul class="md-nav__list">
                                       <li class="md-nav__item">
                                         <a
-                                          href="#development-features"
+                                          href="#web-application-hot-reload"
                                           class="md-nav__link"
                                         >
                                           <span class="md-ellipsis">
-                                            Development Features
+                                            Web Application Hot Reload
                                           </span>
                                         </a>
                                       </li>
 
                                       <li class="md-nav__item">
                                         <a
-                                          href="#volume-mounts"
+                                          href="#worker-hot-reload"
                                           class="md-nav__link"
                                         >
                                           <span class="md-ellipsis">
-                                            Volume Mounts
+                                            Worker Hot Reload
                                           </span>
                                         </a>
-                                      </li>
-                                    </ul>
-                                  </nav>
-                                </li>
 
-                                <li class="md-nav__item">
-                                  <a href="#usage" class="md-nav__link">
-                                    <span class="md-ellipsis"> Usage </span>
-                                  </a>
-
-                                  <nav class="md-nav" aria-label="Usage">
-                                    <ul class="md-nav__list">
-                                      <li class="md-nav__item">
-                                        <a
-                                          href="#start-development-environment"
-                                          class="md-nav__link"
+                                        <nav
+                                          class="md-nav"
+                                          aria-label="Worker Hot Reload"
                                         >
-                                          <span class="md-ellipsis">
-                                            Start Development Environment
-                                          </span>
-                                        </a>
-                                      </li>
+                                          <ul class="md-nav__list">
+                                            <li class="md-nav__item">
+                                              <a
+                                                href="#supervisord-configuration-supervisord-celeryconf"
+                                                class="md-nav__link"
+                                              >
+                                                <span class="md-ellipsis">
+                                                  Supervisord Configuration
+                                                  (supervisord-celery.conf)
+                                                </span>
+                                              </a>
+                                            </li>
 
-                                      <li class="md-nav__item">
-                                        <a
-                                          href="#start-production-environment"
-                                          class="md-nav__link"
-                                        >
-                                          <span class="md-ellipsis">
-                                            Start Production Environment
-                                          </span>
-                                        </a>
-                                      </li>
+                                            <li class="md-nav__item">
+                                              <a
+                                                href="#how-it-works"
+                                                class="md-nav__link"
+                                              >
+                                                <span class="md-ellipsis">
+                                                  How It Works
+                                                </span>
+                                              </a>
+                                            </li>
 
-                                      <li class="md-nav__item">
-                                        <a
-                                          href="#switch-between-environments"
-                                          class="md-nav__link"
-                                        >
-                                          <span class="md-ellipsis">
-                                            Switch Between Environments
-                                          </span>
-                                        </a>
+                                            <li class="md-nav__item">
+                                              <a
+                                                href="#key-components"
+                                                class="md-nav__link"
+                                              >
+                                                <span class="md-ellipsis">
+                                                  Key Components
+                                                </span>
+                                              </a>
+                                            </li>
+                                          </ul>
+                                        </nav>
                                       </li>
                                     </ul>
                                   </nav>
@@ -793,126 +805,52 @@
                                       Development Workflow
                                     </span>
                                   </a>
-                                </li>
-
-                                <li class="md-nav__item">
-                                  <a
-                                    href="#container-specific-notes"
-                                    class="md-nav__link"
-                                  >
-                                    <span class="md-ellipsis">
-                                      Container-Specific Notes
-                                    </span>
-                                  </a>
 
                                   <nav
                                     class="md-nav"
-                                    aria-label="Container-Specific Notes"
+                                    aria-label="Development Workflow"
                                   >
                                     <ul class="md-nav__list">
                                       <li class="md-nav__item">
                                         <a
-                                          href="#web-application-vuls-web-dev"
+                                          href="#starting-development-environment"
                                           class="md-nav__link"
                                         >
                                           <span class="md-ellipsis">
-                                            Web Application (vuls-web-dev)
+                                            Starting Development Environment
                                           </span>
                                         </a>
                                       </li>
 
                                       <li class="md-nav__item">
                                         <a
-                                          href="#celery-worker-vuls-worker-dev"
+                                          href="#making-code-changes"
                                           class="md-nav__link"
                                         >
                                           <span class="md-ellipsis">
-                                            Celery Worker (vuls-worker-dev)
+                                            Making Code Changes
                                           </span>
                                         </a>
                                       </li>
 
                                       <li class="md-nav__item">
                                         <a
-                                          href="#celery-scheduler-vuls-scheduler-dev"
+                                          href="#monitoring-hot-reload"
                                           class="md-nav__link"
                                         >
                                           <span class="md-ellipsis">
-                                            Celery Scheduler
-                                            (vuls-scheduler-dev)
+                                            Monitoring Hot Reload
                                           </span>
                                         </a>
                                       </li>
 
                                       <li class="md-nav__item">
                                         <a
-                                          href="#docker-executor-vuls-executor-dev"
+                                          href="#testing-hot-reload"
                                           class="md-nav__link"
                                         >
                                           <span class="md-ellipsis">
-                                            Docker Executor (vuls-executor-dev)
-                                          </span>
-                                        </a>
-                                      </li>
-                                    </ul>
-                                  </nav>
-                                </li>
-
-                                <li class="md-nav__item">
-                                  <a
-                                    href="#best-practices"
-                                    class="md-nav__link"
-                                  >
-                                    <span class="md-ellipsis">
-                                      Best Practices
-                                    </span>
-                                  </a>
-
-                                  <nav
-                                    class="md-nav"
-                                    aria-label="Best Practices"
-                                  >
-                                    <ul class="md-nav__list">
-                                      <li class="md-nav__item">
-                                        <a
-                                          href="#when-to-use-development-containers"
-                                          class="md-nav__link"
-                                        >
-                                          <span class="md-ellipsis">
-                                            When to Use Development Containers
-                                          </span>
-                                        </a>
-                                      </li>
-
-                                      <li class="md-nav__item">
-                                        <a
-                                          href="#when-to-use-production-containers"
-                                          class="md-nav__link"
-                                        >
-                                          <span class="md-ellipsis">
-                                            When to Use Production Containers
-                                          </span>
-                                        </a>
-                                      </li>
-
-                                      <li class="md-nav__item">
-                                        <a
-                                          href="#development-tips"
-                                          class="md-nav__link"
-                                        >
-                                          <span class="md-ellipsis">
-                                            Development Tips
-                                          </span>
-                                        </a>
-                                      </li>
-
-                                      <li class="md-nav__item">
-                                        <a
-                                          href="#profile-environment-variable"
-                                          class="md-nav__link"
-                                        >
-                                          <span class="md-ellipsis">
-                                            Profile Environment Variable
+                                            Testing Hot Reload
                                           </span>
                                         </a>
                                       </li>
@@ -937,33 +875,62 @@
                                     <ul class="md-nav__list">
                                       <li class="md-nav__item">
                                         <a
-                                          href="#container-wont-start"
+                                          href="#common-issues"
                                           class="md-nav__link"
                                         >
                                           <span class="md-ellipsis">
-                                            Container Won't Start
+                                            Common Issues
                                           </span>
                                         </a>
+
+                                        <nav
+                                          class="md-nav"
+                                          aria-label="Common Issues"
+                                        >
+                                          <ul class="md-nav__list">
+                                            <li class="md-nav__item">
+                                              <a
+                                                href="#worker-not-restarting"
+                                                class="md-nav__link"
+                                              >
+                                                <span class="md-ellipsis">
+                                                  Worker Not Restarting
+                                                </span>
+                                              </a>
+                                            </li>
+
+                                            <li class="md-nav__item">
+                                              <a
+                                                href="#permission-issues"
+                                                class="md-nav__link"
+                                              >
+                                                <span class="md-ellipsis">
+                                                  Permission Issues
+                                                </span>
+                                              </a>
+                                            </li>
+
+                                            <li class="md-nav__item">
+                                              <a
+                                                href="#socket-connection-errors"
+                                                class="md-nav__link"
+                                              >
+                                                <span class="md-ellipsis">
+                                                  Socket Connection Errors
+                                                </span>
+                                              </a>
+                                            </li>
+                                          </ul>
+                                        </nav>
                                       </li>
 
                                       <li class="md-nav__item">
                                         <a
-                                          href="#hot-reload-not-working"
+                                          href="#debugging-commands"
                                           class="md-nav__link"
                                         >
                                           <span class="md-ellipsis">
-                                            Hot Reload Not Working
-                                          </span>
-                                        </a>
-                                      </li>
-
-                                      <li class="md-nav__item">
-                                        <a
-                                          href="#performance-issues"
-                                          class="md-nav__link"
-                                        >
-                                          <span class="md-ellipsis">
-                                            Performance Issues
+                                            Debugging Commands
                                           </span>
                                         </a>
                                       </li>
@@ -972,91 +939,118 @@
                                 </li>
 
                                 <li class="md-nav__item">
-                                  <a href="#architecture" class="md-nav__link">
+                                  <a
+                                    href="#performance-considerations"
+                                    class="md-nav__link"
+                                  >
                                     <span class="md-ellipsis">
-                                      Architecture
-                                    </span>
-                                  </a>
-
-                                  <nav class="md-nav" aria-label="Architecture">
-                                    <ul class="md-nav__list">
-                                      <li class="md-nav__item">
-                                        <a
-                                          href="#single-dockerfile-approach"
-                                          class="md-nav__link"
-                                        >
-                                          <span class="md-ellipsis">
-                                            Single Dockerfile Approach
-                                          </span>
-                                        </a>
-                                      </li>
-
-                                      <li class="md-nav__item">
-                                        <a
-                                          href="#build-arguments-in-compose"
-                                          class="md-nav__link"
-                                        >
-                                          <span class="md-ellipsis">
-                                            Build Arguments in Compose
-                                          </span>
-                                        </a>
-                                      </li>
-
-                                      <li class="md-nav__item">
-                                        <a
-                                          href="#benefits-of-this-approach"
-                                          class="md-nav__link"
-                                        >
-                                          <span class="md-ellipsis">
-                                            Benefits of This Approach
-                                          </span>
-                                        </a>
-                                      </li>
-                                    </ul>
-                                  </nav>
-                                </li>
-
-                                <li class="md-nav__item">
-                                  <a href="#configuration" class="md-nav__link">
-                                    <span class="md-ellipsis">
-                                      Configuration
+                                      Performance Considerations
                                     </span>
                                   </a>
 
                                   <nav
                                     class="md-nav"
-                                    aria-label="Configuration"
+                                    aria-label="Performance Considerations"
                                   >
                                     <ul class="md-nav__list">
                                       <li class="md-nav__item">
                                         <a
-                                          href="#environment-variables"
+                                          href="#development-vs-production"
                                           class="md-nav__link"
                                         >
                                           <span class="md-ellipsis">
-                                            Environment Variables
+                                            Development vs Production
                                           </span>
                                         </a>
                                       </li>
 
                                       <li class="md-nav__item">
                                         <a
-                                          href="#networking"
+                                          href="#resource-usage"
                                           class="md-nav__link"
                                         >
                                           <span class="md-ellipsis">
-                                            Networking
+                                            Resource Usage
+                                          </span>
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </nav>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a
+                                    href="#security-notes"
+                                    class="md-nav__link"
+                                  >
+                                    <span class="md-ellipsis">
+                                      Security Notes
+                                    </span>
+                                  </a>
+
+                                  <nav
+                                    class="md-nav"
+                                    aria-label="Security Notes"
+                                  >
+                                    <ul class="md-nav__list">
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#development-only"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Development Only
                                           </span>
                                         </a>
                                       </li>
 
                                       <li class="md-nav__item">
                                         <a
-                                          href="#data-persistence"
+                                          href="#container-security"
                                           class="md-nav__link"
                                         >
                                           <span class="md-ellipsis">
-                                            Data Persistence
+                                            Container Security
+                                          </span>
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </nav>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a
+                                    href="#future-improvements"
+                                    class="md-nav__link"
+                                  >
+                                    <span class="md-ellipsis">
+                                      Future Improvements
+                                    </span>
+                                  </a>
+
+                                  <nav
+                                    class="md-nav"
+                                    aria-label="Future Improvements"
+                                  >
+                                    <ul class="md-nav__list">
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#planned-enhancements"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Planned Enhancements
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#configuration-options"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Configuration Options
                                           </span>
                                         </a>
                                       </li>
@@ -1085,6 +1079,17 @@
                             >
                               <span class="md-ellipsis">
                                 Alembic Migration Setup
+                              </span>
+                            </a>
+                          </li>
+
+                          <li class="md-nav__item">
+                            <a
+                              href="../dragonfly-migration/"
+                              class="md-nav__link"
+                            >
+                              <span class="md-ellipsis">
+                                Dragonfly Migration
                               </span>
                             </a>
                           </li>
@@ -1281,17 +1286,18 @@
 
           <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
-              <h1 id="development-containers">
-                Development Containers<a
+              <h1 id="development-containers-setup">
+                Development Containers Setup<a
                   class="headerlink"
-                  href="#development-containers"
+                  href="#development-containers-setup"
                   title="Permanent link"
                   >&para;</a
                 >
               </h1>
               <p>
-                This document explains the development container setup that
-                provides hot reload functionality for faster development cycles.
+                This document describes the development container setup for the
+                vulnerability scanning system, including hot reload
+                functionality for improved developer experience.
               </p>
               <h2 id="overview">
                 Overview<a
@@ -1302,175 +1308,256 @@
                 >
               </h2>
               <p>
-                The project uses a single Dockerfile per service with build
-                arguments to create both production and development versions of
-                containers. Development containers are designed to reload
-                automatically when code changes are detected, eliminating the
-                need for manual rebuilds and restarts during development.
+                The development environment uses Docker containers with the
+                following features:
               </p>
-              <h2 id="container-types">
-                Container Types<a
-                  class="headerlink"
-                  href="#container-types"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h2>
-              <h3 id="production-containers-profile-web">
-                Production Containers (Profile: <code>web</code>)<a
-                  class="headerlink"
-                  href="#production-containers-profile-web"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <ul>
-                <li><code>vuls-web</code>: Main web application</li>
-                <li><code>vuls-worker</code>: Celery background task worker</li>
-                <li><code>vuls-scheduler</code>: Celery beat scheduler</li>
-                <li><code>vuls-executor</code>: Docker executor service</li>
-              </ul>
-              <h3 id="development-containers-profile-dev">
-                Development Containers (Profile: <code>dev</code>)<a
-                  class="headerlink"
-                  href="#development-containers-profile-dev"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
               <ul>
                 <li>
-                  <code>vuls-web-dev</code>: Web application with hot reload
+                  <strong>Hot Reload</strong>: Automatic restart of services
+                  when code changes are detected
                 </li>
                 <li>
-                  <code>vuls-worker-dev</code>: Celery worker with hot reload
+                  <strong>Supervisord</strong>: Process management for running
+                  multiple services in containers
                 </li>
                 <li>
-                  <code>vuls-scheduler-dev</code>: Celery scheduler with hot
-                  reload
-                </li>
-                <li>
-                  <code>vuls-executor-dev</code>: Docker executor with hot
-                  reload
-                </li>
-              </ul>
-              <h2 id="key-differences">
-                Key Differences<a
-                  class="headerlink"
-                  href="#key-differences"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h2>
-              <h3 id="development-features">
-                Development Features<a
-                  class="headerlink"
-                  href="#development-features"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <ol>
-                <li>
-                  <strong>Hot Reload</strong>: Code changes trigger automatic
-                  restarts
-                </li>
-                <li>
-                  <strong>Source Code Mounting</strong>: Local source code is
-                  mounted into containers
+                  <strong>Volume Mounts</strong>: Live code synchronization
+                  between host and containers
                 </li>
                 <li>
                   <strong>Development Dependencies</strong>: Additional tools
-                  like watchdog for file monitoring
-                </li>
-                <li>
-                  <strong>Solo Pool</strong>: Celery worker uses solo pool for
-                  better debugging
-                </li>
-              </ol>
-              <h3 id="volume-mounts">
-                Volume Mounts<a
-                  class="headerlink"
-                  href="#volume-mounts"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <p>Development containers mount source code directories:</p>
-              <ul>
-                <li>
-                  <code>./web-app/app:/app/app:rw</code> - Python application
-                  code
-                </li>
-                <li>
-                  <code>./docker-executor:/app:rw</code> - Executor service code
-                </li>
-                <li>
-                  <code>./web-app/static:/app/static:rw</code> - Static files
+                  and packages for development
                 </li>
               </ul>
-              <h2 id="usage">
-                Usage<a class="headerlink" href="#usage" title="Permanent link"
+              <h2 id="container-architecture">
+                Container Architecture<a
+                  class="headerlink"
+                  href="#container-architecture"
+                  title="Permanent link"
                   >&para;</a
                 >
               </h2>
-              <h3 id="start-development-environment">
-                Start Development Environment<a
+              <h3 id="web-application-container-vuls-web-dev">
+                Web Application Container (<code>vuls-web-dev</code>)<a
                   class="headerlink"
-                  href="#start-development-environment"
+                  href="#web-application-container-vuls-web-dev"
                   title="Permanent link"
                   >&para;</a
                 >
               </h3>
-              <div class="language-bash highlight">
-                <pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Start all development containers</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>dev<span class="w"> </span>up<span class="w"> </span>-d
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Start specific development services</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>dev<span class="w"> </span>up<span class="w"> </span>vuls-web-dev<span class="w"> </span>vuls-worker-dev<span class="w"> </span>-d
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Alternative: Set default profile for session</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nb">export</span><span class="w"> </span><span class="nv">COMPOSE_PROFILES</span><span class="o">=</span>dev
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w">  </span><span class="c1"># Will use dev profile by default</span>
-</span></code></pre>
-              </div>
-              <h3 id="start-production-environment">
-                Start Production Environment<a
+              <ul>
+                <li>
+                  <strong>Base Image</strong>: Python 3.11 with UV package
+                  manager
+                </li>
+                <li>
+                  <strong>Purpose</strong>: Runs the FastAPI web application
+                </li>
+                <li>
+                  <strong>Hot Reload</strong>: Uses
+                  <code>uvicorn --reload</code> for automatic restart on code
+                  changes
+                </li>
+                <li><strong>Port</strong>: 8000 (mapped to host)</li>
+                <li><strong>Volume Mounts</strong>:</li>
+                <li><code>./web-app/app:/app/app</code> - Application code</li>
+                <li>
+                  <code>./web-app/static:/app/static</code> - Static files
+                </li>
+              </ul>
+              <h3 id="worker-container-vuls-worker-dev">
+                Worker Container (<code>vuls-worker-dev</code>)<a
                   class="headerlink"
-                  href="#start-production-environment"
+                  href="#worker-container-vuls-worker-dev"
                   title="Permanent link"
                   >&para;</a
                 >
               </h3>
-              <div class="language-bash highlight">
-                <pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Start all production containers</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>web<span class="w"> </span>up<span class="w"> </span>-d
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Alternative: Set default profile for session</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">COMPOSE_PROFILES</span><span class="o">=</span>web
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w">  </span><span class="c1"># Will use web profile by default</span>
-</span></code></pre>
-              </div>
-              <h3 id="switch-between-environments">
-                Switch Between Environments<a
+              <ul>
+                <li>
+                  <strong>Base Image</strong>: Python 3.11 with UV package
+                  manager
+                </li>
+                <li>
+                  <strong>Purpose</strong>: Runs Celery workers for background
+                  tasks
+                </li>
+                <li>
+                  <strong>Hot Reload</strong>: Uses supervisord + entr for
+                  automatic restart on code changes
+                </li>
+                <li><strong>Services Managed</strong>:</li>
+                <li><code>celery-worker</code>: Main Celery worker process</li>
+                <li>
+                  <code>hot-reload-watcher</code>: File watcher for automatic
+                  restarts
+                </li>
+              </ul>
+              <h3 id="executor-container-vuls-executor-dev">
+                Executor Container (<code>vuls-executor-dev</code>)<a
                   class="headerlink"
-                  href="#switch-between-environments"
+                  href="#executor-container-vuls-executor-dev"
                   title="Permanent link"
                   >&para;</a
                 >
               </h3>
-              <div class="language-bash highlight">
-                <pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Stop development environment</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>dev<span class="w"> </span>down
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Start production environment</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>web<span class="w"> </span>up<span class="w"> </span>-d
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Or using environment variable</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nb">export</span><span class="w"> </span><span class="nv">COMPOSE_PROFILES</span><span class="o">=</span>web
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>docker<span class="w"> </span>compose<span class="w"> </span>down<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+              <ul>
+                <li>
+                  <strong>Base Image</strong>: Python 3.11 with UV package
+                  manager
+                </li>
+                <li>
+                  <strong>Purpose</strong>: Executes vulnerability scans and
+                  remote operations
+                </li>
+                <li>
+                  <strong>Hot Reload</strong>: Uses
+                  <code>uvicorn --reload</code> for automatic restart
+                </li>
+                <li><strong>Port</strong>: 8001 (mapped to host)</li>
+              </ul>
+              <h2 id="hot-reload-implementation">
+                Hot Reload Implementation<a
+                  class="headerlink"
+                  href="#hot-reload-implementation"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <h3 id="web-application-hot-reload">
+                Web Application Hot Reload<a
+                  class="headerlink"
+                  href="#web-application-hot-reload"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <p>
+                The web application uses uvicorn's built-in reload
+                functionality:
+              </p>
+              <div class="language-yaml highlight">
+                <pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload</span>
 </span></code></pre>
               </div>
+              <p>
+                This automatically detects changes to Python files and restarts
+                the server.
+              </p>
+              <h3 id="worker-hot-reload">
+                Worker Hot Reload<a
+                  class="headerlink"
+                  href="#worker-hot-reload"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <p>
+                The worker container uses a more sophisticated approach with
+                supervisord:
+              </p>
+              <h4 id="supervisord-configuration-supervisord-celeryconf">
+                Supervisord Configuration
+                (<code>supervisord-celery.conf</code>)<a
+                  class="headerlink"
+                  href="#supervisord-configuration-supervisord-celeryconf"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h4>
+              <div class="language-ini highlight">
+                <pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[supervisord]</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="na">nodaemon</span><span class="o">=</span><span class="s">true</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="na">logfile</span><span class="o">=</span><span class="s">/dev/stdout</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="na">logfile_maxbytes</span><span class="o">=</span><span class="s">0</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="na">pidfile</span><span class="o">=</span><span class="s">/tmp/supervisord.pid</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">[unix_http_server]</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="na">file</span><span class="o">=</span><span class="s">/tmp/supervisor.sock</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="na">chmod</span><span class="o">=</span><span class="s">0777</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="k">[supervisorctl]</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="na">serverurl</span><span class="o">=</span><span class="s">unix:///tmp/supervisor.sock</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="k">[rpcinterface:supervisor]</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="na">supervisor.rpcinterface_factory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">supervisor.rpcinterface:make_main_rpcinterface</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="k">[program:celery-worker]</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="na">command</span><span class="o">=</span><span class="s">uv run celery -A app.tasks worker --loglevel=info --pool=solo</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="na">directory</span><span class="o">=</span><span class="s">/app</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="na">user</span><span class="o">=</span><span class="s">appuser</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="na">autostart</span><span class="o">=</span><span class="s">true</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="na">autorestart</span><span class="o">=</span><span class="s">false</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="na">stdout_logfile</span><span class="o">=</span><span class="s">/dev/stdout</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="na">stdout_logfile_maxbytes</span><span class="o">=</span><span class="s">0</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="na">stderr_logfile</span><span class="o">=</span><span class="s">/dev/stderr</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="na">stderr_logfile_maxbytes</span><span class="o">=</span><span class="s">0</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="na">environment=PATH</span><span class="o">=</span><span class="s">&quot;/app/.venv/bin:%(ENV_PATH)s&quot;</span><span class="na">,UV_CACHE_DIR</span><span class="o">=</span><span class="s">&quot;/home/appuser/.cache/uv&quot;</span><span class="na">,HOME</span><span class="o">=</span><span class="s">&quot;/home/appuser&quot;</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="k">[program:hot-reload-watcher]</span>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="na">command</span><span class="o">=</span><span class="s">bash -c &#39;find /app/app -name &quot;*.py&quot; | entr -n -r supervisorctl -s unix:///tmp/supervisor.sock restart celery-worker&#39;</span>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="na">directory</span><span class="o">=</span><span class="s">/app</span>
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="na">user</span><span class="o">=</span><span class="s">root</span>
+</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="na">autostart</span><span class="o">=</span><span class="s">true</span>
+</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="na">autorestart</span><span class="o">=</span><span class="s">true</span>
+</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="na">stdout_logfile</span><span class="o">=</span><span class="s">/dev/stdout</span>
+</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="na">stdout_logfile_maxbytes</span><span class="o">=</span><span class="s">0</span>
+</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="na">stderr_logfile</span><span class="o">=</span><span class="s">/dev/stderr</span>
+</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a><span class="na">stderr_logfile_maxbytes</span><span class="o">=</span><span class="s">0</span>
+</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a><span class="na">environment=PATH</span><span class="o">=</span><span class="s">&quot;/usr/bin:%(ENV_PATH)s&quot;</span>
+</span></code></pre>
+              </div>
+              <h4 id="how-it-works">
+                How It Works<a
+                  class="headerlink"
+                  href="#how-it-works"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h4>
+              <ol>
+                <li>
+                  <strong>File Watcher</strong>: The
+                  <code>hot-reload-watcher</code> process uses
+                  <code>entr</code> to monitor Python files
+                </li>
+                <li>
+                  <strong>Change Detection</strong>: When a
+                  <code>.py</code> file changes, <code>entr</code> triggers a
+                  restart command
+                </li>
+                <li>
+                  <strong>Service Restart</strong>:
+                  <code>supervisorctl</code> restarts the
+                  <code>celery-worker</code> process
+                </li>
+                <li>
+                  <strong>Code Reload</strong>: The new worker process loads the
+                  updated code
+                </li>
+              </ol>
+              <h4 id="key-components">
+                Key Components<a
+                  class="headerlink"
+                  href="#key-components"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h4>
+              <ul>
+                <li>
+                  <strong>entr</strong>: File watcher utility that monitors file
+                  changes
+                </li>
+                <li>
+                  <strong>supervisord</strong>: Process supervisor that manages
+                  multiple processes
+                </li>
+                <li>
+                  <strong>supervisorctl</strong>: Command-line client for
+                  controlling supervisord
+                </li>
+              </ul>
               <h2 id="development-workflow">
                 Development Workflow<a
                   class="headerlink"
@@ -1479,188 +1566,86 @@
                   >&para;</a
                 >
               </h2>
-              <ol>
-                <li>
-                  <strong>Code Changes</strong>: Edit files in your local
-                  development environment
-                </li>
-                <li>
-                  <strong>Automatic Reload</strong>: Development containers
-                  detect changes and restart automatically
-                </li>
-                <li>
-                  <strong>No Rebuild Required</strong>: Changes are reflected
-                  immediately without rebuilding images
-                </li>
-                <li>
-                  <strong>Database Persistence</strong>: Database and Redis data
-                  persist across container restarts
-                </li>
-              </ol>
-              <h2 id="container-specific-notes">
-                Container-Specific Notes<a
+              <h3 id="starting-development-environment">
+                Starting Development Environment<a
                   class="headerlink"
-                  href="#container-specific-notes"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h2>
-              <h3 id="web-application-vuls-web-dev">
-                Web Application (<code>vuls-web-dev</code>)<a
-                  class="headerlink"
-                  href="#web-application-vuls-web-dev"
+                  href="#starting-development-environment"
                   title="Permanent link"
                   >&para;</a
                 >
               </h3>
-              <ul>
-                <li>
-                  Uses single Dockerfile with
-                  <code>BUILD_TYPE=development</code> argument
-                </li>
-                <li>
-                  Enables <code>--reload</code> flag for uvicorn hot reload
-                </li>
-                <li>Mounts source code for hot reload</li>
-                <li>Includes alembic files for database migrations</li>
-              </ul>
-              <h3 id="celery-worker-vuls-worker-dev">
-                Celery Worker (<code>vuls-worker-dev</code>)<a
-                  class="headerlink"
-                  href="#celery-worker-vuls-worker-dev"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <ul>
-                <li>Uses solo pool for better debugging</li>
-                <li>Connects to development executor service</li>
-                <li>Automatically reloads when task code changes</li>
-                <li>Built with <code>BUILD_TYPE=development</code> argument</li>
-              </ul>
-              <h3 id="celery-scheduler-vuls-scheduler-dev">
-                Celery Scheduler (<code>vuls-scheduler-dev</code>)<a
-                  class="headerlink"
-                  href="#celery-scheduler-vuls-scheduler-dev"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <ul>
-                <li>Monitors scheduled task definitions</li>
-                <li>Reloads when scheduler configuration changes</li>
-                <li>Built with <code>BUILD_TYPE=development</code> argument</li>
-              </ul>
-              <h3 id="docker-executor-vuls-executor-dev">
-                Docker Executor (<code>vuls-executor-dev</code>)<a
-                  class="headerlink"
-                  href="#docker-executor-vuls-executor-dev"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <ul>
-                <li>Uses watchdog for Python file monitoring</li>
-                <li>Automatically restarts on code changes</li>
-                <li>Maintains same Docker socket access as production</li>
-                <li>Built with <code>BUILD_TYPE=development</code> argument</li>
-              </ul>
-              <h2 id="best-practices">
-                Best Practices<a
-                  class="headerlink"
-                  href="#best-practices"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h2>
-              <h3 id="when-to-use-development-containers">
-                When to Use Development Containers<a
-                  class="headerlink"
-                  href="#when-to-use-development-containers"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <ul>
-                <li>✅ Active development and debugging</li>
-                <li>✅ Testing new features</li>
-                <li>✅ Rapid iteration cycles</li>
-                <li>✅ Local development environment</li>
-              </ul>
-              <h3 id="when-to-use-production-containers">
-                When to Use Production Containers<a
-                  class="headerlink"
-                  href="#when-to-use-production-containers"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <ul>
-                <li>✅ Performance testing</li>
-                <li>✅ Production-like testing</li>
-                <li>✅ Final integration testing</li>
-                <li>✅ Deployment preparation</li>
-              </ul>
-              <h3 id="development-tips">
-                Development Tips<a
-                  class="headerlink"
-                  href="#development-tips"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <ol>
-                <li>
-                  <strong>Monitor Logs</strong>: Use
-                  <code>docker compose logs -f &lt;service&gt;</code> to watch
-                  for reload events
-                </li>
-                <li>
-                  <strong>Database Migrations</strong>: Run migrations in
-                  development containers for testing
-                </li>
-                <li>
-                  <strong>Port Conflicts</strong>: Ensure no conflicts between
-                  dev and prod containers on same ports
-                </li>
-                <li>
-                  <strong>Resource Usage</strong>: Development containers may
-                  use more resources due to file watching
-                </li>
-                <li>
-                  <strong>Profile Environment Variable</strong>: Set
-                  <code>export COMPOSE_PROFILES=dev</code> to avoid typing
-                  <code>--profile dev</code> repeatedly
-                </li>
-              </ol>
-              <h3 id="profile-environment-variable">
-                Profile Environment Variable<a
-                  class="headerlink"
-                  href="#profile-environment-variable"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <p>
-                For convenience during development, you can set the default
-                profile:
-              </p>
               <div class="language-bash highlight">
-                <pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Set development as default profile for your session</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">COMPOSE_PROFILES</span><span class="o">=</span>dev
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Now you can use shorter commands</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>vuls-web-dev
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># To switch to production temporarily</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>web<span class="w"> </span>up<span class="w"> </span>-d
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1"># Or change the default</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="nb">export</span><span class="w"> </span><span class="nv">COMPOSE_PROFILES</span><span class="o">=</span>web
+                <pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Start all development containers</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># View logs for all services</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># View logs for specific service</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>vuls-web-dev
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>vuls-worker-dev
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>vuls-executor-dev
 </span></code></pre>
               </div>
+              <h3 id="making-code-changes">
+                Making Code Changes<a
+                  class="headerlink"
+                  href="#making-code-changes"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ol>
+                <li>
+                  <strong>Edit Code</strong>: Make changes to any Python file in
+                  the mounted directories
+                </li>
+                <li>
+                  <strong>Automatic Reload</strong>: Services will automatically
+                  restart and load new code
+                </li>
+                <li>
+                  <strong>Verify Changes</strong>: Check logs to confirm restart
+                  and test functionality
+                </li>
+              </ol>
+              <h3 id="monitoring-hot-reload">
+                Monitoring Hot Reload<a
+                  class="headerlink"
+                  href="#monitoring-hot-reload"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <p>Watch the logs to see hot reload in action:</p>
+              <div class="language-bash highlight">
+                <pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Monitor worker restarts</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>vuls-worker-dev
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Look for these messages indicating successful reload:</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># celery-worker: stopped</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># celery-worker: started</span>
+</span></code></pre>
+              </div>
+              <h3 id="testing-hot-reload">
+                Testing Hot Reload<a
+                  class="headerlink"
+                  href="#testing-hot-reload"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <p>You can test the hot reload functionality by:</p>
+              <ol>
+                <li>
+                  Making a small change to a task file (e.g.,
+                  <code>web-app/app/tasks/lynis_tasks.py</code>)
+                </li>
+                <li>Watching the logs for restart messages</li>
+                <li>
+                  Verifying the change takes effect without manual restart
+                </li>
+              </ol>
               <h2 id="troubleshooting">
                 Troubleshooting<a
                   class="headerlink"
@@ -1669,191 +1654,242 @@
                   >&para;</a
                 >
               </h2>
-              <h3 id="container-wont-start">
-                Container Won't Start<a
+              <h3 id="common-issues">
+                Common Issues<a
                   class="headerlink"
-                  href="#container-wont-start"
+                  href="#common-issues"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <h4 id="worker-not-restarting">
+                Worker Not Restarting<a
+                  class="headerlink"
+                  href="#worker-not-restarting"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h4>
+              <p>
+                <strong>Symptoms</strong>: Code changes don't trigger worker
+                restart
+              </p>
+              <p>
+                <strong>Solutions</strong>: 1. Check if supervisord is running:
+                <code>docker exec vuls-worker-dev supervisorctl status</code> 2.
+                Verify file watcher is active in logs 3. Ensure file changes are
+                in mounted volume paths
+              </p>
+              <h4 id="permission-issues">
+                Permission Issues<a
+                  class="headerlink"
+                  href="#permission-issues"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h4>
+              <p>
+                <strong>Symptoms</strong>: Cache directory permission errors
+              </p>
+              <p>
+                <strong>Solutions</strong>: 1. Verify environment variables in
+                supervisord config 2. Check user permissions in container 3.
+                Ensure cache directories are properly created and owned
+              </p>
+              <h4 id="socket-connection-errors">
+                Socket Connection Errors<a
+                  class="headerlink"
+                  href="#socket-connection-errors"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h4>
+              <p>
+                <strong>Symptoms</strong>:
+                <code>unix:///var/run/supervisor.sock no such file</code>
+              </p>
+              <p>
+                <strong>Solutions</strong>: 1. Verify supervisord socket path
+                configuration 2. Check if supervisord is running as expected 3.
+                Ensure socket file permissions are correct
+              </p>
+              <h3 id="debugging-commands">
+                Debugging Commands<a
+                  class="headerlink"
+                  href="#debugging-commands"
                   title="Permanent link"
                   >&para;</a
                 >
               </h3>
               <div class="language-bash highlight">
-                <pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Check container logs</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>vuls-web-dev
+                <pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Check supervisord status</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-worker-dev<span class="w"> </span>supervisorctl<span class="w"> </span>status
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Rebuild development image</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w"> </span>vuls-web-dev
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># View supervisord logs</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-worker-dev<span class="w"> </span>supervisorctl<span class="w"> </span>tail<span class="w"> </span>-f<span class="w"> </span>celery-worker
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Restart specific service</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-worker-dev<span class="w"> </span>supervisorctl<span class="w"> </span>restart<span class="w"> </span>celery-worker
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="c1"># Check file watcher process</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-worker-dev<span class="w"> </span>ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>entr
 </span></code></pre>
               </div>
-              <h3 id="hot-reload-not-working">
-                Hot Reload Not Working<a
+              <h2 id="performance-considerations">
+                Performance Considerations<a
                   class="headerlink"
-                  href="#hot-reload-not-working"
+                  href="#performance-considerations"
                   title="Permanent link"
                   >&para;</a
                 >
-              </h3>
-              <ol>
-                <li>Verify source code is properly mounted</li>
-                <li>Check file permissions on mounted volumes</li>
-                <li>Ensure watchdog is running in container logs</li>
-              </ol>
-              <h3 id="performance-issues">
-                Performance Issues<a
+              </h2>
+              <h3 id="development-vs-production">
+                Development vs Production<a
                   class="headerlink"
-                  href="#performance-issues"
+                  href="#development-vs-production"
                   title="Permanent link"
                   >&para;</a
                 >
               </h3>
               <ul>
                 <li>
-                  Development containers use more CPU due to file watching
+                  <strong>Development</strong>: Hot reload enabled, debug
+                  logging, development dependencies
                 </li>
                 <li>
-                  Consider excluding large directories from file monitoring
+                  <strong>Production</strong>: Hot reload disabled, optimized
+                  for performance and security
                 </li>
-                <li>Use production containers for performance testing</li>
               </ul>
-              <h2 id="architecture">
-                Architecture<a
+              <h3 id="resource-usage">
+                Resource Usage<a
                   class="headerlink"
-                  href="#architecture"
+                  href="#resource-usage"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <ul>
+                <li>
+                  File watchers consume minimal CPU but monitor file system
+                  events
+                </li>
+                <li>
+                  Automatic restarts may cause brief service interruptions
+                </li>
+                <li>
+                  Volume mounts have slight performance overhead compared to
+                  copied files
+                </li>
+              </ul>
+              <h2 id="security-notes">
+                Security Notes<a
+                  class="headerlink"
+                  href="#security-notes"
                   title="Permanent link"
                   >&para;</a
                 >
               </h2>
-              <h3 id="single-dockerfile-approach">
-                Single Dockerfile Approach<a
+              <h3 id="development-only">
+                Development Only<a
                   class="headerlink"
-                  href="#single-dockerfile-approach"
+                  href="#development-only"
                   title="Permanent link"
                   >&para;</a
                 >
               </h3>
               <p>
-                The project uses a consolidated approach with a single
-                Dockerfile per service that supports both production and
-                development builds through build arguments:
+                The hot reload functionality should <strong>never</strong> be
+                enabled in production environments:
               </p>
-              <div class="language-dockerfile highlight">
-                <pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c"># Build argument to determine if this is a dev build</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">ARG</span><span class="w"> </span><span class="nv">BUILD_TYPE</span><span class="o">=</span>production
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c"># Install development dependencies only if BUILD_TYPE=development</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">RUN</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BUILD_TYPE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;development&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span>pip<span class="w"> </span>install<span class="w"> </span>--no-cache-dir<span class="w"> </span>watchdog<span class="p">;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="k">fi</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="c"># Run with conditional reload based on build type</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="k">CMD</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BUILD_TYPE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;development&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="nb">exec</span><span class="w"> </span>uvicorn<span class="w"> </span>app.main:app<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span><span class="w"> </span>--reload<span class="p">;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="nb">exec</span><span class="w"> </span>uvicorn<span class="w"> </span>app.main:app<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">    </span><span class="k">fi</span>
-</span></code></pre>
-              </div>
-              <h3 id="build-arguments-in-compose">
-                Build Arguments in Compose<a
+              <ul>
+                <li>File watchers can be security risks</li>
+                <li>Automatic restarts can cause service disruptions</li>
+                <li>
+                  Development configurations may expose sensitive information
+                </li>
+              </ul>
+              <h3 id="container-security">
+                Container Security<a
                   class="headerlink"
-                  href="#build-arguments-in-compose"
+                  href="#container-security"
                   title="Permanent link"
                   >&para;</a
                 >
               </h3>
-              <p>
-                Services specify their build type through compose configuration:
-              </p>
-              <div class="language-yaml highlight">
-                <pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Production build</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nt">vuls-web</span><span class="p">:</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">build</span><span class="p">:</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./web-app</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">args</span><span class="p">:</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">      </span><span class="nt">BUILD_TYPE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">production</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1"># Development build</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="nt">vuls-web-dev</span><span class="p">:</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="nt">build</span><span class="p">:</span>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./web-app</span>
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="nt">args</span><span class="p">:</span>
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">      </span><span class="nt">BUILD_TYPE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">development</span>
-</span></code></pre>
-              </div>
-              <h3 id="benefits-of-this-approach">
-                Benefits of This Approach<a
+              <ul>
+                <li>
+                  Development containers run with elevated privileges for
+                  debugging
+                </li>
+                <li>
+                  Production containers should use minimal privileges and
+                  security hardening
+                </li>
+                <li>
+                  Sensitive data should never be included in development images
+                </li>
+              </ul>
+              <h2 id="future-improvements">
+                Future Improvements<a
                   class="headerlink"
-                  href="#benefits-of-this-approach"
+                  href="#future-improvements"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <h3 id="planned-enhancements">
+                Planned Enhancements<a
+                  class="headerlink"
+                  href="#planned-enhancements"
                   title="Permanent link"
                   >&para;</a
                 >
               </h3>
               <ol>
                 <li>
-                  <strong>DRY Principle</strong>: Single source of truth for
-                  each service
+                  <strong>Selective Restart</strong>: Only restart affected
+                  services based on changed files
                 </li>
                 <li>
-                  <strong>Easier Maintenance</strong>: Changes only need to be
-                  made in one place
+                  <strong>Faster Reload</strong>: Optimize restart times for
+                  better developer experience
                 </li>
                 <li>
-                  <strong>Consistency</strong>: Ensures dev and prod
-                  environments stay in sync
+                  <strong>IDE Integration</strong>: Better integration with
+                  development environments
                 </li>
                 <li>
-                  <strong>Reduced Complexity</strong>: Fewer files to manage
-                </li>
-                <li>
-                  <strong>Better CI/CD</strong>: Single Dockerfile can build
-                  both variants
+                  <strong>Test Automation</strong>: Automatic test execution on
+                  code changes
                 </li>
               </ol>
-              <h2 id="configuration">
-                Configuration<a
+              <h3 id="configuration-options">
+                Configuration Options<a
                   class="headerlink"
-                  href="#configuration"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h2>
-              <h3 id="environment-variables">
-                Environment Variables<a
-                  class="headerlink"
-                  href="#environment-variables"
+                  href="#configuration-options"
                   title="Permanent link"
                   >&para;</a
                 >
               </h3>
               <p>
-                Development containers inherit the same environment variables as
-                production containers, ensuring consistency between
-                environments.
+                Consider adding environment variables to control hot reload
+                behavior:
               </p>
-              <h3 id="networking">
-                Networking<a
-                  class="headerlink"
-                  href="#networking"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <p>
-                Development containers use the same network configuration as
-                production, allowing seamless switching between environments.
-              </p>
-              <h3 id="data-persistence">
-                Data Persistence<a
-                  class="headerlink"
-                  href="#data-persistence"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <p>
-                Database and Redis data volumes are shared between development
-                and production containers, maintaining data consistency.
-              </p>
+              <ul>
+                <li>
+                  <code>ENABLE_HOT_RELOAD</code>: Toggle hot reload
+                  functionality
+                </li>
+                <li>
+                  <code>RELOAD_PATTERNS</code>: Customize which files trigger
+                  restarts
+                </li>
+                <li>
+                  <code>RELOAD_DELAY</code>: Add delay before restart to batch
+                  changes
+                </li>
+              </ul>
             </article>
           </div>
 

@@ -13,15 +13,17 @@
 
     <link
       rel="canonical"
-      href="https://your-domain.com/docs/development/websocket-implementation-complete/"
+      href="https://your-domain.com/docs/development/dragonfly-migration/"
     />
+
+    <link rel="prev" href="../alembic-migration-setup/" />
+
+    <link rel="next" href="../task-scheduler-fix/" />
 
     <link rel="icon" href="../../assets/images/favicon.png" />
     <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14" />
 
-    <title>
-      WebSocket Implementation Complete - Vuls Vulnerability Management System
-    </title>
+    <title>Dragonfly Migration - Vuls Vulnerability Management System</title>
 
     <link
       rel="stylesheet"
@@ -81,7 +83,7 @@
     />
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
-      <a href="#websocket-implementation-complete" class="md-skip">
+      <a href="#redis-to-dragonfly-migration" class="md-skip">
         Skip to content
       </a>
     </div>
@@ -124,9 +126,7 @@
               </span>
             </div>
             <div class="md-header__topic" data-md-component="header-topic">
-              <span class="md-ellipsis">
-                WebSocket Implementation Complete
-              </span>
+              <span class="md-ellipsis"> Dragonfly Migration </span>
             </div>
           </div>
         </div>
@@ -334,7 +334,7 @@
               <a href="../../user-guide/" class="md-tabs__link"> User Guide </a>
             </li>
 
-            <li class="md-tabs__item">
+            <li class="md-tabs__item md-tabs__item--active">
               <a href="../" class="md-tabs__link"> Development </a>
             </li>
 
@@ -568,11 +568,14 @@
                       </nav>
                     </li>
 
-                    <li class="md-nav__item md-nav__item--nested">
+                    <li
+                      class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested"
+                    >
                       <input
-                        class="md-nav__toggle md-toggle md-toggle--indeterminate"
+                        class="md-nav__toggle md-toggle"
                         type="checkbox"
                         id="__nav_4"
+                        checked
                       />
 
                       <div class="md-nav__link md-nav__container">
@@ -584,7 +587,7 @@
                           class="md-nav__link"
                           for="__nav_4"
                           id="__nav_4_label"
-                          tabindex="0"
+                          tabindex=""
                         >
                           <span class="md-nav__icon md-icon"></span>
                         </label>
@@ -594,7 +597,7 @@
                         class="md-nav"
                         data-md-level="1"
                         aria-labelledby="__nav_4_label"
-                        aria-expanded="false"
+                        aria-expanded="true"
                       >
                         <label class="md-nav__title" for="__nav_4">
                           <span class="md-nav__icon md-icon"></span>
@@ -643,15 +646,193 @@
                             </a>
                           </li>
 
-                          <li class="md-nav__item">
+                          <li class="md-nav__item md-nav__item--active">
+                            <input
+                              class="md-nav__toggle md-toggle"
+                              type="checkbox"
+                              id="__toc"
+                            />
+
+                            <label
+                              class="md-nav__link md-nav__link--active"
+                              for="__toc"
+                            >
+                              <span class="md-ellipsis">
+                                Dragonfly Migration
+                              </span>
+
+                              <span class="md-nav__icon md-icon"></span>
+                            </label>
+
                             <a
-                              href="../dragonfly-migration/"
-                              class="md-nav__link"
+                              href="./"
+                              class="md-nav__link md-nav__link--active"
                             >
                               <span class="md-ellipsis">
                                 Dragonfly Migration
                               </span>
                             </a>
+
+                            <nav
+                              class="md-nav md-nav--secondary"
+                              aria-label="Table of contents"
+                            >
+                              <label class="md-nav__title" for="__toc">
+                                <span class="md-nav__icon md-icon"></span>
+                                Table of contents
+                              </label>
+                              <ul
+                                class="md-nav__list"
+                                data-md-component="toc"
+                                data-md-scrollfix
+                              >
+                                <li class="md-nav__item">
+                                  <a href="#overview" class="md-nav__link">
+                                    <span class="md-ellipsis"> Overview </span>
+                                  </a>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a href="#why-dragonfly" class="md-nav__link">
+                                    <span class="md-ellipsis">
+                                      Why Dragonfly?
+                                    </span>
+                                  </a>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a href="#changes-made" class="md-nav__link">
+                                    <span class="md-ellipsis">
+                                      Changes Made
+                                    </span>
+                                  </a>
+
+                                  <nav class="md-nav" aria-label="Changes Made">
+                                    <ul class="md-nav__list">
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#docker-compose-configuration"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Docker Compose Configuration
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#application-configuration"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Application Configuration
+                                          </span>
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </nav>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a
+                                    href="#dragonfly-configuration"
+                                    class="md-nav__link"
+                                  >
+                                    <span class="md-ellipsis">
+                                      Dragonfly Configuration
+                                    </span>
+                                  </a>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a
+                                    href="#security-enhancements"
+                                    class="md-nav__link"
+                                  >
+                                    <span class="md-ellipsis">
+                                      Security Enhancements
+                                    </span>
+                                  </a>
+
+                                  <nav
+                                    class="md-nav"
+                                    aria-label="Security Enhancements"
+                                  >
+                                    <ul class="md-nav__list">
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#password-authentication"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Password Authentication
+                                          </span>
+                                        </a>
+                                      </li>
+
+                                      <li class="md-nav__item">
+                                        <a
+                                          href="#command-renaming"
+                                          class="md-nav__link"
+                                        >
+                                          <span class="md-ellipsis">
+                                            Command Renaming
+                                          </span>
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </nav>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a href="#compatibility" class="md-nav__link">
+                                    <span class="md-ellipsis">
+                                      Compatibility
+                                    </span>
+                                  </a>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a href="#benefits" class="md-nav__link">
+                                    <span class="md-ellipsis"> Benefits </span>
+                                  </a>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a href="#testing" class="md-nav__link">
+                                    <span class="md-ellipsis"> Testing </span>
+                                  </a>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a href="#rollback-plan" class="md-nav__link">
+                                    <span class="md-ellipsis">
+                                      Rollback Plan
+                                    </span>
+                                  </a>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a href="#monitoring" class="md-nav__link">
+                                    <span class="md-ellipsis">
+                                      Monitoring
+                                    </span>
+                                  </a>
+                                </li>
+
+                                <li class="md-nav__item">
+                                  <a
+                                    href="#future-considerations"
+                                    class="md-nav__link"
+                                  >
+                                    <span class="md-ellipsis">
+                                      Future Considerations
+                                    </span>
+                                  </a>
+                                </li>
+                              </ul>
+                            </nav>
                           </li>
 
                           <li class="md-nav__item">
@@ -846,357 +1027,372 @@
 
           <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
-              <h1 id="websocket-implementation-complete">
-                WebSocket Implementation Complete<a
+              <h1 id="redis-to-dragonfly-migration">
+                Redis to Dragonfly Migration<a
                   class="headerlink"
-                  href="#websocket-implementation-complete"
+                  href="#redis-to-dragonfly-migration"
                   title="Permanent link"
                   >&para;</a
                 >
               </h1>
-              <h2 id="summary">
-                Summary<a
+              <h2 id="overview">
+                Overview<a
                   class="headerlink"
-                  href="#summary"
+                  href="#overview"
                   title="Permanent link"
                   >&para;</a
                 >
               </h2>
               <p>
-                The scheduler page has been successfully migrated from
-                polling-based updates to a complete WebSocket-driven real-time
-                notification system.
+                This document describes the migration from Redis to Dragonfly
+                for the task queue system in the vulnerability scanning
+                application.
               </p>
-              <h2 id="what-was-accomplished">
-                ✅ What Was Accomplished<a
+              <h2 id="why-dragonfly">
+                Why Dragonfly?<a
                   class="headerlink"
-                  href="#what-was-accomplished"
+                  href="#why-dragonfly"
                   title="Permanent link"
                   >&para;</a
                 >
               </h2>
-              <h3 id="1-polling-removal">
-                1. <strong>Polling Removal</strong
-                ><a
-                  class="headerlink"
-                  href="#1-polling-removal"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
+              <p>Dragonfly was chosen as a Redis replacement due to:</p>
               <ul>
                 <li>
-                  Removed all <code>setInterval</code> polling from scheduler
-                  page
+                  <strong>Licensing</strong>: Dragonfly uses the Business Source
+                  License (BSL) which is more permissive than Redis's dual
+                  licensing model
                 </li>
-                <li>Eliminated <code>monitorTaskExecution()</code> function</li>
-                <li>Removed periodic API calls for task status updates</li>
                 <li>
-                  Updated fallback behavior to show error messages instead of
-                  polling
+                  <strong>Redis Compatibility</strong>: Dragonfly is fully
+                  compatible with Redis protocols and commands
                 </li>
-              </ul>
-              <h3 id="2-websocket-integration">
-                2. <strong>WebSocket Integration</strong
-                ><a
-                  class="headerlink"
-                  href="#2-websocket-integration"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <ul>
-                <li>Enhanced existing WebSocket infrastructure</li>
-                <li>Integrated Redis pub/sub with WebSocket notifications</li>
-                <li>Added real-time task completion notifications</li>
-                <li>Implemented automatic reconnection handling</li>
-              </ul>
-              <h3 id="3-task-notification-system">
-                3. <strong>Task Notification System</strong
-                ><a
-                  class="headerlink"
-                  href="#3-task-notification-system"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <ul>
                 <li>
-                  Updated <code>update_task_status()</code> to publish Redis
-                  notifications
+                  <strong>Performance</strong>: Dragonfly offers better
+                  performance characteristics, especially for memory usage and
+                  multi-threading
                 </li>
-                <li>Added comprehensive logging and error handling</li>
-                <li>Integrated with existing Celery task system</li>
                 <li>
-                  Ensured notifications work for both scan and database update
-                  tasks
+                  <strong>Drop-in Replacement</strong>: No application code
+                  changes required due to Redis protocol compatibility
                 </li>
               </ul>
-              <h3 id="4-comprehensive-testing">
-                4. <strong>Comprehensive Testing</strong
-                ><a
+              <h2 id="changes-made">
+                Changes Made<a
                   class="headerlink"
-                  href="#4-comprehensive-testing"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <ul>
-                <li>Created test suite in <code>web-app/app/tests/</code></li>
-                <li>Verified Redis connection and pub/sub functionality</li>
-                <li>Tested WebSocket connection and communication</li>
-                <li>Validated end-to-end notification delivery</li>
-                <li>Confirmed task completion notification flow</li>
-              </ul>
-              <h2 id="test-results">
-                ✅ Test Results<a
-                  class="headerlink"
-                  href="#test-results"
+                  href="#changes-made"
                   title="Permanent link"
                   >&para;</a
                 >
               </h2>
-              <p>All tests pass successfully:</p>
-              <div class="language-bash highlight">
-                <pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Redis functionality</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-web-dev<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>app.tests.test_redis
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>✅<span class="w"> </span>Redis<span class="w"> </span>connection<span class="w"> </span>successful
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>✅<span class="w"> </span>Notification<span class="w"> </span>published<span class="w"> </span>successfully
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>✅<span class="w"> </span>Redis<span class="w"> </span>pub/sub<span class="w"> </span>has<span class="w"> </span><span class="m">1</span><span class="w"> </span>subscriber
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># WebSocket connection</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-web-dev<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>app.tests.test_websocket_client
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>✅<span class="w"> </span>WebSocket<span class="w"> </span>connected<span class="w"> </span>successfully!
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>✅<span class="w"> </span>Ping/pong<span class="w"> </span>communication<span class="w"> </span>working
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># End-to-end notification delivery</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-web-dev<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>app.tests.test_end_to_end
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>✅<span class="w"> </span>WebSocket<span class="w"> </span>connected
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>✅<span class="w"> </span>Notification<span class="w"> </span>published
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>✅<span class="w"> </span>Message<span class="w"> </span>delivered<span class="w"> </span>via<span class="w"> </span>WebSocket
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>✅<span class="w"> </span>Complete<span class="w"> </span>notification<span class="w"> </span>data<span class="w"> </span>received
+              <h3 id="docker-compose-configuration">
+                Docker Compose Configuration<a
+                  class="headerlink"
+                  href="#docker-compose-configuration"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h3>
+              <p>
+                The <code>vuls-redis</code> service in
+                <code>compose.yml</code> was updated:
+              </p>
+              <p><strong>Before (Redis):</strong></p>
+              <div class="language-yaml highlight">
+                <pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">vuls-redis</span><span class="p">:</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis:7-alpine</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vuls-redis</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">healthcheck</span><span class="p">:</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">CMD</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">redis-cli</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">ping</span><span class="p p-Indicator">]</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">web</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">dev</span><span class="p p-Indicator">]</span>
 </span></code></pre>
               </div>
-              <h2 id="system-architecture">
-                ✅ System Architecture<a
-                  class="headerlink"
-                  href="#system-architecture"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h2>
-              <h3 id="before-polling-based">
-                Before (Polling-based)<a
-                  class="headerlink"
-                  href="#before-polling-based"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h3>
-              <div class="language-text highlight">
-                <pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Browser → Periodic API calls → Server
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>        ← JSON responses    ←
+              <p><strong>After (Dragonfly):</strong></p>
+              <div class="language-yaml highlight">
+                <pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">vuls-redis</span><span class="p">:</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">docker.dragonflydb.io/dragonflydb/dragonfly:latest</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vuls-redis</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;--logtostderr&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;--alsologtostderr=false&quot;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">healthcheck</span><span class="p">:</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">CMD</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">redis-cli</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">ping</span><span class="p p-Indicator">]</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">web</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">dev</span><span class="p p-Indicator">]</span>
 </span></code></pre>
               </div>
-              <h3 id="after-websocket-based">
-                After (WebSocket-based)<a
+              <h3 id="application-configuration">
+                Application Configuration<a
                   class="headerlink"
-                  href="#after-websocket-based"
+                  href="#application-configuration"
                   title="Permanent link"
                   >&para;</a
                 >
               </h3>
-              <div class="language-text highlight">
-                <pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Browser ←→ WebSocket ←→ Server
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>              ↑
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>         Redis Pub/Sub
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>              ↑
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        Task Completion
-</span></code></pre>
-              </div>
-              <h2 id="performance-benefits">
-                ✅ Performance Benefits<a
+              <p>
+                No changes were required to the application configuration since:
+              </p>
+              <ul>
+                <li>
+                  The Redis URL format remains the same:
+                  <code>redis://vuls-redis:6379</code>
+                </li>
+                <li>Celery continues to use the same Redis protocol</li>
+                <li>
+                  All Redis commands used by Celery are supported by Dragonfly
+                </li>
+              </ul>
+              <h2 id="dragonfly-configuration">
+                Dragonfly Configuration<a
                   class="headerlink"
-                  href="#performance-benefits"
+                  href="#dragonfly-configuration"
                   title="Permanent link"
                   >&para;</a
                 >
               </h2>
+              <p>The Dragonfly container is configured with:</p>
               <ul>
                 <li>
-                  <strong>Eliminated server load</strong> from periodic API
-                  polling
+                  <code>--logtostderr</code>: Direct logs to stderr for Docker
+                  logging
                 </li>
                 <li>
-                  <strong>Real-time updates</strong> with instant task
-                  completion notifications
+                  <code>--alsologtostderr=false</code>: Prevent duplicate log
+                  entries
                 </li>
                 <li>
-                  <strong>Reduced bandwidth</strong> usage compared to polling
+                  <code>--requirepass</code>: Password authentication for
+                  security
                 </li>
                 <li>
-                  <strong>Scalable architecture</strong> using efficient
-                  WebSocket connections
-                </li>
-                <li>
-                  <strong>Better user experience</strong> with immediate
-                  feedback
+                  <code>--rename_command=CONFIG:VULS_CONFIG_CMD_RENAMED</code>:
+                  Rename dangerous CONFIG command
                 </li>
               </ul>
-              <h2 id="files-modified">
-                ✅ Files Modified<a
+              <h2 id="security-enhancements">
+                Security Enhancements<a
                   class="headerlink"
-                  href="#files-modified"
+                  href="#security-enhancements"
                   title="Permanent link"
                   >&para;</a
                 >
               </h2>
-              <h3 id="core-application-files">
-                Core Application Files<a
+              <p>
+                For security best practices, the following measures have been
+                implemented:
+              </p>
+              <h3 id="password-authentication">
+                Password Authentication<a
                   class="headerlink"
-                  href="#core-application-files"
+                  href="#password-authentication"
                   title="Permanent link"
                   >&para;</a
                 >
               </h3>
               <ul>
                 <li>
-                  <code>web-app/app/templates/scheduler.html</code> - Removed
-                  polling, kept WebSocket
+                  <strong>Environment Variable</strong>:
+                  <code>REDIS_PASSWORD</code> (defaults to
+                  <code>VulsRedisSecurePassword2025</code>)
                 </li>
                 <li>
-                  <code>web-app/app/tasks/task_utils.py</code> - Added
-                  notification publishing
+                  <strong>Connection Format</strong>:
+                  <code>redis://:password@vuls-redis:6379</code>
                 </li>
                 <li>
-                  <code>web-app/app/api/websocket.py</code> - Enhanced error
-                  handling
-                </li>
-                <li>
-                  <code>web-app/app/utils/notification_service.py</code> -
-                  Improved logging
+                  <strong>Health Checks</strong>: Updated to use authentication
                 </li>
               </ul>
-              <h3 id="documentation">
-                Documentation<a
+              <h3 id="command-renaming">
+                Command Renaming<a
                   class="headerlink"
-                  href="#documentation"
+                  href="#command-renaming"
                   title="Permanent link"
                   >&para;</a
                 >
               </h3>
               <ul>
                 <li>
-                  <code>docs/development/websocket-migration-summary.md</code> -
-                  Complete migration guide
+                  <strong>CONFIG Command</strong>: Renamed to
+                  <code>VULS_CONFIG_CMD_RENAMED</code>
                 </li>
                 <li>
-                  <code>docs/development/websocket-troubleshooting.md</code> -
-                  Troubleshooting guide
+                  <strong>Purpose</strong>: Prevents unauthorized configuration
+                  changes
                 </li>
                 <li>
-                  <code
-                    >docs/development/websocket-implementation-complete.md</code
-                  >
-                  - This summary
+                  <strong>Access</strong>: Only available with the renamed
+                  command
                 </li>
               </ul>
-              <h3 id="testing">
+              <h2 id="compatibility">
+                Compatibility<a
+                  class="headerlink"
+                  href="#compatibility"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <p>Dragonfly maintains full compatibility with:</p>
+              <ul>
+                <li>
+                  <strong>Redis Protocol</strong>: All Redis commands used by
+                  Celery
+                </li>
+                <li>
+                  <strong>Celery</strong>: Task queue, result backend, and beat
+                  scheduler
+                </li>
+                <li>
+                  <strong>Health Checks</strong>: Redis CLI commands for
+                  monitoring
+                </li>
+                <li>
+                  <strong>Connection Strings</strong>: Same Redis URL format
+                </li>
+              </ul>
+              <h2 id="benefits">
+                Benefits<a
+                  class="headerlink"
+                  href="#benefits"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <ol>
+                <li>
+                  <strong>Licensing Clarity</strong>: Avoids Redis licensing
+                  concerns
+                </li>
+                <li>
+                  <strong>Performance</strong>: Better memory efficiency and
+                  multi-core utilization
+                </li>
+                <li>
+                  <strong>Compatibility</strong>: Zero application code changes
+                  required
+                </li>
+                <li>
+                  <strong>Monitoring</strong>: Same Redis CLI tools work for
+                  monitoring
+                </li>
+              </ol>
+              <h2 id="testing">
                 Testing<a
                   class="headerlink"
                   href="#testing"
                   title="Permanent link"
                   >&para;</a
                 >
-              </h3>
-              <ul>
-                <li>
-                  <code>web-app/app/tests/test_redis.py</code> - Redis
-                  functionality tests
-                </li>
-                <li>
-                  <code>web-app/app/tests/test_websocket_client.py</code> -
-                  WebSocket connection tests
-                </li>
-                <li>
-                  <code>web-app/app/tests/test_end_to_end.py</code> - End-to-end
-                  notification tests
-                </li>
-                <li>
-                  <code>web-app/app/tests/test_task_completion.py</code> - Task
-                  completion flow tests
-                </li>
-                <li>
-                  <code>web-app/app/tests/README.md</code> - Test documentation
-                </li>
-              </ul>
-              <h2 id="current-status">
-                ✅ Current Status<a
-                  class="headerlink"
-                  href="#current-status"
-                  title="Permanent link"
-                  >&para;</a
-                >
               </h2>
-              <p>
-                The scheduler page is now
-                <strong>100% WebSocket-driven</strong> with:
-              </p>
-              <ul>
-                <li>❌ <strong>No polling intervals</strong></li>
-                <li>❌ <strong>No periodic API calls</strong></li>
-                <li>✅ <strong>Real-time task notifications</strong></li>
-                <li>✅ <strong>Automatic UI updates</strong></li>
-                <li>✅ <strong>Manual refresh backup options</strong></li>
-                <li>✅ <strong>Comprehensive error handling</strong></li>
-                <li>✅ <strong>Automatic reconnection</strong></li>
-                <li>✅ <strong>Thorough test coverage</strong></li>
-              </ul>
-              <h2 id="verification">
-                ✅ Verification<a
-                  class="headerlink"
-                  href="#verification"
-                  title="Permanent link"
-                  >&para;</a
-                >
-              </h2>
-              <p>To verify the system is working:</p>
+              <p>To verify the migration:</p>
               <ol>
-                <li><strong>Check containers are running:</strong></li>
+                <li><strong>Start the development environment:</strong></li>
               </ol>
               <div class="language-bash highlight">
-                <pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>ps<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;(redis|web-dev|worker)&quot;</span>
+                <pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>dev<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre>
               </div>
               <ol>
-                <li><strong>Run test suite:</strong></li>
+                <li><strong>Check Dragonfly health:</strong></li>
               </ol>
               <div class="language-bash highlight">
-                <pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-web-dev<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>app.tests.test_redis
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-web-dev<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>app.tests.test_end_to_end
+                <pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-redis<span class="w"> </span>redis-cli<span class="w"> </span>ping
 </span></code></pre>
               </div>
               <ol>
-                <li><strong>Test in browser:</strong></li>
-                <li>Open scheduler page</li>
-                <li>Run a task</li>
-                <li>Verify real-time notifications appear</li>
-                <li>Check browser console for WebSocket messages</li>
+                <li><strong>Verify Celery connectivity:</strong></li>
               </ol>
-              <h2 id="migration-complete">
-                ✅ Migration Complete<a
+              <div class="language-bash highlight">
+                <pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>vuls-worker-dev<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>celery<span class="w"> </span>-A<span class="w"> </span>app.tasks<span class="w"> </span>inspect<span class="w"> </span>ping
+</span></code></pre>
+              </div>
+              <ol>
+                <li>
+                  <strong>Test task execution:</strong>
+                  <div class="language-bash highlight">
+                    <pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Submit a test task through the web interface</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1"># Check logs for successful task processing</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>vuls-worker-dev
+</span></code></pre>
+                  </div>
+                </li>
+              </ol>
+              <h2 id="rollback-plan">
+                Rollback Plan<a
                   class="headerlink"
-                  href="#migration-complete"
+                  href="#rollback-plan"
                   title="Permanent link"
                   >&para;</a
                 >
               </h2>
-              <p>
-                The WebSocket implementation is complete and fully functional.
-                The scheduler page now provides real-time updates without any
-                polling mechanisms, delivering a superior user experience with
-                better performance and scalability.
-              </p>
+              <p>If issues arise, rollback by reverting the Docker image:</p>
+              <div class="language-yaml highlight">
+                <pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">vuls-redis</span><span class="p">:</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis:7-alpine</span><span class="w"> </span><span class="c1"># Revert to Redis</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vuls-redis</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="c1"># Remove Dragonfly-specific command</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nt">healthcheck</span><span class="p">:</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">CMD</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">redis-cli</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">ping</span><span class="p p-Indicator">]</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">web</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">dev</span><span class="p p-Indicator">]</span>
+</span></code></pre>
+              </div>
+              <h2 id="monitoring">
+                Monitoring<a
+                  class="headerlink"
+                  href="#monitoring"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <p>Monitor Dragonfly using the same Redis tools:</p>
+              <ul>
+                <li>
+                  <strong>Connection check:</strong> <code>redis-cli ping</code>
+                </li>
+                <li>
+                  <strong>Info command:</strong> <code>redis-cli info</code>
+                </li>
+                <li>
+                  <strong>Memory usage:</strong>
+                  <code>redis-cli info memory</code>
+                </li>
+                <li>
+                  <strong>Client connections:</strong>
+                  <code>redis-cli info clients</code>
+                </li>
+              </ul>
+              <h2 id="future-considerations">
+                Future Considerations<a
+                  class="headerlink"
+                  href="#future-considerations"
+                  title="Permanent link"
+                  >&para;</a
+                >
+              </h2>
+              <ul>
+                <li>
+                  <strong>Dragonfly-specific features</strong>: Consider
+                  leveraging Dragonfly's enhanced features in future updates
+                </li>
+                <li>
+                  <strong>Configuration tuning</strong>: Optimize Dragonfly
+                  configuration for the specific workload
+                </li>
+                <li>
+                  <strong>Monitoring integration</strong>: Integrate
+                  Dragonfly-specific metrics if needed
+                </li>
+              </ul>
             </article>
           </div>
 
@@ -1225,6 +1421,44 @@
       </main>
 
       <footer class="md-footer">
+        <nav class="md-footer__inner md-grid" aria-label="Footer">
+          <a
+            href="../alembic-migration-setup/"
+            class="md-footer__link md-footer__link--prev"
+            aria-label="Previous: Alembic Migration Setup"
+          >
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path
+                  d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"
+                />
+              </svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction"> Previous </span>
+              <div class="md-ellipsis">Alembic Migration Setup</div>
+            </div>
+          </a>
+
+          <a
+            href="../task-scheduler-fix/"
+            class="md-footer__link md-footer__link--next"
+            aria-label="Next: Task Scheduler Fix"
+          >
+            <div class="md-footer__title">
+              <span class="md-footer__direction"> Next </span>
+              <div class="md-ellipsis">Task Scheduler Fix</div>
+            </div>
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path
+                  d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"
+                />
+              </svg>
+            </div>
+          </a>
+        </nav>
+
         <div class="md-footer-meta md-typeset">
           <div class="md-footer-meta__inner md-grid">
             <div class="md-copyright">

@@ -673,118 +673,88 @@
     },
     {
       "location": "development/dev-containers/",
-      "title": "Development Containers",
-      "text": "<p>This document explains the development container setup that provides hot reload functionality for faster development cycles.</p>"
+      "title": "Development Containers Setup",
+      "text": "<p>This document describes the development container setup for the vulnerability scanning system, including hot reload functionality for improved developer experience.</p>"
     },
     {
       "location": "development/dev-containers/#overview",
       "title": "Overview",
-      "text": "<p>The project uses a single Dockerfile per service with build arguments to create both production and development versions of containers. Development containers are designed to reload automatically when code changes are detected, eliminating the need for manual rebuilds and restarts during development.</p>"
+      "text": "<p>The development environment uses Docker containers with the following features:</p> <ul> <li>Hot Reload: Automatic restart of services when code changes are detected</li> <li>Supervisord: Process management for running multiple services in containers</li> <li>Volume Mounts: Live code synchronization between host and containers</li> <li>Development Dependencies: Additional tools and packages for development</li> </ul>"
     },
     {
-      "location": "development/dev-containers/#container-types",
-      "title": "Container Types",
+      "location": "development/dev-containers/#container-architecture",
+      "title": "Container Architecture",
       "text": ""
     },
     {
-      "location": "development/dev-containers/#production-containers-profile-web",
-      "title": "Production Containers (Profile: <code>web</code>)",
-      "text": "<ul> <li><code>vuls-web</code>: Main web application</li> <li><code>vuls-worker</code>: Celery background task worker</li> <li><code>vuls-scheduler</code>: Celery beat scheduler</li> <li><code>vuls-executor</code>: Docker executor service</li> </ul>"
+      "location": "development/dev-containers/#web-application-container-vuls-web-dev",
+      "title": "Web Application Container (<code>vuls-web-dev</code>)",
+      "text": "<ul> <li>Base Image: Python 3.11 with UV package manager</li> <li>Purpose: Runs the FastAPI web application</li> <li>Hot Reload: Uses <code>uvicorn --reload</code> for automatic restart on code changes</li> <li>Port: 8000 (mapped to host)</li> <li>Volume Mounts:</li> <li><code>./web-app/app:/app/app</code> - Application code</li> <li><code>./web-app/static:/app/static</code> - Static files</li> </ul>"
     },
     {
-      "location": "development/dev-containers/#development-containers-profile-dev",
-      "title": "Development Containers (Profile: <code>dev</code>)",
-      "text": "<ul> <li><code>vuls-web-dev</code>: Web application with hot reload</li> <li><code>vuls-worker-dev</code>: Celery worker with hot reload</li> <li><code>vuls-scheduler-dev</code>: Celery scheduler with hot reload</li> <li><code>vuls-executor-dev</code>: Docker executor with hot reload</li> </ul>"
+      "location": "development/dev-containers/#worker-container-vuls-worker-dev",
+      "title": "Worker Container (<code>vuls-worker-dev</code>)",
+      "text": "<ul> <li>Base Image: Python 3.11 with UV package manager</li> <li>Purpose: Runs Celery workers for background tasks</li> <li>Hot Reload: Uses supervisord + entr for automatic restart on code changes</li> <li>Services Managed:</li> <li><code>celery-worker</code>: Main Celery worker process</li> <li><code>hot-reload-watcher</code>: File watcher for automatic restarts</li> </ul>"
     },
     {
-      "location": "development/dev-containers/#key-differences",
-      "title": "Key Differences",
+      "location": "development/dev-containers/#executor-container-vuls-executor-dev",
+      "title": "Executor Container (<code>vuls-executor-dev</code>)",
+      "text": "<ul> <li>Base Image: Python 3.11 with UV package manager</li> <li>Purpose: Executes vulnerability scans and remote operations</li> <li>Hot Reload: Uses <code>uvicorn --reload</code> for automatic restart</li> <li>Port: 8001 (mapped to host)</li> </ul>"
+    },
+    {
+      "location": "development/dev-containers/#hot-reload-implementation",
+      "title": "Hot Reload Implementation",
       "text": ""
     },
     {
-      "location": "development/dev-containers/#development-features",
-      "title": "Development Features",
-      "text": "<ol> <li>Hot Reload: Code changes trigger automatic restarts</li> <li>Source Code Mounting: Local source code is mounted into containers</li> <li>Development Dependencies: Additional tools like watchdog for file monitoring</li> <li>Solo Pool: Celery worker uses solo pool for better debugging</li> </ol>"
+      "location": "development/dev-containers/#web-application-hot-reload",
+      "title": "Web Application Hot Reload",
+      "text": "<p>The web application uses uvicorn's built-in reload functionality:</p> <pre><code>command: uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload\n</code></pre> <p>This automatically detects changes to Python files and restarts the server.</p>"
     },
     {
-      "location": "development/dev-containers/#volume-mounts",
-      "title": "Volume Mounts",
-      "text": "<p>Development containers mount source code directories:</p> <ul> <li><code>./web-app/app:/app/app:rw</code> - Python application code</li> <li><code>./docker-executor:/app:rw</code> - Executor service code</li> <li><code>./web-app/static:/app/static:rw</code> - Static files</li> </ul>"
+      "location": "development/dev-containers/#worker-hot-reload",
+      "title": "Worker Hot Reload",
+      "text": "<p>The worker container uses a more sophisticated approach with supervisord:</p>"
     },
     {
-      "location": "development/dev-containers/#usage",
-      "title": "Usage",
-      "text": ""
+      "location": "development/dev-containers/#supervisord-configuration-supervisord-celeryconf",
+      "title": "Supervisord Configuration (<code>supervisord-celery.conf</code>)",
+      "text": "<pre><code>[supervisord]\nnodaemon=true\nlogfile=/dev/stdout\nlogfile_maxbytes=0\npidfile=/tmp/supervisord.pid\n\n[unix_http_server]\nfile=/tmp/supervisor.sock\nchmod=0777\n\n[supervisorctl]\nserverurl=unix:///tmp/supervisor.sock\n\n[rpcinterface:supervisor]\nsupervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface\n\n[program:celery-worker]\ncommand=uv run celery -A app.tasks worker --loglevel=info --pool=solo\ndirectory=/app\nuser=appuser\nautostart=true\nautorestart=false\nstdout_logfile=/dev/stdout\nstdout_logfile_maxbytes=0\nstderr_logfile=/dev/stderr\nstderr_logfile_maxbytes=0\nenvironment=PATH=\"/app/.venv/bin:%(ENV_PATH)s\",UV_CACHE_DIR=\"/home/appuser/.cache/uv\",HOME=\"/home/appuser\"\n\n[program:hot-reload-watcher]\ncommand=bash -c 'find /app/app -name \"*.py\" | entr -n -r supervisorctl -s unix:///tmp/supervisor.sock restart celery-worker'\ndirectory=/app\nuser=root\nautostart=true\nautorestart=true\nstdout_logfile=/dev/stdout\nstdout_logfile_maxbytes=0\nstderr_logfile=/dev/stderr\nstderr_logfile_maxbytes=0\nenvironment=PATH=\"/usr/bin:%(ENV_PATH)s\"\n</code></pre>"
     },
     {
-      "location": "development/dev-containers/#start-development-environment",
-      "title": "Start Development Environment",
-      "text": "<pre><code># Start all development containers\ndocker compose --profile dev up -d\n\n# Start specific development services\ndocker compose --profile dev up vuls-web-dev vuls-worker-dev -d\n\n# Alternative: Set default profile for session\nexport COMPOSE_PROFILES=dev\ndocker compose up -d  # Will use dev profile by default\n</code></pre>"
+      "location": "development/dev-containers/#how-it-works",
+      "title": "How It Works",
+      "text": "<ol> <li>File Watcher: The <code>hot-reload-watcher</code> process uses <code>entr</code> to monitor Python files</li> <li>Change Detection: When a <code>.py</code> file changes, <code>entr</code> triggers a restart command</li> <li>Service Restart: <code>supervisorctl</code> restarts the <code>celery-worker</code> process</li> <li>Code Reload: The new worker process loads the updated code</li> </ol>"
     },
     {
-      "location": "development/dev-containers/#start-production-environment",
-      "title": "Start Production Environment",
-      "text": "<pre><code># Start all production containers\ndocker compose --profile web up -d\n\n# Alternative: Set default profile for session\nexport COMPOSE_PROFILES=web\ndocker compose up -d  # Will use web profile by default\n</code></pre>"
-    },
-    {
-      "location": "development/dev-containers/#switch-between-environments",
-      "title": "Switch Between Environments",
-      "text": "<pre><code># Stop development environment\ndocker compose --profile dev down\n\n# Start production environment\ndocker compose --profile web up -d\n\n# Or using environment variable\nexport COMPOSE_PROFILES=web\ndocker compose down &amp;&amp; docker compose up -d\n</code></pre>"
+      "location": "development/dev-containers/#key-components",
+      "title": "Key Components",
+      "text": "<ul> <li>entr: File watcher utility that monitors file changes</li> <li>supervisord: Process supervisor that manages multiple processes</li> <li>supervisorctl: Command-line client for controlling supervisord</li> </ul>"
     },
     {
       "location": "development/dev-containers/#development-workflow",
       "title": "Development Workflow",
-      "text": "<ol> <li>Code Changes: Edit files in your local development environment</li> <li>Automatic Reload: Development containers detect changes and restart automatically</li> <li>No Rebuild Required: Changes are reflected immediately without rebuilding images</li> <li>Database Persistence: Database and Redis data persist across container restarts</li> </ol>"
-    },
-    {
-      "location": "development/dev-containers/#container-specific-notes",
-      "title": "Container-Specific Notes",
       "text": ""
     },
     {
-      "location": "development/dev-containers/#web-application-vuls-web-dev",
-      "title": "Web Application (<code>vuls-web-dev</code>)",
-      "text": "<ul> <li>Uses single Dockerfile with <code>BUILD_TYPE=development</code> argument</li> <li>Enables <code>--reload</code> flag for uvicorn hot reload</li> <li>Mounts source code for hot reload</li> <li>Includes alembic files for database migrations</li> </ul>"
+      "location": "development/dev-containers/#starting-development-environment",
+      "title": "Starting Development Environment",
+      "text": "<pre><code># Start all development containers\ndocker compose up -d\n\n# View logs for all services\ndocker compose logs -f\n\n# View logs for specific service\ndocker compose logs -f vuls-web-dev\ndocker compose logs -f vuls-worker-dev\ndocker compose logs -f vuls-executor-dev\n</code></pre>"
     },
     {
-      "location": "development/dev-containers/#celery-worker-vuls-worker-dev",
-      "title": "Celery Worker (<code>vuls-worker-dev</code>)",
-      "text": "<ul> <li>Uses solo pool for better debugging</li> <li>Connects to development executor service</li> <li>Automatically reloads when task code changes</li> <li>Built with <code>BUILD_TYPE=development</code> argument</li> </ul>"
+      "location": "development/dev-containers/#making-code-changes",
+      "title": "Making Code Changes",
+      "text": "<ol> <li>Edit Code: Make changes to any Python file in the mounted directories</li> <li>Automatic Reload: Services will automatically restart and load new code</li> <li>Verify Changes: Check logs to confirm restart and test functionality</li> </ol>"
     },
     {
-      "location": "development/dev-containers/#celery-scheduler-vuls-scheduler-dev",
-      "title": "Celery Scheduler (<code>vuls-scheduler-dev</code>)",
-      "text": "<ul> <li>Monitors scheduled task definitions</li> <li>Reloads when scheduler configuration changes</li> <li>Built with <code>BUILD_TYPE=development</code> argument</li> </ul>"
+      "location": "development/dev-containers/#monitoring-hot-reload",
+      "title": "Monitoring Hot Reload",
+      "text": "<p>Watch the logs to see hot reload in action:</p> <pre><code># Monitor worker restarts\ndocker compose logs -f vuls-worker-dev\n\n# Look for these messages indicating successful reload:\n# celery-worker: stopped\n# celery-worker: started\n</code></pre>"
     },
     {
-      "location": "development/dev-containers/#docker-executor-vuls-executor-dev",
-      "title": "Docker Executor (<code>vuls-executor-dev</code>)",
-      "text": "<ul> <li>Uses watchdog for Python file monitoring</li> <li>Automatically restarts on code changes</li> <li>Maintains same Docker socket access as production</li> <li>Built with <code>BUILD_TYPE=development</code> argument</li> </ul>"
-    },
-    {
-      "location": "development/dev-containers/#best-practices",
-      "title": "Best Practices",
-      "text": ""
-    },
-    {
-      "location": "development/dev-containers/#when-to-use-development-containers",
-      "title": "When to Use Development Containers",
-      "text": "<ul> <li>\u2705 Active development and debugging</li> <li>\u2705 Testing new features</li> <li>\u2705 Rapid iteration cycles</li> <li>\u2705 Local development environment</li> </ul>"
-    },
-    {
-      "location": "development/dev-containers/#when-to-use-production-containers",
-      "title": "When to Use Production Containers",
-      "text": "<ul> <li>\u2705 Performance testing</li> <li>\u2705 Production-like testing</li> <li>\u2705 Final integration testing</li> <li>\u2705 Deployment preparation</li> </ul>"
-    },
-    {
-      "location": "development/dev-containers/#development-tips",
-      "title": "Development Tips",
-      "text": "<ol> <li>Monitor Logs: Use <code>docker compose logs -f &lt;service&gt;</code> to watch for reload events</li> <li>Database Migrations: Run migrations in development containers for testing</li> <li>Port Conflicts: Ensure no conflicts between dev and prod containers on same ports</li> <li>Resource Usage: Development containers may use more resources due to file watching</li> <li>Profile Environment Variable: Set <code>export COMPOSE_PROFILES=dev</code> to avoid typing <code>--profile dev</code> repeatedly</li> </ol>"
-    },
-    {
-      "location": "development/dev-containers/#profile-environment-variable",
-      "title": "Profile Environment Variable",
-      "text": "<p>For convenience during development, you can set the default profile:</p> <pre><code># Set development as default profile for your session\nexport COMPOSE_PROFILES=dev\n\n# Now you can use shorter commands\ndocker compose up -d\ndocker compose down\ndocker compose logs -f vuls-web-dev\n\n# To switch to production temporarily\ndocker compose --profile web up -d\n\n# Or change the default\nexport COMPOSE_PROFILES=web\n</code></pre>"
+      "location": "development/dev-containers/#testing-hot-reload",
+      "title": "Testing Hot Reload",
+      "text": "<p>You can test the hot reload functionality by:</p> <ol> <li>Making a small change to a task file (e.g., <code>web-app/app/tasks/lynis_tasks.py</code>)</li> <li>Watching the logs for restart messages</li> <li>Verifying the change takes effect without manual restart</li> </ol>"
     },
     {
       "location": "development/dev-containers/#troubleshooting",
@@ -792,59 +762,154 @@
       "text": ""
     },
     {
-      "location": "development/dev-containers/#container-wont-start",
-      "title": "Container Won't Start",
-      "text": "<pre><code># Check container logs\ndocker compose logs vuls-web-dev\n\n# Rebuild development image\ndocker compose build vuls-web-dev\n</code></pre>"
-    },
-    {
-      "location": "development/dev-containers/#hot-reload-not-working",
-      "title": "Hot Reload Not Working",
-      "text": "<ol> <li>Verify source code is properly mounted</li> <li>Check file permissions on mounted volumes</li> <li>Ensure watchdog is running in container logs</li> </ol>"
-    },
-    {
-      "location": "development/dev-containers/#performance-issues",
-      "title": "Performance Issues",
-      "text": "<ul> <li>Development containers use more CPU due to file watching</li> <li>Consider excluding large directories from file monitoring</li> <li>Use production containers for performance testing</li> </ul>"
-    },
-    {
-      "location": "development/dev-containers/#architecture",
-      "title": "Architecture",
+      "location": "development/dev-containers/#common-issues",
+      "title": "Common Issues",
       "text": ""
     },
     {
-      "location": "development/dev-containers/#single-dockerfile-approach",
-      "title": "Single Dockerfile Approach",
-      "text": "<p>The project uses a consolidated approach with a single Dockerfile per service that supports both production and development builds through build arguments:</p> <pre><code># Build argument to determine if this is a dev build\nARG BUILD_TYPE=production\n\n# Install development dependencies only if BUILD_TYPE=development\nRUN if [ \"$BUILD_TYPE\" = \"development\" ]; then \\\n    pip install --no-cache-dir watchdog; \\\n    fi\n\n# Run with conditional reload based on build type\nCMD if [ \"$BUILD_TYPE\" = \"development\" ]; then \\\n    exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload; \\\n    else \\\n    exec uvicorn app.main:app --host 0.0.0.0 --port 8000; \\\n    fi\n</code></pre>"
+      "location": "development/dev-containers/#worker-not-restarting",
+      "title": "Worker Not Restarting",
+      "text": "<p>Symptoms: Code changes don't trigger worker restart</p> <p>Solutions: 1. Check if supervisord is running: <code>docker exec vuls-worker-dev supervisorctl status</code> 2. Verify file watcher is active in logs 3. Ensure file changes are in mounted volume paths</p>"
     },
     {
-      "location": "development/dev-containers/#build-arguments-in-compose",
-      "title": "Build Arguments in Compose",
-      "text": "<p>Services specify their build type through compose configuration:</p> <pre><code># Production build\nvuls-web:\n  build:\n    context: ./web-app\n    args:\n      BUILD_TYPE: production\n\n# Development build\nvuls-web-dev:\n  build:\n    context: ./web-app\n    args:\n      BUILD_TYPE: development\n</code></pre>"
+      "location": "development/dev-containers/#permission-issues",
+      "title": "Permission Issues",
+      "text": "<p>Symptoms: Cache directory permission errors</p> <p>Solutions: 1. Verify environment variables in supervisord config 2. Check user permissions in container 3. Ensure cache directories are properly created and owned</p>"
     },
     {
-      "location": "development/dev-containers/#benefits-of-this-approach",
-      "title": "Benefits of This Approach",
-      "text": "<ol> <li>DRY Principle: Single source of truth for each service</li> <li>Easier Maintenance: Changes only need to be made in one place</li> <li>Consistency: Ensures dev and prod environments stay in sync</li> <li>Reduced Complexity: Fewer files to manage</li> <li>Better CI/CD: Single Dockerfile can build both variants</li> </ol>"
+      "location": "development/dev-containers/#socket-connection-errors",
+      "title": "Socket Connection Errors",
+      "text": "<p>Symptoms: <code>unix:///var/run/supervisor.sock no such file</code></p> <p>Solutions: 1. Verify supervisord socket path configuration 2. Check if supervisord is running as expected 3. Ensure socket file permissions are correct</p>"
     },
     {
-      "location": "development/dev-containers/#configuration",
-      "title": "Configuration",
+      "location": "development/dev-containers/#debugging-commands",
+      "title": "Debugging Commands",
+      "text": "<pre><code># Check supervisord status\ndocker exec vuls-worker-dev supervisorctl status\n\n# View supervisord logs\ndocker exec vuls-worker-dev supervisorctl tail -f celery-worker\n\n# Restart specific service\ndocker exec vuls-worker-dev supervisorctl restart celery-worker\n\n# Check file watcher process\ndocker exec vuls-worker-dev ps aux | grep entr\n</code></pre>"
+    },
+    {
+      "location": "development/dev-containers/#performance-considerations",
+      "title": "Performance Considerations",
       "text": ""
     },
     {
-      "location": "development/dev-containers/#environment-variables",
-      "title": "Environment Variables",
-      "text": "<p>Development containers inherit the same environment variables as production containers, ensuring consistency between environments.</p>"
+      "location": "development/dev-containers/#development-vs-production",
+      "title": "Development vs Production",
+      "text": "<ul> <li>Development: Hot reload enabled, debug logging, development dependencies</li> <li>Production: Hot reload disabled, optimized for performance and security</li> </ul>"
     },
     {
-      "location": "development/dev-containers/#networking",
-      "title": "Networking",
-      "text": "<p>Development containers use the same network configuration as production, allowing seamless switching between environments.</p>"
+      "location": "development/dev-containers/#resource-usage",
+      "title": "Resource Usage",
+      "text": "<ul> <li>File watchers consume minimal CPU but monitor file system events</li> <li>Automatic restarts may cause brief service interruptions</li> <li>Volume mounts have slight performance overhead compared to copied files</li> </ul>"
     },
     {
-      "location": "development/dev-containers/#data-persistence",
-      "title": "Data Persistence",
-      "text": "<p>Database and Redis data volumes are shared between development and production containers, maintaining data consistency.</p>"
+      "location": "development/dev-containers/#security-notes",
+      "title": "Security Notes",
+      "text": ""
+    },
+    {
+      "location": "development/dev-containers/#development-only",
+      "title": "Development Only",
+      "text": "<p>The hot reload functionality should never be enabled in production environments:</p> <ul> <li>File watchers can be security risks</li> <li>Automatic restarts can cause service disruptions</li> <li>Development configurations may expose sensitive information</li> </ul>"
+    },
+    {
+      "location": "development/dev-containers/#container-security",
+      "title": "Container Security",
+      "text": "<ul> <li>Development containers run with elevated privileges for debugging</li> <li>Production containers should use minimal privileges and security hardening</li> <li>Sensitive data should never be included in development images</li> </ul>"
+    },
+    {
+      "location": "development/dev-containers/#future-improvements",
+      "title": "Future Improvements",
+      "text": ""
+    },
+    {
+      "location": "development/dev-containers/#planned-enhancements",
+      "title": "Planned Enhancements",
+      "text": "<ol> <li>Selective Restart: Only restart affected services based on changed files</li> <li>Faster Reload: Optimize restart times for better developer experience</li> <li>IDE Integration: Better integration with development environments</li> <li>Test Automation: Automatic test execution on code changes</li> </ol>"
+    },
+    {
+      "location": "development/dev-containers/#configuration-options",
+      "title": "Configuration Options",
+      "text": "<p>Consider adding environment variables to control hot reload behavior:</p> <ul> <li><code>ENABLE_HOT_RELOAD</code>: Toggle hot reload functionality</li> <li><code>RELOAD_PATTERNS</code>: Customize which files trigger restarts</li> <li><code>RELOAD_DELAY</code>: Add delay before restart to batch changes</li> </ul>"
+    },
+    {
+      "location": "development/dragonfly-migration/",
+      "title": "Redis to Dragonfly Migration",
+      "text": ""
+    },
+    {
+      "location": "development/dragonfly-migration/#overview",
+      "title": "Overview",
+      "text": "<p>This document describes the migration from Redis to Dragonfly for the task queue system in the vulnerability scanning application.</p>"
+    },
+    {
+      "location": "development/dragonfly-migration/#why-dragonfly",
+      "title": "Why Dragonfly?",
+      "text": "<p>Dragonfly was chosen as a Redis replacement due to:</p> <ul> <li>Licensing: Dragonfly uses the Business Source License (BSL) which is more permissive than Redis's dual licensing model</li> <li>Redis Compatibility: Dragonfly is fully compatible with Redis protocols and commands</li> <li>Performance: Dragonfly offers better performance characteristics, especially for memory usage and multi-threading</li> <li>Drop-in Replacement: No application code changes required due to Redis protocol compatibility</li> </ul>"
+    },
+    {
+      "location": "development/dragonfly-migration/#changes-made",
+      "title": "Changes Made",
+      "text": ""
+    },
+    {
+      "location": "development/dragonfly-migration/#docker-compose-configuration",
+      "title": "Docker Compose Configuration",
+      "text": "<p>The <code>vuls-redis</code> service in <code>compose.yml</code> was updated:</p> <p>Before (Redis):</p> <pre><code>vuls-redis:\n  image: redis:7-alpine\n  container_name: vuls-redis\n  healthcheck:\n    test: [CMD, redis-cli, ping]\n    interval: 30s\n    timeout: 10s\n    retries: 3\n    start_period: 5s\n  profiles: [web, dev]\n</code></pre> <p>After (Dragonfly):</p> <pre><code>vuls-redis:\n  image: docker.dragonflydb.io/dragonflydb/dragonfly:latest\n  container_name: vuls-redis\n  command: [\"--logtostderr\", \"--alsologtostderr=false\"]\n  healthcheck:\n    test: [CMD, redis-cli, ping]\n    interval: 30s\n    timeout: 10s\n    retries: 3\n    start_period: 5s\n  profiles: [web, dev]\n</code></pre>"
+    },
+    {
+      "location": "development/dragonfly-migration/#application-configuration",
+      "title": "Application Configuration",
+      "text": "<p>No changes were required to the application configuration since:</p> <ul> <li>The Redis URL format remains the same: <code>redis://vuls-redis:6379</code></li> <li>Celery continues to use the same Redis protocol</li> <li>All Redis commands used by Celery are supported by Dragonfly</li> </ul>"
+    },
+    {
+      "location": "development/dragonfly-migration/#dragonfly-configuration",
+      "title": "Dragonfly Configuration",
+      "text": "<p>The Dragonfly container is configured with:</p> <ul> <li><code>--logtostderr</code>: Direct logs to stderr for Docker logging</li> <li><code>--alsologtostderr=false</code>: Prevent duplicate log entries</li> <li><code>--requirepass</code>: Password authentication for security</li> <li><code>--rename_command=CONFIG:VULS_CONFIG_CMD_RENAMED</code>: Rename dangerous CONFIG command</li> </ul>"
+    },
+    {
+      "location": "development/dragonfly-migration/#security-enhancements",
+      "title": "Security Enhancements",
+      "text": "<p>For security best practices, the following measures have been implemented:</p>"
+    },
+    {
+      "location": "development/dragonfly-migration/#password-authentication",
+      "title": "Password Authentication",
+      "text": "<ul> <li>Environment Variable: <code>REDIS_PASSWORD</code> (defaults to <code>VulsRedisSecurePassword2025</code>)</li> <li>Connection Format: <code>redis://:password@vuls-redis:6379</code></li> <li>Health Checks: Updated to use authentication</li> </ul>"
+    },
+    {
+      "location": "development/dragonfly-migration/#command-renaming",
+      "title": "Command Renaming",
+      "text": "<ul> <li>CONFIG Command: Renamed to <code>VULS_CONFIG_CMD_RENAMED</code></li> <li>Purpose: Prevents unauthorized configuration changes</li> <li>Access: Only available with the renamed command</li> </ul>"
+    },
+    {
+      "location": "development/dragonfly-migration/#compatibility",
+      "title": "Compatibility",
+      "text": "<p>Dragonfly maintains full compatibility with:</p> <ul> <li>Redis Protocol: All Redis commands used by Celery</li> <li>Celery: Task queue, result backend, and beat scheduler</li> <li>Health Checks: Redis CLI commands for monitoring</li> <li>Connection Strings: Same Redis URL format</li> </ul>"
+    },
+    {
+      "location": "development/dragonfly-migration/#benefits",
+      "title": "Benefits",
+      "text": "<ol> <li>Licensing Clarity: Avoids Redis licensing concerns</li> <li>Performance: Better memory efficiency and multi-core utilization</li> <li>Compatibility: Zero application code changes required</li> <li>Monitoring: Same Redis CLI tools work for monitoring</li> </ol>"
+    },
+    {
+      "location": "development/dragonfly-migration/#testing",
+      "title": "Testing",
+      "text": "<p>To verify the migration:</p> <ol> <li>Start the development environment:</li> </ol> <pre><code>docker compose --profile dev up -d\n</code></pre> <ol> <li>Check Dragonfly health:</li> </ol> <pre><code>docker compose exec vuls-redis redis-cli ping\n</code></pre> <ol> <li>Verify Celery connectivity:</li> </ol> <pre><code>docker compose exec vuls-worker-dev uv run celery -A app.tasks inspect ping\n</code></pre> <ol> <li>Test task execution: <pre><code># Submit a test task through the web interface\n# Check logs for successful task processing\ndocker compose logs vuls-worker-dev\n</code></pre></li> </ol>"
+    },
+    {
+      "location": "development/dragonfly-migration/#rollback-plan",
+      "title": "Rollback Plan",
+      "text": "<p>If issues arise, rollback by reverting the Docker image:</p> <pre><code>vuls-redis:\n  image: redis:7-alpine # Revert to Redis\n  container_name: vuls-redis\n  # Remove Dragonfly-specific command\n  healthcheck:\n    test: [CMD, redis-cli, ping]\n    interval: 30s\n    timeout: 10s\n    retries: 3\n    start_period: 5s\n  profiles: [web, dev]\n</code></pre>"
+    },
+    {
+      "location": "development/dragonfly-migration/#monitoring",
+      "title": "Monitoring",
+      "text": "<p>Monitor Dragonfly using the same Redis tools:</p> <ul> <li>Connection check: <code>redis-cli ping</code></li> <li>Info command: <code>redis-cli info</code></li> <li>Memory usage: <code>redis-cli info memory</code></li> <li>Client connections: <code>redis-cli info clients</code></li> </ul>"
+    },
+    {
+      "location": "development/dragonfly-migration/#future-considerations",
+      "title": "Future Considerations",
+      "text": "<ul> <li>Dragonfly-specific features: Consider leveraging Dragonfly's enhanced features in future updates</li> <li>Configuration tuning: Optimize Dragonfly configuration for the specific workload</li> <li>Monitoring integration: Integrate Dragonfly-specific metrics if needed</li> </ul>"
     },
     {
       "location": "development/enhanced-vulnerability-analysis/",
