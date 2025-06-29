@@ -281,7 +281,7 @@ services:
       - vuls-executor
     profiles: [web]
 
-  # Development Celery worker with hot reload
+  # Development Celery worker with hot reload via supervisord
   vuls-worker-dev:
     build:
       context: ./web-app
@@ -289,7 +289,7 @@ services:
         BUILD_TYPE: development
     container_name: vuls-worker-dev
     command:
-      [uv, run, celery, -A, app.tasks, worker, --loglevel=info, --pool=solo]
+      [supervisord, -c, /etc/supervisor/supervisord-celery.conf]
     volumes:
       - ./config:/app/config:rw
       - ./results:/app/results:rw

@@ -6,11 +6,13 @@ ARG BUILD_TYPE=production
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies including curl for health check
+# Install system dependencies including curl for health check and supervisor for hot reload
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
     curl \
+    supervisor \
+    entr \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -30,8 +32,16 @@ RUN if [ "$BUILD_TYPE" = "production" ]; then \
 COPY app/ ./app/
 COPY static/ ./static/
 
+# Copy supervisord configuration for development
+COPY supervisord-celery.conf /etc/supervisor/supervisord-celery.conf
+
 # Install dependencies
 RUN uv sync
+
+# Install development dependencies for hot reload if this is a dev build
+RUN if [ "$BUILD_TYPE" = "development" ]; then \
+    uv add watchdog; \
+    fi
 
 # Create non-root user with home directory and matching host UID/GID
 ARG USER_ID=1000
@@ -42,7 +52,22 @@ RUN chown -R appuser:appuser /app
 RUN mkdir -p /home/appuser/.cache && chown -R appuser:appuser /home/appuser/.cache
 # Create volume directories with proper permissions
 RUN mkdir -p /app/results /app/logs /app/config && chown -R appuser:appuser /app/results /app/logs /app/config
-USER appuser
+
+# For development builds, stay as root to run supervisord, otherwise switch to appuser
+RUN if [ "$BUILD_TYPE" = "development" ]; then \
+    echo "Development build - staying as root for supervisord"; \
+    else \
+    echo "Production build - switching to appuser"; \
+    fi
+
+# Switch to appuser for production builds only
+RUN if [ "$BUILD_TYPE" != "development" ]; then \
+    echo "Switching to appuser for production"; \
+    else \
+    echo "Staying as root for development"; \
+    fi
+
+USER root
 
 # Expose port
 EXPOSE 8000

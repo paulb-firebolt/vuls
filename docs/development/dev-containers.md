@@ -1,250 +1,250 @@
-# Development Containers
+# Development Containers Setup
 
-This document explains the development container setup that provides hot reload functionality for faster development cycles.
+This document describes the development container setup for the vulnerability scanning system, including hot reload functionality for improved developer experience.
 
 ## Overview
 
-The project uses a single Dockerfile per service with build arguments to create both production and development versions of containers. Development containers are designed to reload automatically when code changes are detected, eliminating the need for manual rebuilds and restarts during development.
+The development environment uses Docker containers with the following features:
 
-## Container Types
+- **Hot Reload**: Automatic restart of services when code changes are detected
+- **Supervisord**: Process management for running multiple services in containers
+- **Volume Mounts**: Live code synchronization between host and containers
+- **Development Dependencies**: Additional tools and packages for development
 
-### Production Containers (Profile: `web`)
+## Container Architecture
 
-- `vuls-web`: Main web application
-- `vuls-worker`: Celery background task worker
-- `vuls-scheduler`: Celery beat scheduler
-- `vuls-executor`: Docker executor service
+### Web Application Container (`vuls-web-dev`)
 
-### Development Containers (Profile: `dev`)
+- **Base Image**: Python 3.11 with UV package manager
+- **Purpose**: Runs the FastAPI web application
+- **Hot Reload**: Uses `uvicorn --reload` for automatic restart on code changes
+- **Port**: 8000 (mapped to host)
+- **Volume Mounts**:
+  - `./web-app/app:/app/app` - Application code
+  - `./web-app/static:/app/static` - Static files
 
-- `vuls-web-dev`: Web application with hot reload
-- `vuls-worker-dev`: Celery worker with hot reload
-- `vuls-scheduler-dev`: Celery scheduler with hot reload
-- `vuls-executor-dev`: Docker executor with hot reload
+### Worker Container (`vuls-worker-dev`)
 
-## Key Differences
+- **Base Image**: Python 3.11 with UV package manager
+- **Purpose**: Runs Celery workers for background tasks
+- **Hot Reload**: Uses supervisord + entr for automatic restart on code changes
+- **Services Managed**:
+  - `celery-worker`: Main Celery worker process
+  - `hot-reload-watcher`: File watcher for automatic restarts
 
-### Development Features
+### Executor Container (`vuls-executor-dev`)
 
-1. **Hot Reload**: Code changes trigger automatic restarts
-2. **Source Code Mounting**: Local source code is mounted into containers
-3. **Development Dependencies**: Additional tools like watchdog for file monitoring
-4. **Solo Pool**: Celery worker uses solo pool for better debugging
+- **Base Image**: Python 3.11 with UV package manager
+- **Purpose**: Executes vulnerability scans and remote operations
+- **Hot Reload**: Uses `uvicorn --reload` for automatic restart
+- **Port**: 8001 (mapped to host)
 
-### Volume Mounts
+## Hot Reload Implementation
 
-Development containers mount source code directories:
+### Web Application Hot Reload
 
-- `./web-app/app:/app/app:rw` - Python application code
-- `./docker-executor:/app:rw` - Executor service code
-- `./web-app/static:/app/static:rw` - Static files
+The web application uses uvicorn's built-in reload functionality:
 
-## Usage
-
-### Start Development Environment
-
-```bash
-# Start all development containers
-docker compose --profile dev up -d
-
-# Start specific development services
-docker compose --profile dev up vuls-web-dev vuls-worker-dev -d
-
-# Alternative: Set default profile for session
-export COMPOSE_PROFILES=dev
-docker compose up -d  # Will use dev profile by default
+```yaml
+command: uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### Start Production Environment
+This automatically detects changes to Python files and restarts the server.
 
-```bash
-# Start all production containers
-docker compose --profile web up -d
+### Worker Hot Reload
 
-# Alternative: Set default profile for session
-export COMPOSE_PROFILES=web
-docker compose up -d  # Will use web profile by default
+The worker container uses a more sophisticated approach with supervisord:
+
+#### Supervisord Configuration (`supervisord-celery.conf`)
+
+```ini
+[supervisord]
+nodaemon=true
+logfile=/dev/stdout
+logfile_maxbytes=0
+pidfile=/tmp/supervisord.pid
+
+[unix_http_server]
+file=/tmp/supervisor.sock
+chmod=0777
+
+[supervisorctl]
+serverurl=unix:///tmp/supervisor.sock
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[program:celery-worker]
+command=uv run celery -A app.tasks worker --loglevel=info --pool=solo
+directory=/app
+user=appuser
+autostart=true
+autorestart=false
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+environment=PATH="/app/.venv/bin:%(ENV_PATH)s",UV_CACHE_DIR="/home/appuser/.cache/uv",HOME="/home/appuser"
+
+[program:hot-reload-watcher]
+command=bash -c 'find /app/app -name "*.py" | entr -n -r supervisorctl -s unix:///tmp/supervisor.sock restart celery-worker'
+directory=/app
+user=root
+autostart=true
+autorestart=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+environment=PATH="/usr/bin:%(ENV_PATH)s"
 ```
 
-### Switch Between Environments
+#### How It Works
 
-```bash
-# Stop development environment
-docker compose --profile dev down
+1. **File Watcher**: The `hot-reload-watcher` process uses `entr` to monitor Python files
+2. **Change Detection**: When a `.py` file changes, `entr` triggers a restart command
+3. **Service Restart**: `supervisorctl` restarts the `celery-worker` process
+4. **Code Reload**: The new worker process loads the updated code
 
-# Start production environment
-docker compose --profile web up -d
+#### Key Components
 
-# Or using environment variable
-export COMPOSE_PROFILES=web
-docker compose down && docker compose up -d
-```
+- **entr**: File watcher utility that monitors file changes
+- **supervisord**: Process supervisor that manages multiple processes
+- **supervisorctl**: Command-line client for controlling supervisord
 
 ## Development Workflow
 
-1. **Code Changes**: Edit files in your local development environment
-2. **Automatic Reload**: Development containers detect changes and restart automatically
-3. **No Rebuild Required**: Changes are reflected immediately without rebuilding images
-4. **Database Persistence**: Database and Redis data persist across container restarts
-
-## Container-Specific Notes
-
-### Web Application (`vuls-web-dev`)
-
-- Uses single Dockerfile with `BUILD_TYPE=development` argument
-- Enables `--reload` flag for uvicorn hot reload
-- Mounts source code for hot reload
-- Includes alembic files for database migrations
-
-### Celery Worker (`vuls-worker-dev`)
-
-- Uses solo pool for better debugging
-- Connects to development executor service
-- Automatically reloads when task code changes
-- Built with `BUILD_TYPE=development` argument
-
-### Celery Scheduler (`vuls-scheduler-dev`)
-
-- Monitors scheduled task definitions
-- Reloads when scheduler configuration changes
-- Built with `BUILD_TYPE=development` argument
-
-### Docker Executor (`vuls-executor-dev`)
-
-- Uses watchdog for Python file monitoring
-- Automatically restarts on code changes
-- Maintains same Docker socket access as production
-- Built with `BUILD_TYPE=development` argument
-
-## Best Practices
-
-### When to Use Development Containers
-
-- ✅ Active development and debugging
-- ✅ Testing new features
-- ✅ Rapid iteration cycles
-- ✅ Local development environment
-
-### When to Use Production Containers
-
-- ✅ Performance testing
-- ✅ Production-like testing
-- ✅ Final integration testing
-- ✅ Deployment preparation
-
-### Development Tips
-
-1. **Monitor Logs**: Use `docker compose logs -f <service>` to watch for reload events
-2. **Database Migrations**: Run migrations in development containers for testing
-3. **Port Conflicts**: Ensure no conflicts between dev and prod containers on same ports
-4. **Resource Usage**: Development containers may use more resources due to file watching
-5. **Profile Environment Variable**: Set `export COMPOSE_PROFILES=dev` to avoid typing `--profile dev` repeatedly
-
-### Profile Environment Variable
-
-For convenience during development, you can set the default profile:
+### Starting Development Environment
 
 ```bash
-# Set development as default profile for your session
-export COMPOSE_PROFILES=dev
-
-# Now you can use shorter commands
+# Start all development containers
 docker compose up -d
-docker compose down
+
+# View logs for all services
+docker compose logs -f
+
+# View logs for specific service
 docker compose logs -f vuls-web-dev
-
-# To switch to production temporarily
-docker compose --profile web up -d
-
-# Or change the default
-export COMPOSE_PROFILES=web
+docker compose logs -f vuls-worker-dev
+docker compose logs -f vuls-executor-dev
 ```
+
+### Making Code Changes
+
+1. **Edit Code**: Make changes to any Python file in the mounted directories
+2. **Automatic Reload**: Services will automatically restart and load new code
+3. **Verify Changes**: Check logs to confirm restart and test functionality
+
+### Monitoring Hot Reload
+
+Watch the logs to see hot reload in action:
+
+```bash
+# Monitor worker restarts
+docker compose logs -f vuls-worker-dev
+
+# Look for these messages indicating successful reload:
+# celery-worker: stopped
+# celery-worker: started
+```
+
+### Testing Hot Reload
+
+You can test the hot reload functionality by:
+
+1. Making a small change to a task file (e.g., `web-app/app/tasks/lynis_tasks.py`)
+2. Watching the logs for restart messages
+3. Verifying the change takes effect without manual restart
 
 ## Troubleshooting
 
-### Container Won't Start
+### Common Issues
+
+#### Worker Not Restarting
+
+**Symptoms**: Code changes don't trigger worker restart
+
+**Solutions**:
+1. Check if supervisord is running: `docker exec vuls-worker-dev supervisorctl status`
+2. Verify file watcher is active in logs
+3. Ensure file changes are in mounted volume paths
+
+#### Permission Issues
+
+**Symptoms**: Cache directory permission errors
+
+**Solutions**:
+1. Verify environment variables in supervisord config
+2. Check user permissions in container
+3. Ensure cache directories are properly created and owned
+
+#### Socket Connection Errors
+
+**Symptoms**: `unix:///var/run/supervisor.sock no such file`
+
+**Solutions**:
+1. Verify supervisord socket path configuration
+2. Check if supervisord is running as expected
+3. Ensure socket file permissions are correct
+
+### Debugging Commands
 
 ```bash
-# Check container logs
-docker compose logs vuls-web-dev
+# Check supervisord status
+docker exec vuls-worker-dev supervisorctl status
 
-# Rebuild development image
-docker compose build vuls-web-dev
+# View supervisord logs
+docker exec vuls-worker-dev supervisorctl tail -f celery-worker
+
+# Restart specific service
+docker exec vuls-worker-dev supervisorctl restart celery-worker
+
+# Check file watcher process
+docker exec vuls-worker-dev ps aux | grep entr
 ```
 
-### Hot Reload Not Working
+## Performance Considerations
 
-1. Verify source code is properly mounted
-2. Check file permissions on mounted volumes
-3. Ensure watchdog is running in container logs
+### Development vs Production
 
-### Performance Issues
+- **Development**: Hot reload enabled, debug logging, development dependencies
+- **Production**: Hot reload disabled, optimized for performance and security
 
-- Development containers use more CPU due to file watching
-- Consider excluding large directories from file monitoring
-- Use production containers for performance testing
+### Resource Usage
 
-## Architecture
+- File watchers consume minimal CPU but monitor file system events
+- Automatic restarts may cause brief service interruptions
+- Volume mounts have slight performance overhead compared to copied files
 
-### Single Dockerfile Approach
+## Security Notes
 
-The project uses a consolidated approach with a single Dockerfile per service that supports both production and development builds through build arguments:
+### Development Only
 
-```dockerfile
-# Build argument to determine if this is a dev build
-ARG BUILD_TYPE=production
+The hot reload functionality should **never** be enabled in production environments:
 
-# Install development dependencies only if BUILD_TYPE=development
-RUN if [ "$BUILD_TYPE" = "development" ]; then \
-    pip install --no-cache-dir watchdog; \
-    fi
+- File watchers can be security risks
+- Automatic restarts can cause service disruptions
+- Development configurations may expose sensitive information
 
-# Run with conditional reload based on build type
-CMD if [ "$BUILD_TYPE" = "development" ]; then \
-    exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload; \
-    else \
-    exec uvicorn app.main:app --host 0.0.0.0 --port 8000; \
-    fi
-```
+### Container Security
 
-### Build Arguments in Compose
+- Development containers run with elevated privileges for debugging
+- Production containers should use minimal privileges and security hardening
+- Sensitive data should never be included in development images
 
-Services specify their build type through compose configuration:
+## Future Improvements
 
-```yaml
-# Production build
-vuls-web:
-  build:
-    context: ./web-app
-    args:
-      BUILD_TYPE: production
+### Planned Enhancements
 
-# Development build
-vuls-web-dev:
-  build:
-    context: ./web-app
-    args:
-      BUILD_TYPE: development
-```
+1. **Selective Restart**: Only restart affected services based on changed files
+2. **Faster Reload**: Optimize restart times for better developer experience
+3. **IDE Integration**: Better integration with development environments
+4. **Test Automation**: Automatic test execution on code changes
 
-### Benefits of This Approach
+### Configuration Options
 
-1. **DRY Principle**: Single source of truth for each service
-2. **Easier Maintenance**: Changes only need to be made in one place
-3. **Consistency**: Ensures dev and prod environments stay in sync
-4. **Reduced Complexity**: Fewer files to manage
-5. **Better CI/CD**: Single Dockerfile can build both variants
+Consider adding environment variables to control hot reload behavior:
 
-## Configuration
-
-### Environment Variables
-
-Development containers inherit the same environment variables as production containers, ensuring consistency between environments.
-
-### Networking
-
-Development containers use the same network configuration as production, allowing seamless switching between environments.
-
-### Data Persistence
-
-Database and Redis data volumes are shared between development and production containers, maintaining data consistency.
+- `ENABLE_HOT_RELOAD`: Toggle hot reload functionality
+- `RELOAD_PATTERNS`: Customize which files trigger restarts
+- `RELOAD_DELAY`: Add delay before restart to batch changes

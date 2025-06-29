@@ -86,14 +86,10 @@ class NotificationSubscriber:
             # Add a small delay to ensure startup completes first
             await asyncio.sleep(0.1)
 
-            # Try async Redis first, fall back to sync if needed
+            # Use modern redis library's async functionality
             try:
-                import aioredis
-                logger.info("Using async Redis for notifications")
+                logger.info("Using modern redis library async functionality")
                 await self._listen_loop_async()
-            except ImportError:
-                logger.info("aioredis not available, using sync Redis with async wrapper")
-                await self._listen_loop_sync()
             except Exception as e:
                 logger.warning(f"Async Redis failed: {e}, falling back to sync")
                 await self._listen_loop_sync()
@@ -161,17 +157,15 @@ class NotificationSubscriber:
         logger.info("Sync Redis message processing started in background")
 
     async def _listen_loop_async(self):
-        """Async Redis listening using aioredis"""
-        import aioredis
-
-        logger.info("Starting async Redis listener")
+        """Async Redis listening using modern redis library"""
+        logger.info("Starting async Redis listener with modern redis library")
 
         try:
-            # Create async Redis client
-            redis = aioredis.from_url(settings.redis_url, decode_responses=True)
+            # Create async Redis client using redis.asyncio
+            async_redis = redis.asyncio.from_url(settings.redis_url, decode_responses=True)
 
             # Create pubsub
-            pubsub = redis.pubsub()
+            pubsub = async_redis.pubsub()
             await pubsub.subscribe(NOTIFICATION_CHANNEL)
             logger.info(f"Subscribed to Redis channel: {NOTIFICATION_CHANNEL}")
 
@@ -199,7 +193,7 @@ class NotificationSubscriber:
         finally:
             try:
                 await pubsub.unsubscribe(NOTIFICATION_CHANNEL)
-                await redis.close()
+                await async_redis.close()
             except:
                 pass
 

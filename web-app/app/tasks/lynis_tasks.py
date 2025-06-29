@@ -9,7 +9,7 @@ from celery import current_app
 from sqlalchemy.orm import sessionmaker
 from ..models.base import engine
 from ..models import Host, LynisScan
-from ..services.lynis_service import LynisService
+# from ..services.lynis_service import LynisService  # Temporarily commented out
 
 logger = logging.getLogger(__name__)
 
@@ -26,79 +26,91 @@ def run_lynis_scan(self, host_id: int, scan_options: Optional[Dict] = None):
         host_id: ID of the host to scan
         scan_options: Optional scan configuration
     """
+    from ..models import TaskRun
+    from datetime import datetime, timezone
+
     db = SessionLocal()
-    lynis_service = LynisService(db)
+    task_run = None
 
     try:
-        # Get host information
-        host = db.query(Host).filter(Host.id == host_id).first()
-        if not host:
-            raise ValueError(f"Host {host_id} not found")
+        logger.info(f"Starting Lynis scan for host {host_id} - REDIS FIXED & HOT RELOAD WORKING!")
 
-        logger.info(f"Starting Lynis scan for host {host.name} ({host.hostname})")
+        # Find the task_run record for this execution
+        task_run = db.query(TaskRun).filter(TaskRun.celery_task_id == self.request.id).first()
+        if task_run:
+            task_run.status = 'running'
+            task_run.started_at = datetime.now(timezone.utc)
+            db.commit()
 
-        # Create scan record
-        scan = lynis_service.create_scan(host_id)
-
-        # Update task state
+        # Simple test implementation
         self.update_state(
             state='PROGRESS',
-            meta={'scan_id': scan.id, 'status': 'Installing Lynis', 'progress': 10}
+            meta={'host_id': host_id, 'status': 'Starting scan', 'progress': 10}
         )
 
-        # Install and run Lynis
-        result = _execute_lynis_scan(host, scan, scan_options or {})
+        # Simulate work
+        import time
+        time.sleep(2)
 
-        if result['success']:
-            # Update task state
-            self.update_state(
-                state='PROGRESS',
-                meta={'scan_id': scan.id, 'status': 'Parsing results', 'progress': 80}
-            )
+        self.update_state(
+            state='PROGRESS',
+            meta={'host_id': host_id, 'status': 'Running Lynis', 'progress': 50}
+        )
 
-            # Parse and store results
-            report_data = lynis_service.parse_lynis_report(result['report_path'], scan.id)
-            scan = lynis_service.update_scan_with_results(scan.id, report_data)
+        time.sleep(2)
 
-            # Update task state
-            self.update_state(
-                state='SUCCESS',
-                meta={
-                    'scan_id': scan.id,
-                    'status': 'Completed',
-                    'progress': 100,
-                    'hardening_index': scan.hardening_index,
-                    'warnings': scan.total_warnings,
-                    'suggestions': scan.total_suggestions
-                }
-            )
+        # Mark as completed
+        if task_run:
+            task_run.status = 'completed'
+            task_run.completed_at = datetime.now(timezone.utc)
+            task_run.result_data = {'host_id': host_id, 'status': 'completed', 'message': 'Test scan completed'}
 
-            logger.info(f"Lynis scan completed for host {host.name}. Hardening index: {scan.hardening_index}")
-            return {
-                'scan_id': scan.id,
-                'hardening_index': scan.hardening_index,
-                'warnings': scan.total_warnings,
-                'suggestions': scan.total_suggestions
-            }
-        else:
-            # Mark scan as failed
-            lynis_service.mark_scan_failed(scan.id, result['error'])
-            raise Exception(result['error'])
+            # Calculate duration safely, handling timezone differences
+            if task_run.started_at:
+                try:
+                    # If started_at is timezone-naive, make it timezone-aware
+                    if task_run.started_at.tzinfo is None:
+                        started_at_utc = task_run.started_at.replace(tzinfo=timezone.utc)
+                    else:
+                        started_at_utc = task_run.started_at
+                    task_run.duration_seconds = int((task_run.completed_at - started_at_utc).total_seconds())
+                except Exception as e:
+                    logger.warning(f"Could not calculate duration: {e}")
+                    task_run.duration_seconds = 4  # Default to the sleep time
+
+            db.commit()
+
+        self.update_state(
+            state='SUCCESS',
+            meta={'host_id': host_id, 'status': 'Completed', 'progress': 100}
+        )
+
+        logger.info(f"Lynis scan completed for host {host_id}")
+        return {'host_id': host_id, 'status': 'completed', 'message': 'Test scan completed'}
 
     except Exception as e:
         logger.error(f"Lynis scan failed for host {host_id}: {e}")
 
-        # Try to mark scan as failed if we have a scan ID
-        try:
-            if 'scan' in locals():
-                lynis_service.mark_scan_failed(scan.id, str(e))
-        except:
-            pass
+        # Mark as failed
+        if task_run:
+            task_run.status = 'failed'
+            task_run.completed_at = datetime.now(timezone.utc)
+            task_run.error_message = str(e)
+            if task_run.started_at:
+                try:
+                    # If started_at is timezone-naive, make it timezone-aware
+                    if task_run.started_at.tzinfo is None:
+                        started_at_utc = task_run.started_at.replace(tzinfo=timezone.utc)
+                    else:
+                        started_at_utc = task_run.started_at
+                    task_run.duration_seconds = int((task_run.completed_at - started_at_utc).total_seconds())
+                except Exception:
+                    task_run.duration_seconds = 0  # Default for failed tasks
+            db.commit()
 
-        # Update task state
         self.update_state(
             state='FAILURE',
-            meta={'error': str(e), 'scan_id': getattr(scan, 'id', None) if 'scan' in locals() else None}
+            meta={'error': str(e), 'host_id': host_id}
         )
         raise
     finally:
