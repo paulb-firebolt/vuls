@@ -8,6 +8,7 @@ from ..celery_app import celery_app
 from ..config import settings
 from ..utils.executor_client import sync_update_database, sync_wait_for_job_completion, sync_health_check
 from .task_utils import update_task_status
+from .security_data_tasks import update_all_ubuntu_security_data
 
 logger = logging.getLogger(__name__)
 
@@ -133,13 +134,69 @@ def update_nvd_database() -> dict:
 
 
 def update_ubuntu_database() -> dict:
-    """Update Ubuntu OVAL database"""
-    return call_executor_api("ubuntu")
+    """Update Ubuntu security data (USN and OVAL)"""
+    try:
+        logger.info("Updating Ubuntu security data using new PostgreSQL system")
+
+        # Import the unified service directly to avoid Celery task issues
+        from ..services.unified_ubuntu_security import unified_ubuntu_security
+
+        # Update all data directly
+        result = unified_ubuntu_security.update_all_data()
+
+        if result.get("usn", False) or result.get("oval", False):
+            return {
+                "status": "success",
+                "database": "ubuntu",
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "result": result
+            }
+        else:
+            error_msg = "Failed to update Ubuntu security data"
+            logger.error(error_msg)
+            return {
+                "status": "error",
+                "database": "ubuntu",
+                "error": error_msg
+            }
+
+    except Exception as e:
+        error_msg = f"Error updating Ubuntu security data: {str(e)}"
+        logger.error(error_msg)
+        return {"status": "error", "database": "ubuntu", "error": error_msg}
 
 
 def update_debian_database() -> dict:
-    """Update Debian OVAL database"""
-    return call_executor_api("debian")
+    """Update Debian security data (Security Tracker and OVAL)"""
+    try:
+        logger.info("Updating Debian security data using new PostgreSQL system")
+
+        # Import the unified service directly to avoid Celery task issues
+        from ..services.unified_debian_security import unified_debian_security
+
+        # Update all data directly
+        result = unified_debian_security.update_all_data()
+
+        if result.get("security_tracker", False) or result.get("oval", False):
+            return {
+                "status": "success",
+                "database": "debian",
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "result": result
+            }
+        else:
+            error_msg = "Failed to update Debian security data"
+            logger.error(error_msg)
+            return {
+                "status": "error",
+                "database": "debian",
+                "error": error_msg
+            }
+
+    except Exception as e:
+        error_msg = f"Error updating Debian security data: {str(e)}"
+        logger.error(error_msg)
+        return {"status": "error", "database": "debian", "error": error_msg}
 
 
 def update_redhat_database() -> dict:

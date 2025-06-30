@@ -12,14 +12,16 @@ from typing import Dict, List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from ..models.base import get_db
+from .base_vulnerability_source import BaseVulnerabilitySource
 
 logger = logging.getLogger(__name__)
 
 
-class DebianSecurityLookup:
+class DebianSecurityLookup(BaseVulnerabilitySource):
     """Debian Security Tracker data integration with PostgreSQL caching."""
 
     def __init__(self):
+        super().__init__("debian_security_tracker", "Debian")
         self.json_url = "https://security-tracker.debian.org/tracker/data/json"
         self.session = requests.Session()
         self.session.headers.update({
@@ -349,3 +351,16 @@ class DebianSecurityLookup:
         finally:
             if 'db' in locals():
                 db.close()
+
+    # Abstract method implementations required by BaseVulnerabilitySource
+    def download_and_cache_data(self, **kwargs) -> bool:
+        """Download and cache data - delegates to download_and_cache_debian_data."""
+        return self.download_and_cache_debian_data()
+
+    def lookup_vulnerability_info(self, cve_id: str, package_name: str, release: str = 'bookworm', **kwargs) -> Optional[Dict]:
+        """Look up vulnerability information - delegates to lookup_debian_security_info."""
+        return self.lookup_debian_security_info(cve_id, package_name, release)
+
+    def get_package_vulnerabilities(self, package_name: str, release: str = 'bookworm', **kwargs) -> List[Dict]:
+        """Get package vulnerabilities - delegates to get_package_security_status."""
+        return self.get_package_security_status(package_name, release)

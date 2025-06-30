@@ -12,14 +12,16 @@ from typing import Dict, List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from ..models.base import get_db
+from .base_vulnerability_source import BaseUSNSource
 
 logger = logging.getLogger(__name__)
 
 
-class UbuntuSecurityLookup:
+class UbuntuSecurityLookup(BaseUSNSource):
     """Ubuntu Security Notices (USN) data integration with PostgreSQL caching."""
 
     def __init__(self):
+        super().__init__("ubuntu_usn", "Ubuntu")
         self.usn_json_url = "https://usn.ubuntu.com/usn.json"
         self.cve_tracker_base = "https://people.canonical.com/~ubuntu-security/cve"
         self.session = requests.Session()
@@ -388,3 +390,29 @@ class UbuntuSecurityLookup:
         finally:
             if 'db' in locals():
                 db.close()
+
+    # Implement abstract methods from BaseUSNSource
+    def get_usn_url(self) -> str:
+        """Get the USN API URL."""
+        return self.usn_json_url
+
+    def parse_usn_data(self, usn_data: Dict) -> List[Dict]:
+        """Parse USN data into vulnerability records."""
+        # This method is not used in the current implementation
+        # but required by the abstract base class
+        return []
+
+    # Implement abstract methods from BaseVulnerabilitySource
+    def download_and_cache_data(self, **kwargs) -> bool:
+        """Download and cache vulnerability data."""
+        return self.download_and_cache_ubuntu_data()
+
+    def lookup_vulnerability_info(self, cve_id: str, package_name: str, **kwargs) -> Optional[Dict]:
+        """Look up vulnerability information."""
+        release = kwargs.get('release', 'jammy')
+        return self.lookup_ubuntu_security_info(cve_id, package_name, release)
+
+    def get_package_vulnerabilities(self, package_name: str, **kwargs) -> List[Dict]:
+        """Get all vulnerabilities for a package."""
+        release = kwargs.get('release', 'jammy')
+        return self.get_package_security_status(package_name, release)

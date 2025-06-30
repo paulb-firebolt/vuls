@@ -2,13 +2,14 @@
 
 from pydantic_settings import BaseSettings
 from typing import Optional
+import os
 
 
 class Settings(BaseSettings):
     """Application settings"""
 
-    # Database
-    database_url: str = "postgresql+psycopg://vuls:password@localhost:5432/vuls"
+    # Database URL (from environment variable)
+    database_url: str
 
     # Redis
     redis_url: str = "redis://localhost:6379"

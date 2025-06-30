@@ -21,11 +21,13 @@ class ScheduledTaskCreate(BaseModel):
     name: str
     task_type: str  # scan, lynis_scan, db_update
     description: Optional[str] = None
-    cron_expression: str
+    cron_expression: Optional[str] = None  # Optional for immediate tasks
+    schedule_type: str = "cron"  # "cron" or "immediate"
     timezone: str = "UTC"
     config: dict = {}
     host_id: Optional[int] = None
     is_active: bool = True
+    auto_delete_after_run: bool = False  # Auto-delete after completion for one-time tasks
 
 
 class ScheduledTaskUpdate(BaseModel):
@@ -131,14 +133,27 @@ async def create_scheduled_task(
 ):
     """Create a new scheduled task"""
 
-    # Validate cron expression
-    try:
-        croniter(task_data.cron_expression)
-    except Exception as e:
+    # Validate schedule type
+    if task_data.schedule_type not in ["cron", "immediate"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid cron expression: {str(e)}"
+            detail="Schedule type must be 'cron' or 'immediate'"
         )
+
+    # For cron tasks, validate cron expression
+    if task_data.schedule_type == "cron":
+        if not task_data.cron_expression:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cron expression is required for cron tasks"
+            )
+        try:
+            croniter(task_data.cron_expression)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid cron expression: {str(e)}"
+            )
 
     # Validate task type
     if task_data.task_type not in ["scan", "lynis_scan", "db_update"]:
@@ -172,14 +187,20 @@ async def create_scheduled_task(
 
     # Calculate next run time
     now = datetime.now(timezone.utc)
-    next_run_at = get_next_run_time(task_data.cron_expression, now)
+    if task_data.schedule_type == "immediate":
+        # For immediate tasks, set next run time to now
+        next_run_at = now
+        cron_expression = "immediate"  # Special marker for immediate tasks
+    else:
+        next_run_at = get_next_run_time(task_data.cron_expression, now)
+        cron_expression = task_data.cron_expression
 
     # Create the scheduled task
     scheduled_task = ScheduledTask(
         name=task_data.name,
         task_type=task_data.task_type,
         description=task_data.description,
-        cron_expression=task_data.cron_expression,
+        cron_expression=cron_expression,
         timezone=task_data.timezone,
         config=task_data.config,
         host_id=task_data.host_id,
@@ -190,6 +211,60 @@ async def create_scheduled_task(
     db.add(scheduled_task)
     db.commit()
     db.refresh(scheduled_task)
+
+    # For immediate tasks, trigger execution right away
+    if task_data.schedule_type == "immediate":
+        from ..tasks.scan_tasks import run_vulnerability_scan
+        from ..tasks.db_update_tasks import update_vulnerability_database
+        from ..tasks.lynis_tasks import run_lynis_scan
+
+        # Create task run record
+        task_run = TaskRun(
+            scheduled_task_id=scheduled_task.id,
+            status="pending",
+            started_at=datetime.now(timezone.utc)
+        )
+        db.add(task_run)
+        db.commit()
+        db.refresh(task_run)
+
+        # Execute the appropriate task
+        celery_task = None
+        if scheduled_task.task_type == "scan":
+            celery_task = run_vulnerability_scan.delay(
+                host_id=scheduled_task.host_id,
+                scan_type=scheduled_task.config.get("scan_type", "fast"),
+                task_run_id=task_run.id
+            )
+        elif scheduled_task.task_type == "lynis_scan":
+            # Extract Lynis scan options from config
+            scan_options = {}
+            if scheduled_task.config.get("quick_scan"):
+                scan_options["quick_scan"] = True
+            if scheduled_task.config.get("tests"):
+                scan_options["tests"] = scheduled_task.config["tests"]
+
+            celery_task = run_lynis_scan.delay(
+                host_id=scheduled_task.host_id,
+                scan_options=scan_options
+            )
+        elif scheduled_task.task_type == "db_update":
+            celery_task = update_vulnerability_database.delay(
+                database_type=scheduled_task.config.get("database_type", "all"),
+                task_run_id=task_run.id
+            )
+
+        if celery_task:
+            # Update task run with Celery task ID
+            task_run.celery_task_id = celery_task.id
+            task_run.status = "running"
+            db.commit()
+
+        # If auto_delete_after_run is True, mark the task for deletion
+        if task_data.auto_delete_after_run:
+            scheduled_task.config = scheduled_task.config or {}
+            scheduled_task.config["auto_delete_after_run"] = True
+            db.commit()
 
     # Prepare response
     task_dict = {

@@ -9,6 +9,7 @@ from ..models.base import get_db
 from ..models.scheduled_task import ScheduledTask, TaskRun
 from .scan_tasks import run_vulnerability_scan
 from .db_update_tasks import update_vulnerability_database
+from .security_data_tasks import update_all_ubuntu_security_data, check_security_data_freshness
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +54,15 @@ def check_scheduled_tasks(self):
                     elif task.task_type == "db_update":
                         celery_task = update_vulnerability_database.delay(
                             database_type=task.config.get("database_type", "all"),
+                            task_run_id=task_run.id
+                        )
+                    elif task.task_type == "security_data_update":
+                        celery_task = update_all_ubuntu_security_data.delay(
+                            force=task.config.get("force", False),
+                            task_run_id=task_run.id
+                        )
+                    elif task.task_type == "security_data_check":
+                        celery_task = check_security_data_freshness.delay(
                             task_run_id=task_run.id
                         )
 

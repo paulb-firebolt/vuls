@@ -8,5 +8,6 @@ from . import db_update_tasks
 from . import scheduler_tasks
 from . import host_sync_tasks
 from . import lynis_tasks
+from . import security_data_tasks
 
 __all__ = ["celery_app"]

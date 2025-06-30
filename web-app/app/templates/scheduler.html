@@ -566,6 +566,23 @@ Panel{% endblock %} {% block breadcrumbs %}
 
         <div>
           <label
+            for="scheduleType"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >Schedule Type</label
+          >
+          <select
+            id="scheduleType"
+            name="schedule_type"
+            required
+            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="cron">Scheduled (Cron)</option>
+            <option value="immediate">Run Immediately</option>
+          </select>
+        </div>
+
+        <div id="cronExpressionField">
+          <label
             for="cronExpression"
             class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >Schedule (Cron Expression)</label
@@ -574,7 +591,6 @@ Panel{% endblock %} {% block breadcrumbs %}
             type="text"
             id="cronExpression"
             name="cron_expression"
-            required
             placeholder="0 2 * * *"
             class="mt-1 block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           />
@@ -582,6 +598,32 @@ Panel{% endblock %} {% block breadcrumbs %}
             Examples: "0 2 * * *" (daily at 2 AM), "0 0 * * 0" (weekly on
             Sunday)
           </p>
+        </div>
+
+        <div id="immediateOptions" class="hidden">
+          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div class="flex items-center">
+              <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <div>
+                <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200">Immediate Execution</h4>
+                <p class="text-sm text-blue-700 dark:text-blue-300">This task will run immediately upon creation and then be automatically deleted.</p>
+              </div>
+            </div>
+            <div class="mt-3">
+              <label class="flex items-center">
+                <input
+                  type="checkbox"
+                  id="autoDeleteAfterRun"
+                  name="auto_delete_after_run"
+                  checked
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded"
+                />
+                <span class="ml-2 text-sm text-blue-800 dark:text-blue-200">Auto-delete after completion</span>
+              </label>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -667,6 +709,9 @@ Panel{% endblock %} {% block breadcrumbs %}
     document
       .getElementById("taskType")
       .addEventListener("change", handleTaskTypeChange);
+    document
+      .getElementById("scheduleType")
+      .addEventListener("change", handleScheduleTypeChange);
     document
       .getElementById("taskTypeFilter")
       .addEventListener("change", filterTasks);
@@ -959,18 +1004,47 @@ Panel{% endblock %} {% block breadcrumbs %}
       }
     }
 
+    function handleScheduleTypeChange() {
+      const scheduleType = document.getElementById("scheduleType").value;
+      const cronExpressionField = document.getElementById("cronExpressionField");
+      const immediateOptions = document.getElementById("immediateOptions");
+      const cronExpression = document.getElementById("cronExpression");
+
+      if (scheduleType === "immediate") {
+        cronExpressionField.classList.add("hidden");
+        immediateOptions.classList.remove("hidden");
+        cronExpression.required = false;
+      } else {
+        cronExpressionField.classList.remove("hidden");
+        immediateOptions.classList.add("hidden");
+        cronExpression.required = true;
+      }
+    }
+
     async function handleTaskSubmit(e) {
       e.preventDefault();
 
       const formData = new FormData(e.target);
+      const scheduleType = formData.get("schedule_type") || "cron";
+
       const taskData = {
         name: formData.get("name"),
         task_type: formData.get("task_type"),
         description: formData.get("description"),
-        cron_expression: formData.get("cron_expression"),
+        schedule_type: scheduleType,
         is_active: formData.has("is_active"),
         config: {},
       };
+
+      // Only add cron_expression for cron tasks
+      if (scheduleType === "cron") {
+        taskData.cron_expression = formData.get("cron_expression");
+      }
+
+      // Add auto_delete_after_run for immediate tasks
+      if (scheduleType === "immediate") {
+        taskData.auto_delete_after_run = formData.has("auto_delete_after_run");
+      }
 
       if (taskData.task_type === "scan") {
         taskData.host_id = parseInt(formData.get("host_id"));
