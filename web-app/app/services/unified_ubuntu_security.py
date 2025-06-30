@@ -9,6 +9,7 @@ from datetime import datetime
 from .base_vulnerability_source import vulnerability_source_registry
 from .ubuntu_security_lookup import UbuntuSecurityLookup
 from .ubuntu_oval_source import UbuntuOVALSource
+from .ubuntu_oval_schema_source import SchemaBasedOVALSource
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +17,18 @@ logger = logging.getLogger(__name__)
 class UnifiedUbuntuSecurity:
     """Unified service that combines USN and OVAL data sources."""
 
-    def __init__(self):
+    def __init__(self, use_schema_oval: bool = False):
         self.usn_source = UbuntuSecurityLookup()
-        self.oval_source = UbuntuOVALSource()
+
+        # Choose OVAL engine based on configuration
+        if use_schema_oval:
+            self.oval_source = SchemaBasedOVALSource()
+            logger.info("Using Schema-Based OVAL Engine")
+        else:
+            self.oval_source = UbuntuOVALSource()
+            logger.info("Using Traditional OVAL Engine")
+
+        self.use_schema_oval = use_schema_oval
 
         # Register sources in the global registry
         vulnerability_source_registry.register_source(self.usn_source)
@@ -337,5 +347,6 @@ class UnifiedUbuntuSecurity:
         return self.update_all_data(force=True)
 
 
-# Global instance
-unified_ubuntu_security = UnifiedUbuntuSecurity()
+# Global instances
+unified_ubuntu_security = UnifiedUbuntuSecurity()  # Traditional OVAL engine
+unified_ubuntu_security_schema = UnifiedUbuntuSecurity(use_schema_oval=True)  # Schema-based OVAL engine

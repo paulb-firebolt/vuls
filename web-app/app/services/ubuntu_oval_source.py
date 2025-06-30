@@ -189,30 +189,41 @@ class UbuntuOVALSource(BaseOVALSource):
         packages = []
 
         try:
-            # First try the metadata approach
-            metadata = definition.get('metadata')
-            if metadata is not None:
-                affected = metadata.find('oval-def:affected', self.namespaces)
-                if affected is not None:
-                    for product in affected.findall('oval-def:product', self.namespaces):
-                        package_name = product.text
-                        if package_name:
-                            packages.append({
-                                'package_name': package_name,
-                                'version': None,
-                                'architecture': None,
-                                'not_fixed_yet': False
-                            })
+            # First try to extract from description (Ubuntu OVAL stores version info here)
+            description = definition.get('description', '')
+            if description:
+                desc_packages = self._extract_packages_from_description(description)
+                if desc_packages:
+                    packages.extend(desc_packages)
 
-            # If no packages found and we have the definition element, try extracting from title
+            # Fallback: try to extract from OVAL criteria
+            if not packages and definition_element is not None:
+                criteria_packages = self._extract_packages_from_criteria(definition_element)
+                if criteria_packages:
+                    packages.extend(criteria_packages)
+
+            # Fallback: try the metadata approach
+            if not packages:
+                metadata = definition.get('metadata')
+                if metadata is not None:
+                    affected = metadata.find('oval-def:affected', self.namespaces)
+                    if affected is not None:
+                        for product in affected.findall('oval-def:product', self.namespaces):
+                            package_name = product.text
+                            if package_name:
+                                packages.append({
+                                    'package_name': package_name,
+                                    'version': None,
+                                    'architecture': None,
+                                    'not_fixed_yet': False
+                                })
+
+            # Last resort: extract from title if it contains common package patterns
             if not packages and definition_element is not None:
                 title = definition.get('title', '')
 
                 # Ubuntu USN titles often contain package names
                 # Example: "USN-5181-1 -- jQuery UI vulnerability"
-                # We need to extract package names from the criteria or other sources
-
-                # For now, extract from title if it contains common package patterns
                 import re
 
                 # Common package name patterns in Ubuntu
@@ -237,6 +248,158 @@ class UbuntuOVALSource(BaseOVALSource):
             logger.error(f"Error extracting package info: {e}")
 
         return packages
+
+    def _extract_packages_from_description(self, description: str) -> List[Dict]:
+        """Extract package and version information from the description text."""
+        packages = []
+        import re
+
+        try:
+            # Ubuntu OVAL descriptions contain package version lists like:
+            # "curl - 7.81.0-1ubuntu1.14"
+            # "libcurl4 - 7.81.0-1ubuntu1.14"
+
+            # Clean up the description - remove escaped characters and normalize whitespace
+            cleaned_desc = description.replace('\\`', '`').replace('\\n', '\n')
+
+            # Look for package version lines in the description
+            lines = cleaned_desc.split('\n')
+            for line in lines:
+                line = line.strip()
+
+                # Match pattern: "package_name - version"
+                # More flexible pattern to handle various formats
+                match = re.match(r'^([a-z][a-z0-9\-\.]*)\s*-\s*([0-9][^\s]*)', line)
+                if match:
+                    package_name = match.group(1)
+                    version = match.group(2)
+
+                    # Skip very generic names
+                    if len(package_name) > 2 and package_name not in ['no', 'subscription', 'required']:
+                        packages.append({
+                            'package_name': package_name,
+                            'version': version,
+                            'architecture': None,
+                            'not_fixed_yet': False
+                        })
+
+                # Also try to find patterns within longer lines
+                # Look for "package - version" patterns anywhere in the line
+                package_matches = re.findall(r'\b([a-z][a-z0-9\-\.]*)\s*-\s*([0-9][^\s,]*)', line)
+                for package_name, version in package_matches:
+                    if (len(package_name) > 2 and
+                        package_name not in ['no', 'subscription', 'required'] and
+                        not any(p['package_name'] == package_name for p in packages)):
+                        packages.append({
+                            'package_name': package_name,
+                            'version': version,
+                            'architecture': None,
+                            'not_fixed_yet': False
+                        })
+
+        except Exception as e:
+            logger.error(f"Error extracting packages from description: {e}")
+
+        return packages
+
+    def _extract_packages_from_criteria(self, definition_element: Any) -> List[Dict]:
+        """Extract package and version information from OVAL criteria."""
+        packages = []
+
+        try:
+            # Find the criteria element
+            criteria = definition_element.find('oval-def:criteria', self.namespaces)
+            if criteria is None:
+                return packages
+
+            # Look for package tests in the criteria
+            package_info = self._parse_criteria_recursive(criteria)
+
+            # Group by package name and find the best version info
+            package_dict = {}
+            for info in package_info:
+                pkg_name = info['package_name']
+                if pkg_name not in package_dict:
+                    package_dict[pkg_name] = info
+                else:
+                    # If we have multiple entries, prefer the one with version info
+                    if info['version'] and not package_dict[pkg_name]['version']:
+                        package_dict[pkg_name] = info
+
+            packages = list(package_dict.values())
+
+        except Exception as e:
+            logger.error(f"Error extracting packages from criteria: {e}")
+
+        return packages
+
+    def _parse_criteria_recursive(self, criteria_element: Any) -> List[Dict]:
+        """Recursively parse OVAL criteria to extract package information."""
+        package_info = []
+
+        try:
+            # Process direct criterion elements
+            for criterion in criteria_element.findall('oval-def:criterion', self.namespaces):
+                test_ref = criterion.get('test_ref', '')
+                comment = criterion.get('comment', '')
+
+                # Extract package name and version from comment
+                pkg_info = self._parse_criterion_comment(comment)
+                if pkg_info:
+                    package_info.append(pkg_info)
+
+            # Process nested criteria elements recursively
+            for nested_criteria in criteria_element.findall('oval-def:criteria', self.namespaces):
+                nested_info = self._parse_criteria_recursive(nested_criteria)
+                package_info.extend(nested_info)
+
+        except Exception as e:
+            logger.error(f"Error parsing criteria recursively: {e}")
+
+        return package_info
+
+    def _parse_criterion_comment(self, comment: str) -> Optional[Dict]:
+        """Parse a criterion comment to extract package and version information."""
+        import re
+
+        try:
+            # Ubuntu OVAL comments typically look like:
+            # "curl package in jammy is affected and needs fixing"
+            # "curl package in jammy was vulnerable but has been fixed (note: '8.5.0-2ubuntu10.1')"
+            # "curl package in jammy, is related to the CVE in some way"
+
+            # Extract package name
+            pkg_match = re.search(r'^(\S+)\s+package\s+in\s+\w+', comment)
+            if not pkg_match:
+                return None
+
+            package_name = pkg_match.group(1)
+
+            # Look for version information in the comment
+            version = None
+            not_fixed_yet = False
+
+            # Check for fixed version in parentheses
+            version_match = re.search(r"note:\s*['\"]([^'\"]+)['\"]", comment)
+            if version_match:
+                version = version_match.group(1)
+
+            # Check if it's marked as needing fixing
+            if 'needs fixing' in comment.lower() or 'affected and needs' in comment.lower():
+                not_fixed_yet = True
+            elif 'has been fixed' in comment.lower() or 'was vulnerable but' in comment.lower():
+                not_fixed_yet = False
+
+            return {
+                'package_name': package_name,
+                'version': version,
+                'architecture': None,
+                'not_fixed_yet': not_fixed_yet
+            }
+
+        except Exception as e:
+            logger.error(f"Error parsing criterion comment '{comment}': {e}")
+            return None
 
     def extract_references(self, definition: Dict) -> List[Dict]:
         """Extract references (CVEs, USNs) from an OVAL definition."""
@@ -316,12 +479,17 @@ class UbuntuOVALSource(BaseOVALSource):
                 DELETE FROM ubuntu_oval_definitions WHERE release_version = :release
             """), {'release': release})
 
-            # Process definitions
+            # Process definitions - ONLY process patch definitions
             definitions_count = 0
             packages_count = 0
             cves_count = 0
 
             for definition_elem in definitions_elem.findall('oval-def:definition', self.namespaces):
+                # Only process patch definitions (these contain fix information)
+                class_type = definition_elem.get('class', '')
+                if class_type != 'patch':
+                    continue
+
                 definition = self.parse_oval_definition(definition_elem)
                 if not definition.get('definition_id'):
                     continue
@@ -345,7 +513,7 @@ class UbuntuOVALSource(BaseOVALSource):
                 def_db_id = result.scalar()
                 definitions_count += 1
 
-                # Insert packages
+                # Insert packages with fixed versions from patch description
                 packages = self.extract_package_info(definition, definition_elem)
                 for package in packages:
                     db.execute(text("""
@@ -414,7 +582,7 @@ class UbuntuOVALSource(BaseOVALSource):
             })
 
             db.commit()
-            logger.info(f"Cached Ubuntu {release} OVAL data: {definitions_count} definitions, {packages_count} packages, {cves_count} CVEs")
+            logger.info(f"Cached Ubuntu {release} OVAL patch data: {definitions_count} patch definitions, {packages_count} packages, {cves_count} CVEs")
             return True
 
         except Exception as e:

@@ -9,6 +9,16 @@ from .scheduled_task import ScheduledTask, TaskRun
 from .lynis_scan import LynisScan
 from .lynis_control import LynisControl
 from .lynis_finding import LynisFinding
+from .oval_schema import (
+    OVALSchemaDefinition, OVALSchemaTest, OVALSchemaObject,
+    OVALSchemaState, OVALSchemaCriteria, OVALSchemaReference,
+    OVALSchemaTestState, OVALSchemaVariable, OVALSchemaVariableValue
+)
+from .debian_oval_schema import (
+    DebianOVALSchemaDefinition, DebianOVALSchemaTest, DebianOVALSchemaObject,
+    DebianOVALSchemaState, DebianOVALSchemaCriteria, DebianOVALSchemaReference,
+    DebianOVALSchemaTestState, DebianOVALSchemaVariable, DebianOVALSchemaVariableValue
+)
 
 __all__ = [
     "Base",
@@ -20,5 +30,25 @@ __all__ = [
     "TaskRun",
     "LynisScan",
     "LynisControl",
-    "LynisFinding"
+    "LynisFinding",
+    # Ubuntu OVAL Schema
+    "OVALSchemaDefinition",
+    "OVALSchemaTest",
+    "OVALSchemaObject",
+    "OVALSchemaState",
+    "OVALSchemaCriteria",
+    "OVALSchemaReference",
+    "OVALSchemaTestState",
+    "OVALSchemaVariable",
+    "OVALSchemaVariableValue",
+    # Debian OVAL Schema
+    "DebianOVALSchemaDefinition",
+    "DebianOVALSchemaTest",
+    "DebianOVALSchemaObject",
+    "DebianOVALSchemaState",
+    "DebianOVALSchemaCriteria",
+    "DebianOVALSchemaReference",
+    "DebianOVALSchemaTestState",
+    "DebianOVALSchemaVariable",
+    "DebianOVALSchemaVariableValue"
 ]

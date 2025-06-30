@@ -9,6 +9,7 @@ from datetime import datetime
 from .base_vulnerability_source import vulnerability_source_registry
 from .debian_security_lookup import DebianSecurityLookup
 from .debian_oval_source import DebianOVALSource
+from .debian_oval_schema_source import DebianSchemaBasedOVALSource
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +17,16 @@ logger = logging.getLogger(__name__)
 class UnifiedDebianSecurity:
     """Unified service that combines Debian Security Tracker and OVAL data sources."""
 
-    def __init__(self):
+    def __init__(self, use_schema_oval: bool = True):
         self.security_tracker_source = DebianSecurityLookup()
-        self.oval_source = DebianOVALSource()
+
+        # Choose between legacy and schema-based OVAL sources
+        if use_schema_oval:
+            self.oval_source = DebianSchemaBasedOVALSource()
+            logger.info("Using schema-based OVAL source for Debian")
+        else:
+            self.oval_source = DebianOVALSource()
+            logger.info("Using legacy OVAL source for Debian")
 
         # Register sources in the global registry
         vulnerability_source_registry.register_source(self.security_tracker_source)

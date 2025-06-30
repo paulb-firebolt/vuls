@@ -229,6 +229,18 @@ services:
       args:
         BUILD_TYPE: development
     container_name: vuls-web-dev
+    command:
+      [
+        uv,
+        run,
+        uvicorn,
+        app.main:app,
+        --host,
+        0.0.0.0,
+        --port,
+        "8000",
+        --reload,
+      ]
     ports:
       - 8000:8000
     volumes:
