@@ -10,6 +10,7 @@ from ..models.scheduled_task import ScheduledTask, TaskRun
 from .scan_tasks import run_vulnerability_scan
 from .db_update_tasks import update_vulnerability_database
 from .security_data_tasks import update_all_ubuntu_security_data, check_security_data_freshness
+from .nvd_update_tasks import update_nvd_cve_cache, backfill_historical_nvd_cves, nvd_cache_maintenance
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +66,21 @@ def check_scheduled_tasks(self):
                         celery_task = check_security_data_freshness.delay(
                             task_run_id=task_run.id
                         )
+                    elif task.task_type == "nvd_update":
+                        celery_task = update_nvd_cve_cache.delay(
+                            max_cves=task.config.get("max_cves", 2000),
+                            task_run_id=task_run.id
+                        )
+                    elif task.task_type == "nvd_backfill":
+                        celery_task = backfill_historical_nvd_cves.delay(
+                            start_year=task.config.get("start_year", 2020),
+                            max_cves=task.config.get("max_cves", 5000),
+                            task_run_id=task_run.id
+                        )
+                    elif task.task_type == "nvd_maintenance":
+                        celery_task = nvd_cache_maintenance.delay(
+                            task_run_id=task_run.id
+                        )
 
                     if celery_task:
                         # Update task run with Celery task ID
@@ -73,8 +89,15 @@ def check_scheduled_tasks(self):
 
                         # Update scheduled task
                         task.last_run_at = now
-                        task.next_run_at = get_next_run_time(task.cron_expression, now)
                         task.last_status = "running"
+
+                        # Handle immediate tasks differently - remove immediately after execution
+                        if task.cron_expression == "immediate":
+                            logger.info(f"Removing immediate task after execution: {task.name}")
+                            # Remove the task immediately to prevent re-execution
+                            db.delete(task)
+                        else:
+                            task.next_run_at = get_next_run_time(task.cron_expression, now)
 
                         db.commit()
                         executed_count += 1
@@ -126,6 +149,49 @@ def get_next_run_time(cron_expression: str, base_time: datetime) -> datetime:
         logger.error(f"Error calculating next run time: {str(e)}")
         # Default to 1 hour from now if cron parsing fails
         return base_time.replace(hour=base_time.hour + 1)
+
+
+@celery_app.task(bind=True)
+def cleanup_completed_immediate_tasks(self):
+    """Clean up completed immediate tasks"""
+    try:
+        db = next(get_db())
+
+        # Find immediate tasks that are completed (inactive and have successful runs)
+        immediate_tasks = db.query(ScheduledTask).filter(
+            ScheduledTask.cron_expression == "immediate",
+            ScheduledTask.is_active == False
+        ).all()
+
+        deleted_count = 0
+        for task in immediate_tasks:
+            # Check if the task has completed runs
+            completed_runs = db.query(TaskRun).filter(
+                TaskRun.scheduled_task_id == task.id,
+                TaskRun.status.in_(["success", "failed"])
+            ).count()
+
+            if completed_runs > 0:
+                logger.info(f"Removing completed immediate task: {task.name}")
+                db.delete(task)
+                deleted_count += 1
+
+        db.commit()
+        db.close()
+
+        logger.info(f"Cleaned up {deleted_count} completed immediate tasks")
+
+        return {
+            "status": "success",
+            "deleted_count": deleted_count
+        }
+
+    except Exception as e:
+        logger.error(f"Error cleaning up immediate tasks: {str(e)}")
+        return {
+            "status": "error",
+            "error": str(e)
+        }
 
 
 @celery_app.task(bind=True)

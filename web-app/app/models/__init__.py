@@ -19,6 +19,7 @@ from .debian_oval_schema import (
     DebianOVALSchemaState, DebianOVALSchemaCriteria, DebianOVALSchemaReference,
     DebianOVALSchemaTestState, DebianOVALSchemaVariable, DebianOVALSchemaVariableValue
 )
+from .nvd_cve_cache import NVDCVECache
 
 __all__ = [
     "Base",
@@ -50,5 +51,7 @@ __all__ = [
     "DebianOVALSchemaReference",
     "DebianOVALSchemaTestState",
     "DebianOVALSchemaVariable",
-    "DebianOVALSchemaVariableValue"
+    "DebianOVALSchemaVariableValue",
+    # NVD CVE Cache
+    "NVDCVECache"
 ]

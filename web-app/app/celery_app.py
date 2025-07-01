@@ -50,4 +50,9 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(hour=3, minute=0, day_of_week=0),  # Sunday at 03:00
         "kwargs": {"days_to_keep": 30, "batch_size": 1000}
     },
+    # Clean up completed immediate tasks every 5 minutes
+    "cleanup-immediate-tasks": {
+        "task": "app.tasks.scheduler_tasks.cleanup_completed_immediate_tasks",
+        "schedule": 300.0,  # Every 5 minutes
+    },
 }

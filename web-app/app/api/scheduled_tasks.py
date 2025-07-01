@@ -212,11 +212,17 @@ async def create_scheduled_task(
     db.commit()
     db.refresh(scheduled_task)
 
-    # For immediate tasks, trigger execution right away
+    # For immediate tasks, trigger execution right away and mark as inactive
     if task_data.schedule_type == "immediate":
         from ..tasks.scan_tasks import run_vulnerability_scan
         from ..tasks.db_update_tasks import update_vulnerability_database
         from ..tasks.lynis_tasks import run_lynis_scan
+
+        # Mark the task as inactive immediately to prevent scheduler pickup
+        scheduled_task.is_active = False
+        scheduled_task.last_run_at = datetime.now(timezone.utc)
+        scheduled_task.last_status = "running"
+        db.commit()
 
         # Create task run record
         task_run = TaskRun(
@@ -260,11 +266,10 @@ async def create_scheduled_task(
             task_run.status = "running"
             db.commit()
 
-        # If auto_delete_after_run is True, mark the task for deletion
-        if task_data.auto_delete_after_run:
-            scheduled_task.config = scheduled_task.config or {}
-            scheduled_task.config["auto_delete_after_run"] = True
-            db.commit()
+        # Mark for auto-deletion after completion
+        scheduled_task.config = scheduled_task.config or {}
+        scheduled_task.config["auto_delete_after_run"] = True
+        db.commit()
 
     # Prepare response
     task_dict = {

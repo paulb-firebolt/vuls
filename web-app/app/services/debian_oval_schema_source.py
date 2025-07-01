@@ -883,16 +883,20 @@ class DebianSchemaBasedOVALSource(BaseOVALSource):
                     'definition_id': definition_id,
                     'title': title or f"{cve_id} vulnerability",
                     'description': description or '',
+                    'summary': description or '',  # Add summary field
                     'severity': severity or 'Unknown',
                     'package_name': package_name,
                     'release': release,
-                    'source': 'Debian Schema-Based OVAL (Variable Resolution)',
+                    'source': 'Debian Schema-Based OVAL',
                     'confidence_score': 0.95,
                     'variable_ref': variable_ref,
                     'evr_operation': evr_operation,
                     'evr_value': evr_value,
                     'fixed_version': evr_value if evr_operation == 'less than' else None,
-                    'not_fixed_yet': evr_operation is None or evr_value is None
+                    'not_fixed_yet': evr_operation is None or evr_value is None,
+                    'cvss_score': self._map_severity_to_cvss(severity),  # Add CVSS score mapping
+                    'published_date': None,  # Could be extracted from metadata if needed
+                    'priority': severity  # Map severity to priority
                 }
                 vulnerabilities.append(vulnerability)
 
@@ -922,6 +926,25 @@ class DebianSchemaBasedOVALSource(BaseOVALSource):
         """Extract package information from an OVAL definition (compatibility method)."""
         # This is handled by the schema-based approach
         return []
+
+    def _map_severity_to_cvss(self, severity: str) -> Optional[float]:
+        """Map Debian severity levels to approximate CVSS scores."""
+        if not severity:
+            return None
+
+        severity_lower = severity.lower().strip()
+
+        # Debian severity to CVSS mapping
+        severity_mapping = {
+            'critical': 9.0,
+            'high': 7.5,
+            'medium': 5.0,
+            'low': 2.5,
+            'negligible': 1.0,
+            'unknown': None
+        }
+
+        return severity_mapping.get(severity_lower, None)
 
     def get_cache_stats(self) -> Dict:
         """Get statistics about cached OVAL data."""
